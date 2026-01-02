@@ -1,0 +1,288 @@
+import { getWordPressEventBySlug, getAllEventSlugs } from "@/lib/wordpress-api"
+import { Calendar, Clock, ArrowLeft, CalendarDays, Users } from "lucide-react"
+import { notFound } from "next/navigation"
+import Link from "next/link"
+import type { Metadata } from "next"
+import { PageHeader } from "@/components/page-header"
+import { SiteCard } from "@/components/ui/site-card"
+
+type Props = {
+  params: Promise<{ slug: string }>
+}
+
+function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&#8217;/g, "'")
+    .replace(/&#8216;/g, "'")
+    .replace(/&#8220;/g, '"')
+    .replace(/&#8221;/g, '"')
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&nbsp;/g, " ")
+}
+
+function parseFrenchDate(dateString: string): Date | null {
+  if (!dateString) return null
+  const parts = dateString.split("/")
+  if (parts.length !== 3) return null
+  const [day, month, year] = parts.map(Number)
+  return new Date(year, month - 1, day)
+}
+
+function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date)
+}
+
+export async function generateStaticParams() {
+  const slugs = await getAllEventSlugs()
+  return slugs.map((slug) => ({ slug }))
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const event = await getWordPressEventBySlug(slug)
+
+  if (!event) {
+    return {
+      title: "Événement introuvable",
+    }
+  }
+
+  return {
+    title: decodeHtmlEntities(event.title.rendered),
+    description: event.excerpt?.rendered
+      ? decodeHtmlEntities(event.excerpt.rendered.replace(/<[^>]*>/g, "").substring(0, 160))
+      : "Découvrez cet événement",
+  }
+}
+
+export default async function EventDetailPage({ params }: Props) {
+  const { slug } = await params
+  const event = await getWordPressEventBySlug(slug)
+
+  if (!event) {
+    notFound()
+  }
+
+  const isPonctuel = event.acf?.recurrent_ou_ponctuel
+  const dateDebut = event.acf?.date_de_debut ? parseFrenchDate(event.acf.date_de_debut) : new Date(event.date)
+  const dateFin = event.acf?.date_de_fin ? parseFrenchDate(event.acf.date_de_fin) : null
+
+  const featuredImage = event._embedded?.["wp:featuredmedia"]?.[0]?.source_url
+  const saisonCulturelle = event._embedded?.["wp:term"]?.flat().filter((term) => term.taxonomy === "saison-culturelle")
+  const categories = event._embedded?.["wp:term"]?.flat().filter((term) => term.taxonomy === "category")
+
+  return (
+    <div className="pt-20 min-h-screen bg-background">
+      {/* Back Button */}
+      <div className="px-6 py-6 max-w-7xl mx-auto">
+        <Link
+          href="/agenda"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Retour à l'agenda</span>
+        </Link>
+      </div>
+
+      <PageHeader
+        title={event.title.rendered}
+        subtitle={event.acf?.["sous-titre"]}
+        backgroundImage={event.acf?.background?.url || featuredImage}
+        backgroundAlt={event.acf?.background?.alt || event.title.rendered}
+      />
+
+      {/* Content */}
+      <div className="px-6 py-12 max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          {/* Taxonomies */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {saisonCulturelle?.map((saison) => (
+              <span
+                key={saison.id}
+                className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-secondary/20 text-secondary"
+              >
+                {decodeHtmlEntities(saison.name)}
+              </span>
+            ))}
+            {categories?.map((cat) => (
+              <span
+                key={cat.id}
+                className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary"
+              >
+                {decodeHtmlEntities(cat.name)}
+              </span>
+            ))}
+          </div>
+
+          <h1 className="text-4xl md:text-5xl font-light mb-6 text-balance">
+            {decodeHtmlEntities(event.title.rendered)}
+          </h1>
+
+          {event.acf?.["sous-titre"] && (
+            <p className="text-xl text-muted-foreground text-pretty mb-8">
+              {decodeHtmlEntities(event.acf["sous-titre"])}
+            </p>
+          )}
+
+          {/* Event Info Cards */}
+          <div className="grid md:grid-cols-2 gap-4 mb-8">
+            {/* Date Card */}
+            <SiteCard variant="info" colorScheme="primary">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-primary rounded-full flex items-center justify-center">
+                  {isPonctuel ? (
+                    <Calendar className="h-6 w-6 text-white" />
+                  ) : (
+                    <CalendarDays className="h-6 w-6 text-white" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium mb-2">{isPonctuel ? "Date de l'événement" : "Événement récurrent"}</h3>
+                  {isPonctuel ? (
+                    <>
+                      {dateDebut && <p className="text-sm text-muted-foreground">{formatDate(dateDebut)}</p>}
+                      {dateFin && dateDebut?.getTime() !== dateFin.getTime() && (
+                        <p className="text-sm text-muted-foreground">au {formatDate(dateFin)}</p>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {event.acf?.jour && <p className="text-sm text-muted-foreground">Tous les {event.acf.jour}</p>}
+                      {(event.acf?.debut_de_periode || event.acf?.fin_de_periode) && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Du {event.acf?.debut_de_periode} au {event.acf?.fin_de_periode}
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </SiteCard>
+
+            {/* Time Card */}
+            <SiteCard variant="info" colorScheme="secondary">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-secondary rounded-full flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium mb-2">Horaires</h3>
+                  {isPonctuel ? (
+                    <>
+                      {event.acf?.heure_de_debut && (
+                        <p className="text-sm text-muted-foreground">
+                          De {event.acf.heure_de_debut}
+                          {event.acf?.heure_de_fin && ` à ${event.acf.heure_de_fin}`}
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {event.acf?.heure && <p className="text-sm text-muted-foreground">À {event.acf.heure}</p>}
+                      {event.acf?.duree_en_heures && (
+                        <p className="text-sm text-muted-foreground mt-1">Durée: {event.acf.duree_en_heures}h</p>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </SiteCard>
+          </div>
+        </div>
+
+        {/* Gallery */}
+        {event.acf?.images && event.acf.images.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-light mb-6">Galerie</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {event.acf.images.map((image, idx) => (
+                <div key={idx} className="rounded-xl overflow-hidden aspect-square">
+                  <img
+                    src={image.url || "/placeholder.svg"}
+                    alt={image.alt || `Image ${idx + 1}`}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Description */}
+        {event.acf?.descriptif && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-light mb-6">À propos</h2>
+            <div
+              className="prose prose-lg max-w-none text-muted-foreground leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: decodeHtmlEntities(event.acf.descriptif) }}
+            />
+          </div>
+        )}
+
+        {/* Partners */}
+        {event.acf?.partenaires_details && event.acf.partenaires_details.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-light mb-6 flex items-center gap-3">
+              <Users className="h-6 w-6 text-accent" />
+              Partenaires associés
+            </h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              {event.acf.partenaires_details.map((partenaire) => (
+                <SiteCard key={partenaire.id} variant="partner" colorScheme="accent">
+                  <a
+                    href={partenaire.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 group"
+                  >
+                    <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center flex-shrink-0">
+                      <Users className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium group-hover:text-accent transition-colors">{partenaire.title}</p>
+                      <p className="text-sm text-muted-foreground">Partenaire</p>
+                    </div>
+                  </a>
+                </SiteCard>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* CTA */}
+        <div className="pt-8 border-t border-border">
+          <div className="bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 rounded-2xl p-8 text-center">
+            <h3 className="text-2xl font-light mb-4">Intéressé par cet événement ?</h3>
+            <p className="text-muted-foreground mb-6 text-pretty">
+              Contactez-nous pour plus d'informations ou pour vous inscrire
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-full hover:bg-primary/90 transition-colors"
+              >
+                Nous contacter
+              </Link>
+              <Link
+                href="/agenda"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-background border border-border text-foreground rounded-full hover:bg-muted transition-colors"
+              >
+                Voir tous les événements
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

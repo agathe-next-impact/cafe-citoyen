@@ -1,0 +1,216 @@
+"use client"
+
+import { useState, useMemo } from "react"
+import type { Partner } from "@/lib/wordpress-api"
+
+function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&#8217;/g, "'")
+    .replace(/&#8216;/g, "'")
+    .replace(/&#8220;/g, '"')
+    .replace(/&#8221;/g, '"')
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&nbsp;/g, " ")
+}
+
+interface PartnersListProps {
+  partners: Partner[]
+}
+
+export function PartnersList({ partners }: PartnersListProps) {
+  const [searchQuery, setSearchQuery] = useState("")
+
+  // Group partners by type
+  const partnersByType = useMemo(() => {
+    const grouped = new Map<string, Partner[]>()
+
+    partners.forEach((partner) => {
+      const types =
+        partner._embedded?.["wp:term"]
+          ?.flat()
+          .filter((term) => term.taxonomy === "type-de-partenaire")
+          .map((term) => decodeHtmlEntities(term.name)) || []
+
+      if (types.length === 0) {
+        // Add to "Sans catégorie" if no type
+        const uncategorized = grouped.get("Sans catégorie") || []
+        uncategorized.push(partner)
+        grouped.set("Sans catégorie", uncategorized)
+      } else {
+        types.forEach((type) => {
+          const typePartners = grouped.get(type) || []
+          typePartners.push(partner)
+          grouped.set(type, typePartners)
+        })
+      }
+    })
+
+    return Array.from(grouped.entries()).sort(([a], [b]) => a.localeCompare(b))
+  }, [partners])
+
+  // Filter partners based on search
+  const filteredPartnersByType = useMemo(() => {
+    if (!searchQuery.trim()) return partnersByType
+
+    const query = searchQuery.toLowerCase()
+    return partnersByType
+      .map(([type, typePartners]) => {
+        const filtered = typePartners.filter((partner) => {
+          const title = decodeHtmlEntities(partner.title.rendered).toLowerCase()
+          const description = partner.acf?.descriptif?.toLowerCase() || ""
+          return title.includes(query) || description.includes(query)
+        })
+        return [type, filtered] as [string, Partner[]]
+      })
+      .filter(([, typePartners]) => typePartners.length > 0)
+  }, [partnersByType, searchQuery])
+
+  return (
+    <div className="space-y-12">
+      {/* Search Bar */}
+      <div className="max-w-2xl mx-auto">
+        <div className="relative">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Rechercher un partenaire..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 rounded-full border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-5 h-5"
+              >
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Partners grouped by type */}
+      {filteredPartnersByType.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground text-lg">Aucun partenaire trouvé.</p>
+        </div>
+      ) : (
+        filteredPartnersByType.map(([type, typePartners]) => (
+          <section key={type} className="space-y-6">
+            <h2 className="text-3xl font-bold text-primary border-b-2 border-primary/20 pb-2">{type}</h2>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {typePartners.map((partner) => {
+                const featuredImage =
+                  partner._embedded?.["wp:featuredmedia"]?.[0]?.source_url || partner.acf?.images?.[0]?.url
+                const title = decodeHtmlEntities(partner.title.rendered)
+
+                return (
+                  <div
+                    key={partner.id}
+                    className="group bg-card rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-border"
+                  >
+                    <div className="relative h-48 overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10">
+                      {featuredImage ? (
+                        <img
+                          src={featuredImage || "/placeholder.svg"}
+                          alt={title}
+                          className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="w-16 h-16 text-muted-foreground/30"
+                          >
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-6">
+                      <h3 className="text-xl font-semibold mb-3 text-foreground group-hover:text-primary transition-colors">
+                        {title}
+                      </h3>
+
+                      {partner.acf?.descriptif && (
+                        <div
+                          className="text-sm text-muted-foreground mb-4 line-clamp-3"
+                          dangerouslySetInnerHTML={{
+                            __html: partner.acf.descriptif.substring(0, 150) + "...",
+                          }}
+                        />
+                      )}
+
+                      {partner.acf?.lien_vers_le_site && (
+                        <a
+                          href={partner.acf.lien_vers_le_site.url}
+                          target={partner.acf.lien_vers_le_site.target || "_blank"}
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors text-sm font-medium"
+                        >
+                          <span>{partner.acf.lien_vers_le_site.title || "Visiter le site"}</span>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="w-4 h-4"
+                          >
+                            <path d="M7 7h10v10" />
+                            <path d="M7 17 17 7" />
+                          </svg>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        ))
+      )}
+    </div>
+  )
+}
