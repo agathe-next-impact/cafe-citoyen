@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { SiteCard } from "@/components/ui/site-card"
+import { getSiteOptions } from "@/lib/wordpress-api"
 
 type NavLink = {
   label: string
@@ -16,13 +16,10 @@ export type NavItem = {
   bgColor: string
   textColor: string
   links: NavLink[]
-  isEvent?: boolean
-  eventDate?: string
-  eventImage?: string // Added eventImage property
 }
 
 export interface AnimatedNavProps {
-  logo: React.ReactNode
+  logo: string
   items: NavItem[]
   className?: string
   baseColor?: string
@@ -30,8 +27,27 @@ export interface AnimatedNavProps {
   agendaLink?: string
 }
 
+const logo = getSiteOptions().then((options) => {
+  if (options?.logo_du_site?.url) {
+    return (<img
+      src={options.logo_du_site.url}
+      alt={options.logo_du_site.alt || "Logo"}
+      className="h-30 w-30 object-contain"
+    />)
+  } else {
+    return (<div className="relative flex items-center justify-center h-10 w-10 rounded border-2 border-primary transition-colors group-hover:border-primary/70">
+      <svg
+        className="h-6 w-6 text-primary transition-colors group-hover:text-primary/70"
+        fill="none"
+        stroke="currentColor" viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    </div>)
+  }
+})
+
 export function AnimatedNav({
-  logo,
   items,
   className = "",
   baseColor = "oklch(var(--background))",
@@ -74,26 +90,33 @@ export function AnimatedNav({
   }
 
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn("w-full bg-white", className)}>
       <nav
         className={cn(
-          "fixed top-0 left-0 right-0 z-[100] border-b transition-all duration-300 min-h-20",
-          isScrolled || isExpanded ? "backdrop-blur-lg bg-background/50" : "bg-transparent",
+          "fixed top-0 left-0 right-0 z-100 border-b transition-all duration-300 max-h-40 backdrop-blur-lg",
+          isScrolled ? "bg-[var(--background)/0.95]" : `bg-[${baseColor}/0.8]`,
           isExpanded ? "border-border/40" : "border-transparent",
         )}
+        style={
+          !isExpanded
+            ? { maskImage: "linear-gradient(to bottom, black, transparent)" }
+            : undefined
+        }
       >
         <div className="container mx-auto max-w-full overflow-x-hidden">
-          <div className="flex h-20 items-center justify-between">
+          <div className="flex items-start justify-between">
             {/* Hamburger Button */}
             <button
               onClick={toggleMenu}
               className={cn(
-                "flex flex-col gap-1.5 p-2 transition-transform hover:scale-110 relative z-[110]",
+                "tracking-wider hover:shadow-md bg-white text-foreground rounded-full mt-2 ml-2 px-4 py-2 shadow-sm gap-1.5 relative z-110 cursor-pointer transition-all",
                 isExpanded && "gap-0",
               )}
               aria-label={isExpanded ? "Fermer le menu" : "Ouvrir le menu"}
               style={{ color: menuColor }}
             >
+            <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-1.5 items-center">
               <span
                 className={cn(
                   "block h-0.5 w-6 bg-current transition-all duration-300",
@@ -106,10 +129,15 @@ export function AnimatedNav({
                   isExpanded && "-rotate-45 -translate-y-0.5",
                 )}
               />
+              </div>
+              <span className="text-sm font-semibold uppercase">
+                MENU 
+              </span>
+              </div>
             </button>
 
             {/* Logo */}
-            <Link href="/" onClick={handleLinkClick} className="flex items-center h-full w-full">
+            <Link href="/" onClick={handleLinkClick} className="flex items-center">
               {logo}
             </Link>
 
@@ -117,7 +145,7 @@ export function AnimatedNav({
             <Link
               href={agendaLink}
               onClick={handleLinkClick}
-              className="text-sm font-semibold uppercase tracking-wider transition-all hover:scale-105 hover:shadow-md bg-white text-foreground rounded-full px-6 py-2.5 shadow-sm relative z-[110]"
+              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-white text-foreground rounded-full mt-2 mr-2 px-4 py-1.5 shadow-sm relative z-110"
             >
               Agenda
             </Link>
@@ -127,7 +155,6 @@ export function AnimatedNav({
         <div
           className={cn(
             "overflow-hidden transition-all duration-500 ease-out",
-            isExpanded ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0",
           )}
         >
           {/* Gradient overlay - more opaque at bottom */}
@@ -140,16 +167,14 @@ export function AnimatedNav({
                     key={`${item.label}-${idx}`}
                     className={cn(
                       "rounded-xl flex flex-col transition-all duration-500 ease-out relative",
-                      "lg:min-h-[180px]",
-                      expandedCardIndex === idx ? "min-h-[180px]" : "min-h-[60px] lg:min-h-[180px]",
+                      "lg:min-h-45",
+                      expandedCardIndex === idx ? "min-h-45" : "min-h-15 lg:min-h-45",
                       isExpanded ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0",
                       item.label === ""
                         ? "items-center justify-center p-2"
-                        : item.isEvent
-                          ? ""
-                          : expandedCardIndex === idx
-                            ? "p-6"
-                            : "p-3 lg:p-6",
+                        : expandedCardIndex === idx
+                          ? "p-6"
+                          : "p-3 lg:p-6",
                       "max-w-full",
                     )}
                     style={{
@@ -163,18 +188,7 @@ export function AnimatedNav({
                       <div className="relative w-full h-full flex items-center justify-center p-4">
                         <div className="w-full h-full flex items-center justify-center">{logo}</div>
                       </div>
-                    ) : item.isEvent ? (
-                      <Link href={item.links?.[0]?.href || "/"} onClick={handleLinkClick} className="h-full">
-                        <SiteCard
-                          variant="chart-1"
-                          image={item.eventImage}
-                          title={item.label}
-                          date={item.eventDate}
-                          category="Événement"
-                        />
-                      </Link>
-                    ) : (
-                      <>
+                    ) : <>
                         <div className="lg:hidden">
                           <button
                             onClick={(e) => toggleCard(idx, e)}
@@ -208,7 +222,7 @@ export function AnimatedNav({
                             "flex flex-col gap-3 flex-1 relative z-10 transition-all duration-300 overflow-hidden",
                             "lg:flex lg:max-h-full lg:opacity-100",
                             expandedCardIndex === idx
-                              ? "max-h-[500px] opacity-100"
+                              ? "max-h-125 opacity-100"
                               : "max-h-0 opacity-0 lg:max-h-full lg:opacity-100",
                           )}
                         >
@@ -249,7 +263,7 @@ export function AnimatedNav({
                           ))}
                         </div>
 
-                        {!item.isEvent && (expandedCardIndex === idx || window.innerWidth >= 1024) && (
+                        {(expandedCardIndex === idx || window.innerWidth >= 1024) && (
                           <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
                             {/* Ball 1 - 0 degrees (bottom right) */}
                             <img
@@ -305,17 +319,11 @@ export function AnimatedNav({
                             />
                           </div>
                         )}
-                      </>
-                    )}
+                      </>}
                   </div>
                 ))}
               </div>
             </div>
-            {/* Adjusting gradient to create smooth fade while matching base opacity */}
-            <div
-              className="absolute inset-x-0 bottom-0 h-20 pointer-events-none bg-gradient-to-t from-background/5 to-transparent"
-              aria-hidden="true"
-            />
           </div>
         </div>
       </nav>

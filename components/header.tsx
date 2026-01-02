@@ -20,9 +20,16 @@ export function Header({ siteOptions }: { siteOptions?: SiteOptions | null }) {
 
     if (isMenuOpen) {
       document.addEventListener("mousedown", handleClickOutside)
+      document.body.classList.add("megamenu-open")
+      document.documentElement.classList.add("megamenu-open")
       return () => {
         document.removeEventListener("mousedown", handleClickOutside)
+        document.body.classList.remove("megamenu-open")
+        document.documentElement.classList.remove("megamenu-open")
       }
+    } else {
+      document.body.classList.remove("megamenu-open")
+      document.documentElement.classList.remove("megamenu-open")
     }
   }, [isMenuOpen])
 

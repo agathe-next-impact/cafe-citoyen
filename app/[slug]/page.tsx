@@ -11,7 +11,7 @@ import {
 } from "@/lib/wordpress-api"
 import Link from "next/link"
 import { EventsList } from "@/components/events-list"
-import { PageHeader } from "@/components/page-header"
+import PageHeader from "@/components/page-header"
 import { TeamMembers } from "@/components/team-members" // Added team members component
 import { PostsList } from "@/components/posts-list" // Added posts list component
 import { PartnersList } from "@/components/partners-list"

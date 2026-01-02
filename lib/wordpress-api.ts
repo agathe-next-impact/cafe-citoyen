@@ -36,6 +36,12 @@ export interface WordPressPage {
       title: string
       ID: number
     }>
+    video?: Array<{
+      url: string
+      alt: string
+      title: string
+      ID: number
+    }> | string
   }
 }
 
@@ -261,7 +267,6 @@ function measureTime(label: string) {
   const start = Date.now()
   return () => {
     const duration = Date.now() - start
-    console.log(`[v0 PERF] ${label}: ${duration}ms`)
   }
 }
 
@@ -270,12 +275,10 @@ export async function getWordPressPages(): Promise<WordPressPage[]> {
 
   const cached = getCached<WordPressPage[]>("pages")
   if (cached) {
-    console.log("[v0 PERF] Cache HIT: pages")
     endMeasure()
     return cached
   }
 
-  console.log("[v0 PERF] Cache MISS: pages")
 
   try {
     const fetchStart = Date.now()
@@ -288,10 +291,8 @@ export async function getWordPressPages(): Promise<WordPressPage[]> {
         next: { revalidate: 60 },
       },
     )
-    console.log(`[v0 PERF] Fetch pages API: ${Date.now() - fetchStart}ms`)
 
     if (!response.ok) {
-      console.log("[v0] WordPress API error:", response.status)
       endMeasure()
       return []
     }
@@ -344,12 +345,10 @@ export async function getWordPressEvents(): Promise<WordPressEvent[]> {
 
   const cached = getCached<WordPressEvent[]>("events")
   if (cached) {
-    console.log("[v0 PERF] Cache HIT: events")
     endMeasure()
     return cached
   }
 
-  console.log("[v0 PERF] Cache MISS: events")
 
   try {
     const fetchStart = Date.now()
@@ -359,10 +358,8 @@ export async function getWordPressEvents(): Promise<WordPressEvent[]> {
       },
       next: { revalidate: 60 },
     })
-    console.log(`[v0 PERF] Fetch events API: ${Date.now() - fetchStart}ms`)
 
     if (!response.ok) {
-      console.log("[v0] WordPress Events API error:", response.status)
       endMeasure()
       return []
     }
@@ -373,7 +370,6 @@ export async function getWordPressEvents(): Promise<WordPressEvent[]> {
       events = JSON.parse(text)
     } catch (parseError) {
       console.error("[v0] Error parsing events JSON:", parseError)
-      console.log("[v0] Response text:", text.substring(0, 200)) // Log first 200 chars
       endMeasure()
       return []
     }
@@ -394,7 +390,6 @@ export async function getWordPressEvents(): Promise<WordPressEvent[]> {
         return event
       }),
     )
-    console.log(`[v0 PERF] Fetch all partners for events: ${Date.now() - partnerStart}ms`)
 
     setCache("events", eventsWithPartners)
     endMeasure()
@@ -416,7 +411,6 @@ export async function getWordPressEventBySlug(slug: string): Promise<WordPressEv
     })
 
     if (!response.ok) {
-      console.log("[v0] WordPress event API error:", response.status)
       return null
     }
 
@@ -468,7 +462,6 @@ export async function getWordPressPageBySlug(slug: string): Promise<WordPressPag
     )
 
     if (!response.ok) {
-      console.log("[v0] WordPress page API error:", response.status)
       return null
     }
 
@@ -618,7 +611,6 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
     })
 
     if (!response.ok) {
-      console.log("[v0] WordPress Team Members API error:", response.status)
       return []
     }
 
@@ -646,7 +638,6 @@ export async function getWordPressPosts(): Promise<WordPressPost[]> {
     })
 
     if (!response.ok) {
-      console.log("[v0] WordPress Posts API error:", response.status)
       return []
     }
 
@@ -674,7 +665,6 @@ export async function getPartners(): Promise<Partner[]> {
     })
 
     if (!response.ok) {
-      console.log("[v0] WordPress Partners API error:", response.status)
       return []
     }
 
@@ -692,21 +682,16 @@ export async function getPartners(): Promise<Partner[]> {
 
 export async function getSiteOptions(): Promise<SiteOptions | null> {
   const endMeasure = measureTime("getSiteOptions")
-  console.log("[v0] getSiteOptions called")
 
   const cached = getCached<SiteOptions>("site-options")
   if (cached) {
-    console.log("[v0 PERF] Cache HIT: site-options")
-    console.log("[v0] Returning cached site options:", cached)
     endMeasure()
     return cached
   }
 
-  console.log("[v0 PERF] Cache MISS: site-options")
 
   try {
     const url = `${WORDPRESS_URL}/wp-json/site/v1/reglages`
-    console.log("[v0] Fetching site options from:", url)
 
     const fetchStart = Date.now()
     const response = await fetch(url, {
@@ -715,11 +700,9 @@ export async function getSiteOptions(): Promise<SiteOptions | null> {
       },
       next: { revalidate: 300 },
     })
-    console.log(`[v0 PERF] Fetch site options API: ${Date.now() - fetchStart}ms`)
 
     if (response.ok) {
       const result = await response.json()
-      console.log("[v0] Site options data received:", JSON.stringify(result, null, 2))
 
       const data = result.data || result
 
@@ -729,19 +712,16 @@ export async function getSiteOptions(): Promise<SiteOptions | null> {
         logo_du_site: data.logo_du_site,
       }
 
-      console.log("[v0] Processed site options:", siteOptions)
       setCache("site-options", siteOptions)
       endMeasure()
       return siteOptions
     } else {
       const errorText = await response.text()
-      console.log("[v0] Error response:", errorText)
     }
   } catch (error) {
     console.error("[v0] Error fetching site options:", error)
   }
 
-  console.log("[v0] Returning default site options")
   const defaultOptions: SiteOptions = {
     titre_du_site: "Château de Goutelas",
     description_du_site: "Centre culturel de rencontre",

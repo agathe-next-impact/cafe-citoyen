@@ -53,42 +53,14 @@ export function AnimatedNavWrapper() {
             ],
           }))
 
+          // Suppression de l'ajout des cartes événements dans le megamenu
           while (items.length < 6) {
-            const eventIndex = items.length - organized.length
-            const event = sortedEvents[eventIndex]
-
-            if (event) {
-              const featuredImageUrl =
-                event._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
-                event.acf?.background?.url ||
-                "/placeholder.svg"
-
-              items.push({
-                label: event.title.rendered
-                  .replace(/&#8217;/g, "'")
-                  .replace(/&#8220;/g, '"')
-                  .replace(/&#8221;/g, '"'),
-                bgColor: "white",
-                textColor: "oklch(0.25 0.02 85)",
-                links: [
-                  {
-                    label: "Voir l'événement",
-                    href: `/evenement/${event.slug}`,
-                  },
-                ],
-                isEvent: true,
-                eventDate: event.acf?.date_de_debut || event.date,
-                eventImage: featuredImageUrl,
-              })
-            } else {
-              items.push({
-                label: "",
-                bgColor: "white",
-                textColor: "oklch(0.25 0.02 85)",
-                links: [],
-              })
-              break
-            }
+            items.push({
+              label: "",
+              bgColor: "white",
+              textColor: "oklch(0.25 0.02 85)",
+              links: [],
+            })
           }
 
           setNavItems(items)
@@ -108,7 +80,7 @@ export function AnimatedNavWrapper() {
   }
 
   return (
-    <div className="relative z-[100]">
+    <div className="relative z-100">
       <AnimatedNav
         logo={
           <div className="flex items-center gap-3 group">

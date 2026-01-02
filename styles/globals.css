@@ -122,4 +122,15 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Empêche le scroll mais garde la scrollbar visible */
+  body.megamenu-open {
+    overflow: hidden;
+    /* Pour garder la scrollbar visible mais inactive */
+    padding-right: 0 !important;
+  }
+  html.megamenu-open {
+    overflow-y: scroll !important;
+  }
+  }
 }
