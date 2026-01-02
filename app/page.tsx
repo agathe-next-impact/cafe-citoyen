@@ -1,5 +1,5 @@
 import { getWordPressPageBySlug, getSiteOptions } from "@/lib/wordpress-api"
-import { PageHeader } from "@/components/page-header"
+import PageHeader from "@/components/page-header"
 import { PageContent } from "@/components/page-content"
 import BounceCards from "@/components/bounce-cards"
 import { VideoHero } from "@/components/video-hero"
@@ -12,7 +12,7 @@ export default async function Home() {
     return null
   }
 
-  const hasVideoHero = page.acf?.video?.url
+  const hasVideoHero = page.acf?.video && typeof page.acf.video === 'object' && !Array.isArray(page.acf.video) && page.acf.video.url
   const hasHeroGallery = page.acf?.galerie && page.acf.galerie.length > 0
 
   let siteOptions = null
@@ -25,13 +25,13 @@ export default async function Home() {
   return (
     <div className="min-h-screen">
       {hasVideoHero ? (
-        <VideoHero videoSrc={page.acf.video?.url} />
+        <VideoHero videoSrc={page.acf?.video && typeof page.acf.video === 'object' && !Array.isArray(page.acf.video) ? page.acf.video.url : undefined} />
       ) : hasHeroGallery ? (
         <section className="relative h-screen flex items-center justify-center overflow-hidden">
           <div className="container mx-auto h-full flex items-center justify-center max-w-full">
             <BounceCards
               className="hero-bounce-cards"
-              images={page.acf.galerie.map((img) => img.url)}
+              images={page.acf?.galerie?.map((img) => img.url) || []}
               containerWidth={typeof window !== "undefined" ? window.innerWidth * 0.95 : 1400}
               containerHeight={typeof window !== "undefined" ? window.innerHeight * 0.95 : 900}
               animationDelay={0.5}

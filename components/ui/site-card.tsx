@@ -3,14 +3,15 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 
 interface SiteCardProps {
-  title: string
+  title?: string
   description?: string
   image?: string
   imageAlt?: string
   href?: string
   category?: string
   date?: string
-  variant?: "primary" | "secondary" | "chart-1" | "chart-2" | "chart-3" | "chart-4" | "chart-5"
+  variant?: "primary" | "secondary" | "chart-1" | "chart-2" | "chart-3" | "chart-4" | "chart-5" | "info" | "partner"
+  colorScheme?: "primary" | "secondary" | "accent" | "chart-1" | "chart-2" | "chart-3" | "chart-4" | "chart-5"
   className?: string
   children?: React.ReactNode
 }
@@ -51,6 +52,16 @@ const variantColors = {
     button: "bg-chart-5 shadow-chart-5/20 hover:shadow-chart-5/40",
     badge: "bg-chart-5/20 text-chart-5",
   },
+  "info": {
+    gradient: "from-blue-500 to-blue-600/80",
+    button: "bg-blue-500 shadow-blue-500/20 hover:shadow-blue-500/40",
+    badge: "bg-blue-500/20 text-blue-500",
+  },
+  "partner": {
+    gradient: "from-green-500 to-green-600/80",
+    button: "bg-green-500 shadow-green-500/20 hover:shadow-green-500/40",
+    badge: "bg-green-500/20 text-green-500",
+  },
 }
 
 export function SiteCard({
@@ -62,10 +73,13 @@ export function SiteCard({
   category,
   date,
   variant = "chart-1",
+  colorScheme,
   className,
   children,
 }: SiteCardProps) {
-  const colors = variantColors[variant]
+  // Use colorScheme if provided, otherwise fallback to variant
+  const effectiveVariant = colorScheme || variant
+  const colors = variantColors[effectiveVariant] || variantColors["chart-1"]
 
   const CardContent = (
     <div
@@ -112,12 +126,14 @@ export function SiteCard({
         )}
 
         {/* Title */}
-        <h5
-          className="mb-2 block text-xl font-bold leading-snug tracking-normal text-blue-gray-900 antialiased line-clamp-2"
-          style={{ fontFamily: '"Crimson Text", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif' }}
-        >
-          {title}
-        </h5>
+        {title && (
+          <h5
+            className="mb-2 block text-xl font-bold leading-snug tracking-normal text-blue-gray-900 antialiased line-clamp-2"
+            style={{ fontFamily: '"Crimson Text", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif' }}
+          >
+            {title}
+          </h5>
+        )}
 
         {/* Description */}
         {description && (

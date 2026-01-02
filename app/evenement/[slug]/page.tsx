@@ -3,7 +3,7 @@ import { Calendar, Clock, ArrowLeft, CalendarDays, Users } from "lucide-react"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
-import { PageHeader } from "@/components/page-header"
+import PageHeader from "@/components/page-header"
 import { SiteCard } from "@/components/ui/site-card"
 
 type Props = {
