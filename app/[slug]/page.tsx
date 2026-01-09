@@ -508,7 +508,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
                             <div className="flex items-center gap-2">
                               <ClockIcon className="w-4 h-4" />
                               <span>
-                                {event.acf.heure} ({event.acf.duree_en_heures}h)
+                                {event.acf.heure} ({event.acf.duree_en_heures?.toString()}h)
                               </span>
                             </div>
                           )}

@@ -1,3 +1,7 @@
+"use client";
+
+import { useState, useLayoutEffect, useRef } from 'react';
+
 interface PageContentProps {
   content?: string
   images?: Array<{
@@ -5,6 +9,8 @@ interface PageContentProps {
     alt: string
     title: string
     ID: number
+    height: number
+    width: number
   }>
 }
 
@@ -28,41 +34,38 @@ export function PageContent({ content, images }: PageContentProps) {
   }
 
   return (
-    <section className="py-12 px-6">
-      <div className="mx-auto max-w-4xl">
-        {/* WYSIWYG Content */}
-        {content && (
-          <article className="prose prose-lg max-w-none mb-8">
-            <div className="text-foreground/90 leading-relaxed" dangerouslySetInnerHTML={{ __html: content }} />
-          </article>
-        )}
-
-        {/* Images Gallery */}
+    <section className="md:w-max-[90%] lg:max-w-6xl mx-auto py-12 px-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-8 lg:gap-12">
+        {/* Colonne des images à gauche */}
         {images && images.length > 0 && (
-          <div className="mt-8">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {images.map((image) => (
-                <div
-                  key={image.ID}
-                  className="group relative aspect-video overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300"
+          <div className="md:col-span-1">
+            <div className="sticky top-24 space-y-4">
+              {images.slice(0, 3).map((image, index) => (
+                <div 
+                  key={`image-${image.ID || index}`} 
+                  className="overflow-hidden rounded-lg"
                 >
-                  <img
-                    src={image.url || "/placeholder.svg"}
-                    alt={image.alt || image.title || "Image"}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
+                  <img 
+                    src={image.url} 
+                    alt={image.alt || 'Image du contenu'} 
+                    className="w-full h-auto object-cover"
                   />
-                  {image.title && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                      <p className="text-white text-sm font-medium">{decodeHtmlEntities(image.title)}</p>
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
           </div>
         )}
+
+        {/* Colonne du contenu à droite */}
+        <div className={`mx-auto ${images && images.length > 0 ? 'md:col-span-4' : 'col-span-1 md:col-span-5'}`}>
+          {/* WYSIWYG Content */}
+          {content && (
+            <article className="prose prose-lg max-w-none">
+              <div className="text-foreground/90 leading-relaxed" dangerouslySetInnerHTML={{ __html: content }} />
+            </article>
+          )}
+        </div>
       </div>
     </section>
-  )
+  );
 }
