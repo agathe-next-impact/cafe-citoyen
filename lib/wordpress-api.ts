@@ -449,10 +449,13 @@ export async function getAllEventSlugs(): Promise<string[]> {
   }
 }
 
-export async function getWordPressPageBySlug(slug: string): Promise<WordPressPage | null> {
+export async function getWordPressPageBySlug(slug: string, options: { status?: string } = {}): Promise<WordPressPage | null> {
   try {
+    const status = options.status ? `&status=${options.status}` : ''
+    const previewSecret = process.env.NEXT_PUBLIC_PREVIEW_SECRET;
+    const secretParam = options.status === "any" && previewSecret ? `&secret=${encodeURIComponent(previewSecret)}` : "";
     const response = await fetch(
-      `${WORDPRESS_URL}/wp-json/wp/v2/pages?slug=${slug}&_fields=id,title,content,link,slug,parent,acf&acf_format=standard`,
+      `${WORDPRESS_URL}/wp-json/wp/v2/pages?slug=${slug}${status}${secretParam}&_fields=id,title,content,link,slug,parent,acf&acf_format=standard`,
       {
         headers: {
           "Accept-Charset": "utf-8",

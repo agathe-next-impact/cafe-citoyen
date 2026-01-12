@@ -1,3 +1,4 @@
+import { cookies } from "next/headers"
 import { notFound } from "next/navigation"
 import {
   getWordPressPageBySlug,
@@ -190,7 +191,14 @@ async function EventsContent() {
     ),
   ).sort()
 
-  return <EventsList events={events} categories={categories} seasons={seasons} partners={partners} />
+  const fixedEvents = events.map(e => ({
+    ...e,
+    acf: {
+      ...e.acf,
+      duree_en_heures: e.acf?.duree_en_heures !== undefined ? String(e.acf.duree_en_heures) : undefined,
+    },
+  }));
+  return <EventsList events={fixedEvents} categories={categories} seasons={seasons} partners={partners} />
 }
 
 async function getChildPages(parentId: number) {
@@ -238,19 +246,30 @@ async function getAgendaData() {
   return { page, allEvents, categories, seasons, partners }
 }
 
+
 export default async function WordPressPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
+  const cookieStore = await cookies();
+  const isPreview = cookieStore.get("__prv")?.value === "1"
 
   if (slug === "agenda") {
     const agendaData = await getAgendaData()
-
     if (!agendaData) {
       notFound()
-      return null
+      return
     }
-
     const { page, allEvents, categories, seasons, partners } = agendaData
-
+    // Correction typage events (duree_en_heures)
+    const fixedEvents = allEvents.map(e => ({
+      ...e,
+      acf: {
+        ...e.acf,
+        duree_en_heures: e.acf?.duree_en_heures !== undefined ? String(e.acf.duree_en_heures) : undefined,
+      },
+    }));
+    const fixedImages = Array.isArray(page.acf?.images)
+      ? page.acf.images.map(img => ({ ...img, height: 0, width: 0 }))
+      : undefined;
     return (
       <div className="min-h-screen bg-background pt-20">
         <PageHeader
@@ -259,9 +278,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           backgroundImage={page.acf?.background?.url}
           backgroundAlt={page.acf?.background?.alt}
         />
-
-        <PageContent content={page.acf?.contenu} images={page.acf?.images} />
-
+        <PageContent content={page.acf?.contenu} images={fixedImages} />
         <div className="container mx-auto px-4 py-12">
           {page.content?.rendered && (
             <article className="prose prose-lg max-w-4xl mx-auto mb-12">
@@ -271,26 +288,24 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
               />
             </article>
           )}
-
-          <EventsList events={allEvents} categories={categories} seasons={seasons} partners={partners} />
+          <EventsList events={fixedEvents} categories={categories} seasons={seasons} partners={partners} />
         </div>
       </div>
     )
   }
 
-  const page = await getWordPressPageBySlug(slug)
-
+  const page = isPreview
+    ? await getWordPressPageBySlug(slug, { status: "any" })
+    : await getWordPressPageBySlug(slug)
   if (!page) {
     notFound()
-    return null
+    return
   }
-
   const childPages = await getChildPages(page.id)
   const events = await getEventsByPageSlug(slug)
 
   if (slug === "actualites") {
     const allPosts = await getWordPressPosts()
-
     const categories = Array.from(
       new Set(
         allPosts.flatMap(
@@ -302,7 +317,9 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
         ),
       ),
     ).sort()
-
+    const fixedImages = Array.isArray(page.acf?.images)
+      ? page.acf.images.map(img => ({ ...img, height: 0, width: 0 }))
+      : undefined;
     return (
       <div className="min-h-screen bg-background pt-20">
         <PageHeader
@@ -311,9 +328,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           backgroundImage={page.acf?.background?.url}
           backgroundAlt={page.acf?.background?.alt}
         />
-
-        <PageContent content={page.acf?.contenu} images={page.acf?.images} />
-
+        <PageContent content={page.acf?.contenu} images={fixedImages} />
         <div className="container mx-auto px-4 py-12">
           {page.content?.rendered && (
             <article className="prose prose-lg max-w-4xl mx-auto mb-12">
@@ -323,7 +338,6 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
               />
             </article>
           )}
-
           <PostsList posts={allPosts} categories={categories} />
         </div>
       </div>
@@ -332,7 +346,11 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
 
   if (slug === "equipe") {
     const teamMembers = await getTeamMembers()
-
+    const fixedImages = page.acf?.images?.map(img => ({
+      ...img,
+      height: 0,
+      width: 0,
+    }));
     return (
       <div className="min-h-screen bg-background pt-20">
         <PageHeader
@@ -341,9 +359,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           backgroundImage={page.acf?.background?.url}
           backgroundAlt={page.acf?.background?.alt}
         />
-
-        <PageContent content={page.acf?.contenu} images={page.acf?.images} />
-
+        <PageContent content={page.acf?.contenu} images={fixedImages} />
         <div className="container mx-auto px-4 py-12">
           {page.content?.rendered && (
             <article className="prose prose-lg max-w-4xl mx-auto mb-12">
@@ -353,7 +369,6 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
               />
             </article>
           )}
-
           <TeamMembers members={teamMembers} />
         </div>
       </div>
@@ -362,7 +377,11 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
 
   if (slug === "partenaires") {
     const partners = await getPartners()
-
+    const fixedImages = page.acf?.images?.map(img => ({
+      ...img,
+      height: 0,
+      width: 0,
+    }));
     return (
       <div className="min-h-screen bg-background pt-20">
         <PageHeader
@@ -371,9 +390,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           backgroundImage={page.acf?.background?.url}
           backgroundAlt={page.acf?.background?.alt}
         />
-
-        <PageContent content={page.acf?.contenu} images={page.acf?.images} />
-
+        <PageContent content={page.acf?.contenu} images={fixedImages} />
         <div className="container mx-auto px-4 py-12">
           {page.content?.rendered && (
             <article className="prose prose-lg max-w-4xl mx-auto mb-12">
@@ -383,13 +400,25 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
               />
             </article>
           )}
-
           <PartnersList partners={partners} />
         </div>
       </div>
     )
   }
 
+  // Correction typage events (duree_en_heures)
+  const fixedEvents = events.map(e => ({
+    ...e,
+    acf: {
+      ...e.acf,
+      duree_en_heures: e.acf?.duree_en_heures !== undefined ? String(e.acf.duree_en_heures) : undefined,
+    },
+  }));
+  const fixedImages = page.acf?.images?.map(img => ({
+    ...img,
+    height: 0,
+    width: 0,
+  }));
   return (
     <div className="min-h-screen bg-background pt-20">
       <PageHeader
@@ -398,9 +427,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
         backgroundImage={page.acf?.background?.url}
         backgroundAlt={page.acf?.background?.alt}
       />
-
-      <PageContent content={page.acf?.contenu} images={page.acf?.images} />
-
+      <PageContent content={page.acf?.contenu} images={fixedImages} />
       <div className="container mx-auto px-4 py-12">
         <article className="prose prose-lg max-w-4xl mx-auto">
           <div
@@ -408,7 +435,6 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
             dangerouslySetInnerHTML={{ __html: page.content?.rendered || "" }}
           />
         </article>
-
         {childPages.length > 0 && (
           <section className="mt-16 max-w-7xl mx-auto">
             <h2 className="text-3xl font-bold text-foreground mb-8">Pages associées</h2>
@@ -428,21 +454,18 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
             </div>
           </section>
         )}
-
-        {events.length > 0 && (
+        {fixedEvents.length > 0 && (
           <section className="mt-16 max-w-7xl mx-auto">
             <div className="flex items-center gap-4 mb-8">
               <CalendarIcon className="w-8 h-8 text-primary" />
               <h2 className="text-3xl font-bold text-foreground">Événements associés</h2>
             </div>
-
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {events.map((event) => {
+              {fixedEvents.map((event) => {
                 const status = getEventStatus(event)
                 const statusColor = getStatusColor(status)
                 const statusText = getStatusText(status)
                 const featuredImage = event._embedded?.["wp:featuredmedia"]?.[0]?.source_url
-
                 return (
                   <Link
                     key={event.id}
@@ -459,7 +482,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
                           decoding="async"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                        <div className="w-full h-full bg-linear-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
                           <CalendarIcon className="w-16 h-16 text-muted-foreground/30" />
                         </div>
                       )}
@@ -469,12 +492,10 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
                         {statusText}
                       </div>
                     </div>
-
                     <div className="p-6">
                       <h3 className="text-xl font-semibold mb-3 text-foreground group-hover:text-primary transition-colors">
                         {decodeHtmlEntities(event.title.rendered)}
                       </h3>
-
                       {event.acf?.recurrent_ou_ponctuel ? (
                         <div className="space-y-2 text-sm text-muted-foreground">
                           {event.acf.date_de_debut && (
@@ -525,3 +546,4 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
     </div>
   )
 }
+
