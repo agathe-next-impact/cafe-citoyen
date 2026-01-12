@@ -103,9 +103,9 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
   });
 
   return (
-    <section className="relative min-h-75 flex items-center overflow-visible bg-white">
+    <section className="relative min-h-50 flex items-center overflow-visible bg-white">
       {/* Ligne courbe SVG en arrière-plan */}
-      <div className="pointer-events-none absolute left-2/5 w-full mt-40 z-0">
+      <div className="pointer-events-none absolute left-2/5 w-full mt-20 z-0">
         {/* 3 lignes de balles animées */}
         {lines.map((line, lineIndex) => (
           allBallPositions[lineIndex].map((ballPos, ballIndex) => {
@@ -133,7 +133,7 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
           })
         )).flat()}
       </div>
-      <div className="container mx-auto px-6 py-12 relative z-10">
+      <div className="container mx-auto px-6 py-6 relative z-10">
         <div className="flex items-center justify-between gap-8">
           <div className="flex-1">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-balance mb-4 text-black">

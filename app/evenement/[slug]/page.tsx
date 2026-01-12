@@ -1,10 +1,11 @@
-import { getWordPressEventBySlug, getAllEventSlugs } from "@/lib/wordpress-api"
+import { getWordPressEventBySlug, getAllEventSlugs, getWordPressEvents } from "@/lib/wordpress-api"
 import { Calendar, Clock, ArrowLeft, CalendarDays, Users } from "lucide-react"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
 import PageHeader from "@/components/page-header"
 import { SiteCard } from "@/components/ui/site-card"
+import { Timeline } from "@/components/ui/timeline"
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -80,10 +81,42 @@ export default async function EventDetailPage({ params }: Props) {
   const saisonCulturelle = event._embedded?.["wp:term"]?.flat().filter((term) => term.taxonomy === "saison-culturelle")
   const categories = event._embedded?.["wp:term"]?.flat().filter((term) => term.taxonomy === "category")
 
+  // Ajout : récupération des événements à venir
+  const allEvents = await getWordPressEvents();
+  const now = new Date();
+  const upcomingEvents = allEvents.filter(e => {
+    if (!e.acf?.date_de_debut) return false;
+    const parts = e.acf.date_de_debut.split("/");
+    if (parts.length !== 3) return false;
+    const [day, month, year] = parts.map(Number);
+    const eventDate = new Date(year, month - 1, day);
+    return eventDate >= now;
+  }).sort((a, b) => {
+    // Tri par date croissante
+    const aParts = a.acf.date_de_debut.split("/").map(Number);
+    const bParts = b.acf.date_de_debut.split("/").map(Number);
+    const aDate = new Date(aParts[2], aParts[1] - 1, aParts[0]);
+    const bDate = new Date(bParts[2], bParts[1] - 1, bParts[0]);
+    return aDate.getTime() - bDate.getTime();
+  });
+
+  const timelineData = upcomingEvents.map(e => ({
+    title: decodeHtmlEntities(e.title.rendered),
+    content: (
+      <div className="text-muted-foreground text-base">
+        <div className="mb-1 font-semibold">
+          {e.acf?.date_de_debut && formatDate(parseFrenchDate(e.acf.date_de_debut) as Date)}
+        </div>
+        {e.acf?.["sous-titre"] && <div className="mb-1">{decodeHtmlEntities(e.acf["sous-titre"])}</div>}
+        <Link href={`/evenement/${e.slug}`} className="text-primary underline hover:no-underline">Voir l'événement</Link>
+      </div>
+    )
+  }));
+
   return (
-    <div className="pt-20 min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       {/* Back Button */}
-      <div className="px-6 py-6 max-w-7xl mx-auto">
+      <div className="px-6 pt-12 max-w-7xl mx-auto">
         <Link
           href="/agenda"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
@@ -101,7 +134,8 @@ export default async function EventDetailPage({ params }: Props) {
       />
 
       {/* Content */}
-      <div className="px-6 py-12 max-w-4xl mx-auto">
+      <div className="px-6 max-w-4xl mx-auto">
+
         {/* Header */}
         <div className="mb-8">
           {/* Taxonomies */}
@@ -258,6 +292,7 @@ export default async function EventDetailPage({ params }: Props) {
             </div>
           </div>
         )}
+
 
         {/* CTA */}
         <div className="pt-8 border-t border-border">

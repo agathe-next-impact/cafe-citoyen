@@ -73,18 +73,13 @@ add_action('admin_menu', function() {
             update_option('posts_preview_secret', sanitize_text_field($_POST['posts_preview_secret']));
             echo '<div class="updated"><p>Options enregistrées.</p></div>';
         }
-        if (isset($_POST['posts_preview_generate_token'])) {
-            $new_token = bin2hex(random_bytes(16));
-            update_option('posts_preview_secret', $new_token);
-            echo '<div class="updated"><p>Nouveau token généré.</p></div>';
-        }
+        // Suppression du bouton de génération de token
         $frontend_url = get_option('posts_preview_frontend_url', getenv('FRONTEND_URL') ?: (defined('FRONTEND_URL') ? FRONTEND_URL : 'https://wordpress-starter.fr'));
         $preview_secret = get_option('posts_preview_secret', getenv('PREVIEW_SECRET') ?: (defined('PREVIEW_SECRET') ? PREVIEW_SECRET : 'devtoken'));
         echo '<div class="wrap"><h1>Configuration Posts Preview</h1>';
         echo '<form method="post">';
         echo '<table class="form-table"><tr><th scope="row">URL du front-end</th><td><input type="text" name="posts_preview_frontend_url" value="' . esc_attr($frontend_url) . '" class="regular-text" /></td></tr>';
-        echo '<tr><th scope="row">Preview Secret (token)</th><td><input type="text" name="posts_preview_secret" value="' . esc_attr($preview_secret) . '" class="regular-text" /> ';
-        echo '<button type="submit" name="posts_preview_generate_token" class="button">Générer un token</button></td></tr></table>';
+        echo '<tr><th scope="row">Preview Secret (token)</th><td><input type="text" name="posts_preview_secret" value="' . esc_attr($preview_secret) . '" class="regular-text" /></td></tr></table>';
         echo '<p class="submit"><input type="submit" name="posts_preview_save" class="button-primary" value="Enregistrer" /></p>';
         echo '</form></div>';
     });

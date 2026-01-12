@@ -17,6 +17,7 @@ import { TeamMembers } from "@/components/team-members" // Added team members co
 import { PostsList } from "@/components/posts-list" // Added posts list component
 import { PartnersList } from "@/components/partners-list"
 import { PageContent } from "@/components/page-content" // Added PageContent component import
+import { Timeline } from "@/components/ui/timeline"
 
 const CalendarIcon = ({ className }: { className?: string }) => (
   <svg
@@ -247,6 +248,10 @@ async function getAgendaData() {
 }
 
 
+import { getCategoryVariant } from "@/lib/category-colors";
+import { cn } from "@/lib/utils";
+import { variantColors } from "@/components/ui/site-card";
+
 export default async function WordPressPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const cookieStore = await cookies();
@@ -270,8 +275,41 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
     const fixedImages = Array.isArray(page.acf?.images)
       ? page.acf.images.map(img => ({ ...img, height: 0, width: 0 }))
       : undefined;
+
+    // Préparation des données pour Timeline
+    const timelineData = fixedEvents.map(e => {
+      const cat = e._embedded?.["wp:term"]?.flat().find(term => term.taxonomy === "category");
+      const categoryName: string | undefined = cat ? decodeHtmlEntities(cat.name) : undefined;
+      const variant = getCategoryVariant(categoryName);
+      return {
+        title: decodeHtmlEntities(e.title.rendered),
+        featuredImage: e._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? undefined,
+        category: categoryName,
+        content: (
+          <div className="text-muted-foreground text-base">
+            {/* Badge catégorie coloré avec fond obligatoire */}
+            {categoryName && (
+              <span
+                className={cn(
+                  "inline-block mb-2 px-3 py-1 rounded-full text-xs font-medium border border-border shadow-sm",
+                  variantColors[variant]?.badge || variantColors["chart-1"].badge
+                )}
+              >
+                {categoryName}
+              </span>
+            )}
+            <div className="mb-1 font-semibold">
+              {e.acf?.date_de_debut && e.acf.date_de_debut}
+            </div>
+            {e.acf?.["sous-titre"] && <div className="mb-1">{decodeHtmlEntities(e.acf["sous-titre"])}</div>}
+            <Link href={`/evenement/${e.slug}`} className="text-primary underline hover:no-underline">Voir l'événement</Link>
+          </div>
+        )
+      };
+    });
+
     return (
-      <div className="min-h-screen bg-background pt-20">
+      <div className="min-h-screen bg-background pt-8">
         <PageHeader
           title={page.title.rendered}
           subtitle={page.acf?.["sous-titre"]}
@@ -279,7 +317,9 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           backgroundAlt={page.acf?.background?.alt}
         />
         <PageContent content={page.acf?.contenu} images={fixedImages} />
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto px-4">
+          {/* Affichage Timeline */}
+          <Timeline data={timelineData} />
           {page.content?.rendered && (
             <article className="prose prose-lg max-w-4xl mx-auto mb-12">
               <div
@@ -288,7 +328,6 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
               />
             </article>
           )}
-          <EventsList events={fixedEvents} categories={categories} seasons={seasons} partners={partners} />
         </div>
       </div>
     )

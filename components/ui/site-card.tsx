@@ -16,7 +16,7 @@ interface SiteCardProps {
   children?: React.ReactNode
 }
 
-const variantColors = {
+export const variantColors = {
   primary: {
     gradient: "from-primary to-primary/80",
     button: "bg-primary shadow-primary/20 hover:shadow-primary/40",
