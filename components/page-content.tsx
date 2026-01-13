@@ -46,9 +46,9 @@ export function PageContent({ content, images, encadres }: PageContentProps) {
   const [contentAndCardsHeight, setContentAndCardsHeight] = useState<number>(0);
   const contentRef = useRef<HTMLDivElement>(null);
   const imageColumnRef = useRef<HTMLDivElement>(null);
-  const [visibleImages, setVisibleImages] = useState(images || []);
+  const [visibleImages, setVisibleImages] = useState(Array.isArray(images) ? images : []);
 
-  if (!content && (!images || images.length === 0)) {
+  if (!content && (!Array.isArray(images) || images.length === 0)) {
     return null;
   }
 
@@ -56,7 +56,7 @@ export function PageContent({ content, images, encadres }: PageContentProps) {
     const measureHeight = () => {
       if (contentRef.current && imageColumnRef.current) {
         const totalHeight = contentRef.current.offsetHeight;
-        let imgs = images || [];
+        let imgs = Array.isArray(images) ? images : [];
         let imgHeights: number[] = [];
 
         // Crée des refs temporaires pour mesurer la hauteur des images
@@ -81,6 +81,10 @@ export function PageContent({ content, images, encadres }: PageContentProps) {
                 imgs = imgs.slice(0, -1);
                 imgHeights = imgHeights.slice(0, -1);
                 totalImgHeight = imgHeights.reduce((a, b) => a + b, 0);
+              }
+              // Masquer la dernière image, même si elle rentre
+              if (imgs.length > 1) {
+                imgs = imgs.slice(0, -1);
               }
               setVisibleImages(imgs);
               document.body.removeChild(tempDiv);
@@ -123,7 +127,7 @@ export function PageContent({ content, images, encadres }: PageContentProps) {
     <section className="md:w-max-[90%] lg:max-w-6xl mx-auto py-12 px-6">
       <div className="grid grid-cols-1 md:grid-cols-5 gap-8 lg:gap-12">
         {/* Colonne des images à gauche */}
-        {visibleImages && visibleImages.length > 0 && (
+        {Array.isArray(visibleImages) && visibleImages.length > 0 && (
           <div className="md:col-span-1">
             <div
               ref={imageColumnRef}
@@ -169,7 +173,7 @@ export function PageContent({ content, images, encadres }: PageContentProps) {
             )}
 
             {/* Grille de cartes encadrés (2 colonnes) */}
-            {encadres && encadres.length > 0 && (
+            {Array.isArray(encadres) && encadres.length > 0 && (
               <div className="mt-10 flex flex-col gap-12">
                 {encadres.slice(0, 2).map((card, idx) => (
                   <div
@@ -189,7 +193,7 @@ export function PageContent({ content, images, encadres }: PageContentProps) {
                     </div>
                     {card.illustration?.url && (
                       <div
-                        className="absolute right-0 top-0 bottom-0 h-full z-20 transition-all duration-900 w-1/4 group-hover:w-1/2 group-hover:shadow-2xl group-hover:after:bg-black/30 after:content-[''] after:absolute after:inset-0 after:transition-all after:duration-300 pointer-events-none"
+                        className="absolute right-0 top-0 bottom-0 h-full z-20 bg-white transition-all duration-1200 w-1/4 group-hover:w-2/3 group-hover:shadow-2xl after:content-[''] after:absolute after:inset-0 after:transition-all after:duration-600 pointer-events-none"
                         style={{
                           backgroundImage: `url(${card.illustration.url})`,
                           backgroundSize: 'cover',

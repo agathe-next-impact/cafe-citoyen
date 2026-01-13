@@ -257,6 +257,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
   const cookieStore = await cookies();
   const isPreview = cookieStore.get("__prv")?.value === "1"
 
+  let encadres: any = undefined;
   if (slug === "agenda") {
     const agendaData = await getAgendaData()
     if (!agendaData) {
@@ -275,6 +276,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
     const fixedImages = Array.isArray(page.acf?.images)
       ? page.acf.images.map(img => ({ ...img, height: 0, width: 0 }))
       : undefined;
+    encadres = page.acf?.encadres;
 
     // Préparation des données pour Timeline
     const timelineData = fixedEvents.map(e => {
@@ -316,7 +318,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           backgroundImage={page.acf?.background?.url}
           backgroundAlt={page.acf?.background?.alt}
         />
-        <PageContent content={page.acf?.contenu} images={fixedImages} />
+        <PageContent content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
         <div className="container mx-auto px-4">
           {/* Affichage Timeline */}
           <Timeline data={timelineData} />
@@ -344,6 +346,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
   const events = await getEventsByPageSlug(slug)
 
   if (slug === "actualites") {
+    encadres = page.acf?.encadres;
     const allPosts = await getWordPressPosts()
     const categories = Array.from(
       new Set(
@@ -367,7 +370,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           backgroundImage={page.acf?.background?.url}
           backgroundAlt={page.acf?.background?.alt}
         />
-        <PageContent content={page.acf?.contenu} images={fixedImages} />
+        <PageContent content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
         <div className="container mx-auto px-4 py-12">
           {page.content?.rendered && (
             <article className="prose prose-lg max-w-4xl mx-auto mb-12">
@@ -384,12 +387,15 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
   }
 
   if (slug === "equipe") {
+    encadres = page.acf?.encadres;
     const teamMembers = await getTeamMembers()
-    const fixedImages = page.acf?.images?.map(img => ({
-      ...img,
-      height: 0,
-      width: 0,
-    }));
+    const fixedImages = Array.isArray(page.acf?.images)
+      ? page.acf.images.map(img => ({
+          ...img,
+          height: 0,
+          width: 0,
+        }))
+      : undefined;
     return (
       <div className="min-h-screen bg-background pt-20">
         <PageHeader
@@ -398,7 +404,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           backgroundImage={page.acf?.background?.url}
           backgroundAlt={page.acf?.background?.alt}
         />
-        <PageContent content={page.acf?.contenu} images={fixedImages} />
+        <PageContent content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
         <div className="container mx-auto px-4 py-12">
           {page.content?.rendered && (
             <article className="prose prose-lg max-w-4xl mx-auto mb-12">
@@ -415,12 +421,15 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
   }
 
   if (slug === "partenaires") {
+    encadres = page.acf?.encadres;
     const partners = await getPartners()
-    const fixedImages = page.acf?.images?.map(img => ({
-      ...img,
-      height: 0,
-      width: 0,
-    }));
+    const fixedImages = Array.isArray(page.acf?.images)
+      ? page.acf.images.map(img => ({
+          ...img,
+          height: 0,
+          width: 0,
+        }))
+      : undefined;
     return (
       <div className="min-h-screen bg-background pt-20">
         <PageHeader
@@ -429,7 +438,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           backgroundImage={page.acf?.background?.url}
           backgroundAlt={page.acf?.background?.alt}
         />
-        <PageContent content={page.acf?.contenu} images={fixedImages} />
+        <PageContent content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
         <div className="container mx-auto px-4 py-12">
           {page.content?.rendered && (
             <article className="prose prose-lg max-w-4xl mx-auto mb-12">
@@ -453,11 +462,14 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
       duree_en_heures: e.acf?.duree_en_heures !== undefined ? String(e.acf.duree_en_heures) : undefined,
     },
   }));
-  const fixedImages = page.acf?.images?.map(img => ({
-    ...img,
-    height: 0,
-    width: 0,
-  }));
+  const fixedImages = Array.isArray(page.acf?.images)
+    ? page.acf.images.map(img => ({
+        ...img,
+        height: 0,
+        width: 0,
+      }))
+    : undefined;
+  encadres = page.acf?.encadres;
   return (
     <div className="min-h-screen bg-background pt-20">
       <PageHeader
@@ -466,7 +478,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
         backgroundImage={page.acf?.background?.url}
         backgroundAlt={page.acf?.background?.alt}
       />
-      <PageContent content={page.acf?.contenu} images={fixedImages} />
+      <PageContent content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
       <div className="container mx-auto px-4 py-12">
         <article className="prose prose-lg max-w-4xl mx-auto">
           <div

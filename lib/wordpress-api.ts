@@ -42,6 +42,18 @@ export interface WordPressPage {
       title: string
       ID: number
     }> | string
+    encadres?: Array<{
+      titre?: string;
+      texte?: string;
+      illustration?: {
+        url: string;
+        alt: string;
+        title: string;
+        ID: number;
+        height: number;
+        width: number;
+      };
+    }>;
   }
 }
 

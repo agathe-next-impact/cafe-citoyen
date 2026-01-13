@@ -146,7 +146,7 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
             )}
           </div>
           {backgroundImage && (
-            <div className="shrink-0 relative">
+            <div className="shrink-0 relative bg-white">
               <div
                 className="relative w-64 h-56 md:w-56 md:h-64 lg:w-64 lg:h-72 rounded-3xl overflow-hidden shadow-2xl"
                 style={{
