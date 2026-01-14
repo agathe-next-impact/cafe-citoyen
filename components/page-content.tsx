@@ -193,7 +193,7 @@ export function PageContent({ content, images, encadres }: PageContentProps) {
                     </div>
                     {card.illustration?.url && (
                       <div
-                        className="absolute right-0 top-0 bottom-0 h-full z-20 bg-white transition-all duration-1200 w-1/4 group-hover:w-2/3 group-hover:shadow-2xl after:content-[''] after:absolute after:inset-0 after:transition-all after:duration-600 pointer-events-none"
+                        className="absolute right-0 top-0 bottom-0 h-full z-20 bg-white transition-all duration-1200 w-1/4 group-hover:w-1/3 group-hover:shadow-2xl after:content-[''] after:absolute after:inset-0 after:transition-all after:duration-600 pointer-events-none"
                         style={{
                           backgroundImage: `url(${card.illustration.url})`,
                           backgroundSize: 'cover',

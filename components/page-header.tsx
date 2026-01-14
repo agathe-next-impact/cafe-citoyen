@@ -120,10 +120,10 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
                 alt="balle décorative"
                 style={{
                   position: 'absolute',
-                  left: `calc(${(ballPos.x / 1920) * 100}% - 24px + ${xOffset}px)`,
-                  top: `${ballPos.y - 240 + yOffset}px`,
-                  width: 48,
-                  height: 48,
+                  left: `calc(${((ballPos.x / 1920) * 100).toFixed(2)}% - 24px + ${xOffset.toFixed(2)}px)`,
+                  top: `${(ballPos.y - 240 + yOffset).toFixed(2)}px`,
+                  width: '48px',
+                  height: '48px',
                   pointerEvents: 'none',
                   zIndex: 2,
                   filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.15)) drop-shadow(0 1px 3px rgba(0,0,0,0.1))',

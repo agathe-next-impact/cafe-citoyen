@@ -37,10 +37,19 @@ export function AnimatedNavWrapper() {
         if (pages.length > 0) {
           const organized = organizePagesByParent(pages)
 
-          const items: NavItem[] = organized.map((section) => ({
+          // Couleurs -100 pour chaque carte (ordre : jaune, rouge, jaune, bleu, émeraude, violet)
+          const cardColors = [
+            'yellow-100', // carte 1
+            'red-100',    // carte 2
+            'yellow-100', // carte 3
+            'blue-100',   // carte 4
+            'emerald-100',// carte 5
+            'violet-100', // carte 6
+          ];
+          const items: NavItem[] = organized.map((section, idx) => ({
             label: section.parent,
-            bgColor: "oklch(0.93 0.02 85)",
-            textColor: "oklch(0.25 0.02 85)",
+            bgColor: cardColors[idx] || 'gray-100',
+            textColor: 'oklch(0.25 0.02 85)',
             links: [
               {
                 label: `Voir ${section.parent}`,
