@@ -1,3 +1,15 @@
+// Génère le chemin complet d'une page WordPress à partir de son slug et de la hiérarchie parentale
+function getPagePath(page: any, allPages: any[]): string {
+  let path = page.slug;
+  let current = page;
+  while (current.parent) {
+    const parentPage = allPages.find((p) => p.id === current.parent);
+    if (!parentPage) break;
+    path = `${parentPage.slug}/${path}`;
+    current = parentPage;
+  }
+  return `/${path}`;
+}
 import { cookies } from "next/headers"
 import { notFound } from "next/navigation"
 import {
@@ -17,7 +29,7 @@ import { TeamMembers } from "@/components/team-members" // Added team members co
 import { PostsList } from "@/components/posts-list" // Added posts list component
 import { PartnersList } from "@/components/partners-list"
 import { PageContent } from "@/components/page-content" // Added PageContent component import
-import { Timeline } from "@/components/ui/timeline"
+
 
 const CalendarIcon = ({ className }: { className?: string }) => (
   <svg
@@ -33,7 +45,7 @@ const CalendarIcon = ({ className }: { className?: string }) => (
     <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
     <line x1="16" x2="16" y1="2" y2="6" />
     <line x1="8" x2="8" y1="2" y2="6" />
-    <line x1="3" x2="21" y1="10" y2="10" />
+    <line x1="3" x2="21" y2="10" />
   </svg>
 )
 
@@ -278,36 +290,29 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
       : undefined;
     encadres = page.acf?.encadres;
 
-    // Préparation des données pour Timeline
-    const timelineData = fixedEvents.map(e => {
-      const cat = e._embedded?.["wp:term"]?.flat().find(term => term.taxonomy === "category");
-      const categoryName: string | undefined = cat ? decodeHtmlEntities(cat.name) : undefined;
-      const variant = getCategoryVariant(categoryName);
-      return {
-        title: decodeHtmlEntities(e.title.rendered),
-        featuredImage: e._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? undefined,
-        category: categoryName,
-        content: (
-          <div className="text-muted-foreground text-base">
-            {/* Badge catégorie coloré avec fond obligatoire */}
-            {categoryName && (
-              <span
-                className={cn(
-                  "inline-block mb-2 px-3 py-1 rounded-full text-xs font-medium border border-border shadow-sm",
-                  variantColors[variant]?.badge || variantColors["chart-1"].badge
-                )}
-              >
-                {categoryName}
-              </span>
-            )}
-            <div className="mb-1 font-semibold">
-              {e.acf?.date_de_debut && e.acf.date_de_debut}
-            </div>
-            {e.acf?.["sous-titre"] && <div className="mb-1">{decodeHtmlEntities(e.acf["sous-titre"])}</div>}
-            <Link href={`/evenement/${e.slug}`} className="text-primary underline hover:no-underline">Voir l'événement</Link>
-          </div>
-        )
-      };
+    // Séparer les événements à venir et passés, trier les à venir par date croissante
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const parseDate = (dateStr: string): Date | null => {
+      if (!dateStr) return null;
+      const [day, month, year] = dateStr.split("/").map(Number);
+      return new Date(year, month - 1, day);
+    };
+    const upcomingEvents = fixedEvents.filter(e => {
+      const d = parseDate(e.acf?.date_de_debut);
+      return d && d >= now;
+    }).sort((a, b) => {
+      const da = parseDate(a.acf?.date_de_debut);
+      const db = parseDate(b.acf?.date_de_debut);
+      return (da?.getTime() || 0) - (db?.getTime() || 0);
+    });
+    const pastEvents = fixedEvents.filter(e => {
+      const d = parseDate(e.acf?.date_de_debut);
+      return !d || d < now;
+    }).sort((a, b) => {
+      const da = parseDate(a.acf?.date_de_debut);
+      const db = parseDate(b.acf?.date_de_debut);
+      return (db?.getTime() || 0) - (da?.getTime() || 0);
     });
 
     return (
@@ -317,11 +322,126 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           subtitle={page.acf?.["sous-titre"]}
           backgroundImage={page.acf?.background?.url}
           backgroundAlt={page.acf?.background?.alt}
+          slug={slug}
         />
         <PageContent content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
-        <div className="container mx-auto px-4">
-          {/* Affichage Timeline */}
-          <Timeline data={timelineData} />
+        <div className="container mx-auto px-4 py-12">
+          {/* Grille des événements à venir */}
+          {upcomingEvents.length > 0 && (
+            <section className="mb-16">
+              <h2 className="text-3xl font-bold text-foreground mb-8">Événements à venir</h2>
+              <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-4">
+                {upcomingEvents.map((event) => {
+                  const cat = event._embedded?.["wp:term"]?.flat().find(term => term.taxonomy === "category");
+                  const categoryName = cat ? decodeHtmlEntities(cat.name) : undefined;
+                  const categoryColor = cat?.acf?.couleur_associee;
+                  const variant = getCategoryVariant(categoryName);
+                  const featuredImage = event._embedded?.["wp:featuredmedia"]?.[0]?.source_url;
+                  return (
+                    <Link
+                      key={event.id}
+                      href={`/evenement/${event.slug}`}
+                      className="group bg-card rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-yellow-50 flex flex-col h-full"
+                    >
+                      <div className="flex-1 flex flex-col">
+                        <div className="flex items-center gap-2">
+                          {categoryName && (
+                            <span
+                              className={cn(
+                                "w-full inline-flex items-center px-4 py-2 text-sm font-medium",
+                                !categoryColor && (variantColors[variant]?.badge || variantColors["chart-1"].badge)
+                              )}
+                              style={categoryColor ? { background: categoryColor, color: '#fff' } : {}}
+                            > 
+                              {categoryName}
+                            </span>
+                          )}
+                        </div>
+                        <div className="p-4 flex-1">
+                        <h3
+                          className={cn(
+                            "text-xl font-semibold mb-3 transition-colors group-hover:text-primary",
+                            categoryColor && "group-hover:text-[var(--cat-color)]"
+                          )}
+                          style={categoryColor ? { color: "#000", "--cat-color": categoryColor } as React.CSSProperties : { color: "#000" }}
+                        >
+                          {decodeHtmlEntities(event.title.rendered)}
+                        </h3>
+                        {event.acf?.date_de_debut && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                            <CalendarIcon className="w-4 h-4" />
+                            <span>
+                              {(() => {
+                                const [day, month, year] = event.acf.date_de_debut.split("/").map(Number);
+                                const date = new Date(year, month - 1, day);
+                                return date.toLocaleDateString('fr-FR', {
+                                  weekday: 'long',
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric',
+                                });
+                              })()}
+                              {event.acf.date_de_fin && (() => {
+                                const [day, month, year] = event.acf.date_de_fin.split("/").map(Number);
+                                const date = new Date(year, month - 1, day);
+                                return ' - ' + date.toLocaleDateString('fr-FR', {
+                                  weekday: 'long',
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric',
+                                });
+                              })()}
+                            </span>
+                          </div>
+                        )}
+                        {event.acf?.heure_de_debut && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <ClockIcon className="w-4 h-4" />
+                            <span>{event.acf.heure_de_debut}{event.acf.heure_de_fin && ` - ${event.acf.heure_de_fin}`}</span>
+                          </div>
+                        )}
+                        {event.acf?.["sous-titre"] && (
+                          <div className="text-base text-muted-foreground mt-2">
+                            {decodeHtmlEntities(event.acf["sous-titre"])}
+                          </div>
+                        )}
+                        </div>
+                      </div>
+                      <div className="relative aspect-square overflow-hidden">
+                        {featuredImage ? (
+                          <img
+                            src={featuredImage || "/placeholder.svg"}
+                            alt={event.title.rendered}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-linear-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                            <CalendarIcon className="w-16 h-16 text-muted-foreground/30" />
+                          </div>
+                        )}
+                        <div className="absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-medium bg-white text-primary border border-primary/30 shadow-sm">
+                          À venir
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            </section>
+          )}
+          {/* Grille des événements passés (optionnel, à afficher si besoin) */}
+          {/* {pastEvents.length > 0 && (
+            <section className="mb-16">
+              <h2 className="text-2xl font-bold text-foreground mb-8">Événements passés</h2>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {pastEvents.map((event) => (
+                  ...
+                ))}
+              </div>
+            </section>
+          )} */}
           {page.content?.rendered && (
             <article className="prose prose-lg max-w-4xl mx-auto mb-12">
               <div
@@ -342,6 +462,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
     notFound()
     return
   }
+  const allPages = await getWordPressPages();
   const childPages = await getChildPages(page.id)
   const events = await getEventsByPageSlug(slug)
 
@@ -369,6 +490,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           subtitle={page.acf?.["sous-titre"]}
           backgroundImage={page.acf?.background?.url}
           backgroundAlt={page.acf?.background?.alt}
+          slug={slug}
         />
         <PageContent content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
         <div className="container mx-auto px-4 py-12">
@@ -403,6 +525,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           subtitle={page.acf?.["sous-titre"]}
           backgroundImage={page.acf?.background?.url}
           backgroundAlt={page.acf?.background?.alt}
+          slug={slug}
         />
         <PageContent content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
         <div className="container mx-auto px-4 py-12">
@@ -437,6 +560,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           subtitle={page.acf?.["sous-titre"]}
           backgroundImage={page.acf?.background?.url}
           backgroundAlt={page.acf?.background?.alt}
+          slug={slug}
         />
         <PageContent content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
         <div className="container mx-auto px-4 py-12">
@@ -477,6 +601,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
         subtitle={page.acf?.["sous-titre"]}
         backgroundImage={page.acf?.background?.url}
         backgroundAlt={page.acf?.background?.alt}
+        slug={slug}
       />
       <PageContent content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
       <div className="container mx-auto px-4 py-12">
@@ -493,7 +618,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
               {childPages.map((childPage) => (
                 <Link
                   key={childPage.id}
-                  href={`/${childPage.slug}`}
+                  href={getPagePath(childPage, allPages)}
                   className="group bg-card rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 p-6 border border-border"
                 >
                   <h3 className="text-xl font-semibold mb-2 text-foreground group-hover:text-primary transition-colors flex items-center gap-2">

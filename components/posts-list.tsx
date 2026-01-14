@@ -3,6 +3,8 @@
 import { useState, useMemo } from "react"
 import Link from "next/link"
 import type { WordPressPost } from "@/lib/wordpress-api"
+import { decodeHtmlEntities } from "@/components/wp-decode"
+import { formatDate } from "@/lib/utils"
 
 const SearchIcon = ({ className }: { className?: string }) => (
   <svg
@@ -59,28 +61,6 @@ interface PostsListProps {
   categories: string[]
 }
 
-function decodeHtmlEntities(text: string): string {
-  return text
-    .replace(/&#8217;/g, "'")
-    .replace(/&#8216;/g, "'")
-    .replace(/&#8220;/g, '"')
-    .replace(/&#8221;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&nbsp;/g, " ")
-}
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  return date.toLocaleDateString("fr-FR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
-}
 
 export function PostsList({ posts, categories }: PostsListProps) {
   const [searchQuery, setSearchQuery] = useState("")
@@ -92,7 +72,7 @@ export function PostsList({ posts, categories }: PostsListProps) {
         const matchesSearch =
           searchQuery === "" ||
           decodeHtmlEntities(post.title.rendered).toLowerCase().includes(searchQuery.toLowerCase()) ||
-          post.excerpt.rendered.toLowerCase().includes(searchQuery.toLowerCase())
+          decodeHtmlEntities(post.excerpt.rendered).toLowerCase().includes(searchQuery.toLowerCase())
 
         const postCategories =
           post._embedded?.["wp:term"]
@@ -209,7 +189,7 @@ export function PostsList({ posts, categories }: PostsListProps) {
 
                 <div
                   className="text-sm text-muted-foreground line-clamp-3 mb-4"
-                  dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}
+                  dangerouslySetInnerHTML={{ __html: decodeHtmlEntities(post.excerpt.rendered) }}
                 />
 
                 <div className="flex items-center gap-2 text-primary font-medium text-sm">

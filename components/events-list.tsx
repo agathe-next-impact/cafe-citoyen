@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback, memo } from "react"
 import { EventsFilters } from "./events-filters"
 import { SiteCard } from "./ui/site-card"
 import { getCategoryVariant } from "@/lib/category-colors"
+import { decodeHtmlEntities } from "@/components/wp-decode" // Utilisation du décodeur centralisé
 
 interface Event {
   id: number
@@ -37,20 +38,6 @@ interface EventsListProps {
   categories: string[]
   seasons: string[]
   partners: string[]
-}
-
-function decodeHtmlEntities(text: string): string {
-  return text
-    .replace(/&#8217;/g, "'")
-    .replace(/&#8216;/g, "'")
-    .replace(/&#8220;/g, '"')
-    .replace(/&#8221;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&nbsp;/g, " ")
 }
 
 function parseFrenchDate(dateString: string): Date | null {

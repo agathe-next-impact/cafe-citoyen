@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import type { WordPressEvent } from "@/lib/wordpress-api"
+import { formatDate } from "@/lib/utils"
 
 function decodeHtmlEntities(text: string): string {
   const textarea = document.createElement("textarea")

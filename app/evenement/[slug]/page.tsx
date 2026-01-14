@@ -6,23 +6,11 @@ import type { Metadata } from "next"
 import PageHeader from "@/components/page-header"
 import { SiteCard } from "@/components/ui/site-card"
 import { Timeline } from "@/components/ui/timeline"
+import { decodeHtmlEntities } from "@/components/wp-decode"
+import { formatDate } from "@/lib/utils"
 
 type Props = {
   params: Promise<{ slug: string }>
-}
-
-function decodeHtmlEntities(text: string): string {
-  return text
-    .replace(/&#8217;/g, "'")
-    .replace(/&#8216;/g, "'")
-    .replace(/&#8220;/g, '"')
-    .replace(/&#8221;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&nbsp;/g, " ")
 }
 
 function parseFrenchDate(dateString: string): Date | null {
@@ -33,17 +21,10 @@ function parseFrenchDate(dateString: string): Date | null {
   return new Date(year, month - 1, day)
 }
 
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("fr-FR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(date)
-}
 
 export async function generateStaticParams() {
   const slugs = await getAllEventSlugs()
+  console.log("[build] Slugs d'événements:", slugs)
   return slugs.map((slug) => ({ slug }))
 }
 
@@ -65,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function EventDetailPage({ params }: Props) {
+export default async function SingleEventPage({ params }: { params: { slug: string } }) {
   const { slug } = await params
   const event = await getWordPressEventBySlug(slug)
 
@@ -100,21 +81,10 @@ export default async function EventDetailPage({ params }: Props) {
     return aDate.getTime() - bDate.getTime();
   });
 
-  const timelineData = upcomingEvents.map(e => ({
-    title: decodeHtmlEntities(e.title.rendered),
-    content: (
-      <div className="text-muted-foreground text-base">
-        <div className="mb-1 font-semibold">
-          {e.acf?.date_de_debut && formatDate(parseFrenchDate(e.acf.date_de_debut) as Date)}
-        </div>
-        {e.acf?.["sous-titre"] && <div className="mb-1">{decodeHtmlEntities(e.acf["sous-titre"])}</div>}
-        <Link href={`/evenement/${e.slug}`} className="text-primary underline hover:no-underline">Voir l'événement</Link>
-      </div>
-    )
-  }));
+    // Removed timelineData logic and links to other events
 
   return (
-    <div className="min-h-screen bg-background">
+    <main>
       {/* Back Button */}
       <div className="px-6 pt-12 max-w-7xl mx-auto">
         <Link
@@ -318,6 +288,6 @@ export default async function EventDetailPage({ params }: Props) {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

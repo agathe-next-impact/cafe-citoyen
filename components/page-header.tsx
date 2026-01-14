@@ -1,42 +1,75 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
+import { WPDecode } from "@/components/wp-decode"; // Utilisation du composant externe
 
-// Images des balles à placer sur la corde
-const BALL_IMAGES = [
-  "/images/fichier-201-404x-1.png",
-  "/images/fichier-202-404x-2.png",
-  "/images/fichier-203-404x-2.png",
-  "/images/fichier-204-404x-3.png",
-  "/images/fichier-205-404x-4.png",
-];
-
-function quadBezier(t: number, p0: number, p1: number, p2: number) {
-  return (
-    (1 - t) * (1 - t) * p0 +
-    2 * (1 - t) * t * p1 +
-    t * t * p2
-  );
-}
-
-function decodeHtmlEntities(str: string) {
-  if (!str) return "";
-  return str.replace(/&#([0-9]{1,3});/gi, (match, numStr) =>
-    String.fromCharCode(parseInt(numStr, 10))
-  );
-}
 
 type PageHeaderProps = {
   title: string;
   subtitle?: string;
   backgroundImage?: string;
   backgroundAlt?: string;
+  slug?: string;
 };
 
-export default function PageHeader({ title, subtitle, backgroundImage, backgroundAlt }: PageHeaderProps) {
+
+const MEGAMENU_CARD_COLOR_GROUPS: Array<{
+  slugs: string[],
+  bg: string,
+  border: string
+}> = [
+  {
+    slugs: ["innovation-citoyenne", "le-tiers-lieu", "equipe", "histoire", "partenaires", "actualites", "etats-generaux-communaux", "les-doleances", "reseau"],
+    bg: "bg-purple-50",
+    border: "border-purple-500/10"
+  },
+  {
+    slugs: ["cafe-citoyen", "bistrot", "circuits-courts", "causeries", "jeux-de-societe", "food-truck"],
+    bg: "bg-red-50",
+    border: "border-red-500/10"
+  },
+  {
+    slugs: ["saison-culturelle", "ateliers", "maison-dedition", "musique", "residences", "spectacle-vivant", "theatre"],
+    bg: "bg-yellow-50",
+    border: "border-yellow-500/10"
+  },
+  {
+    slugs: ["la-maison-du-vivant", "ateliers", "cuisine-en-commun", "fablab", "gite-communal", "lieux-de-repit"],
+    bg: "bg-emerald-50",
+    border: "border-emerald-500/10"
+  },
+  {
+    slugs: ["infos-pratiques", "autour-de-nous", "contact", "foire-aux-questions", "venir"],
+    bg: "bg-blue-50",
+    border: "border-blue-500/10"
+  }
+];
+
+function getMegaMenuCardStyle(slug?: string) {
+  if (!slug) {
+    return { bg: "bg-gray-50", border: "border-gray-300" };
+  }
+  for (const group of MEGAMENU_CARD_COLOR_GROUPS) {
+    if (group.slugs.includes(slug)) {
+      return { bg: group.bg, border: group.border };
+    }
+  }
+  return { bg: "bg-gray-50", border: "border-gray-300" };
+}
+
+
+const BALL_IMAGES = [
+  "/images/fichier-201-404x-1.png",
+  "/images/fichier-202-404x-2.png",
+  "/images/fichier-204-404x-3.png",
+  "/images/fichier-205-404x-4.png",
+  "/images/fichier-203-404x-2.png",
+];
+
+export default function PageHeader({ title, subtitle, backgroundImage, backgroundAlt, slug }: PageHeaderProps) {
   // Animation state
   const [anim, setAnim] = useState(0);
   const requestRef = useRef<number | null>(null);
-
+  
   useEffect(() => {
     let running = true;
     const animate = () => {
@@ -52,7 +85,6 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
 
   // Création de 3 lignes de balles
   const lines = [
-    // Ligne 1 (haute) - alternance normale avec 3 balles
     {
       Y1: 80, Y2: 40, Y3: 100,
       yOffset: -40,
@@ -60,9 +92,8 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
       baseY: [20, 25, 18],
       radius: [15, 20, 12],
       phase: [0, 0.8, 1.5],
-      colorPattern: [0, 1, 2] // 3 balles
+      colorPattern: [0, 1, 2]
     },
-    // Ligne 2 (milieu) - alternance inversée avec 5 balles
     {
       Y1: 120, Y2: 60, Y3: 140,
       yOffset: 0,
@@ -70,9 +101,8 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
       baseY: [30, 36, 24, 72, 28],
       radius: [18, 24, 14, 20, 16],
       phase: [0, 0.7, 1.2, 2.1, 2.8],
-      colorPattern: [4, 3, 2, 1, 0] // 5 balles inversées
+      colorPattern: [4, 3, 2, 1, 0]
     },
-    // Ligne 3 (basse) - alternance décalée avec 4 balles
     {
       Y1: 160, Y2: 100, Y3: 180,
       yOffset: 40,
@@ -80,11 +110,10 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
       baseY: [40, 45, 35, 55],
       radius: [20, 26, 16, 22],
       phase: [0.5, 1.2, 1.8, 2.6],
-      colorPattern: [2, 3, 4, 0] // 4 balles décalées
+      colorPattern: [2, 3, 4, 0]
     }
   ];
 
-  // Calcul des positions pour chaque ligne
   const allBallPositions = lines.map(line => {
     return line.tList.map(t => {
       let x, y;
@@ -101,6 +130,8 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
       return { x, y: y + line.yOffset };
     });
   });
+
+  const { bg, border } = getMegaMenuCardStyle(slug);
 
   return (
     <section className="relative min-h-50 flex items-center overflow-visible bg-white">
@@ -135,14 +166,16 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
       </div>
       <div className="container mx-auto px-6 py-6 relative z-10">
         <div className="flex items-center justify-between gap-8">
-          <div className="flex-1">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-balance mb-4 text-black">
-              {decodeHtmlEntities(title)}
+          <div className="flex-1 gap-4">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-balance mb-4 text-black">
+              <WPDecode>{title}</WPDecode>
             </h1>
             {subtitle && (
-              <p className="text-lg md:text-xl text-pretty max-w-2xl text-muted-foreground">
-                {decodeHtmlEntities(subtitle)}
-              </p>
+              <div
+                className={`rounded-2xl shadow-md px-6 py-4 max-w-2xl mt-8 border ${bg} ${border}`}
+              >
+                <blockquote dangerouslySetInnerHTML={{ __html: subtitle }} />
+              </div>
             )}
           </div>
           {backgroundImage && (
@@ -168,3 +201,14 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
     </section>
   );
 }
+
+// Utilitaire de courbe quadratique (inchangé)
+function quadBezier(t: number, p0: number, p1: number, p2: number) {
+  return (
+    (1 - t) * (1 - t) * p0 +
+    2 * (1 - t) * t * p1 +
+    t * t * p2
+  );
+}
+
+

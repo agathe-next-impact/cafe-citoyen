@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useLayoutEffect, useRef } from "react";
+import { WPDecode } from "@/components/wp-decode"; // Ajout de l'import
 
 interface Card {
   titre?: string;
@@ -167,7 +168,9 @@ export function PageContent({ content, images, encadres }: PageContentProps) {
               <article className="prose prose-lg max-w-none">
                 <div
                   className="text-foreground/90 leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: content }}
+                  // On suppose que le HTML WordPress est déjà échappé côté serveur,
+                  // mais si besoin de décoder avant d'injecter :
+                  dangerouslySetInnerHTML={{ __html: WPDecode({ children: content }).props.children }}
                 />
               </article>
             )}
@@ -182,12 +185,14 @@ export function PageContent({ content, images, encadres }: PageContentProps) {
                   >
                     <div className="flex flex-col gap-2 justify-center w-3/4 p-6 z-10 relative">
                       {card.titre && (
-                        <h3 className="text-2xl font-bold">{card.titre}</h3>
+                        <h3 className="text-2xl font-bold">
+                          <WPDecode>{card.titre}</WPDecode>
+                        </h3>
                       )}
                       {card.texte && (
                         <div
                           className="prose prose-sm text-gray-700"
-                          dangerouslySetInnerHTML={{ __html: card.texte }}
+                          dangerouslySetInnerHTML={{ __html: WPDecode({ children: card.texte }).props.children }}
                         />
                       )}
                     </div>
@@ -209,8 +214,6 @@ export function PageContent({ content, images, encadres }: PageContentProps) {
           </div>
         </div>
       </div>
-
-      {/* Le bento d'images en bas de page a été supprimé */}
     </section>
   );
 }

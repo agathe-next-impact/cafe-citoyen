@@ -12,6 +12,7 @@ interface SiteCardProps {
   date?: string
   variant?: "primary" | "secondary" | "chart-1" | "chart-2" | "chart-3" | "chart-4" | "chart-5" | "info" | "partner"
   colorScheme?: "primary" | "secondary" | "accent" | "chart-1" | "chart-2" | "chart-3" | "chart-4" | "chart-5"
+  categoryColor?: string // Couleur personnalisée ACF
   className?: string
   children?: React.ReactNode
 }
@@ -74,6 +75,7 @@ export function SiteCard({
   date,
   variant = "chart-1",
   colorScheme,
+  categoryColor,
   className,
   children,
 }: SiteCardProps) {
@@ -117,7 +119,13 @@ export function SiteCard({
         {(category || date) && (
           <div className="flex items-center gap-2 mb-2">
             {category && (
-              <span className={cn("inline-flex items-center px-2 py-1 rounded-full text-xs font-medium", colors.badge)}>
+              <span
+                className={cn(
+                  "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium",
+                  !categoryColor && colors.badge
+                )}
+                style={categoryColor ? { background: categoryColor, color: '#fff' } : {}}
+              >
                 {category}
               </span>
             )}

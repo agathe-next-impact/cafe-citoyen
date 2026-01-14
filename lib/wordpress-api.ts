@@ -259,21 +259,6 @@ function decodeHtmlEntities(text: string): string {
     .replace(/&nbsp;/g, " ")
 }
 
-const cache = new Map<string, { data: any; timestamp: number }>()
-const CACHE_DURATION = 300000 // 5 minutes (increased from 60 seconds)
-
-function getCached<T>(key: string): T | null {
-  const cached = cache.get(key)
-  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-    return cached.data as T
-  }
-  cache.delete(key)
-  return null
-}
-
-function setCache(key: string, data: any): void {
-  cache.set(key, { data, timestamp: Date.now() })
-}
 
 function measureTime(label: string) {
   const start = Date.now()
@@ -284,12 +269,6 @@ function measureTime(label: string) {
 
 export async function getWordPressPages(): Promise<WordPressPage[]> {
   const endMeasure = measureTime("getWordPressPages")
-
-  const cached = getCached<WordPressPage[]>("pages")
-  if (cached) {
-    endMeasure()
-    return cached
-  }
 
 
   try {
@@ -310,7 +289,6 @@ export async function getWordPressPages(): Promise<WordPressPage[]> {
     }
 
     const pages = await response.json()
-    setCache("pages", pages)
     endMeasure()
     return pages
   } catch (error) {
@@ -355,12 +333,6 @@ async function fetchPartnerByUrl(url: string): Promise<{ id: number; title: stri
 export async function getWordPressEvents(): Promise<WordPressEvent[]> {
   const endMeasure = measureTime("getWordPressEvents")
 
-  const cached = getCached<WordPressEvent[]>("events")
-  if (cached) {
-    endMeasure()
-    return cached
-  }
-
 
   try {
     const fetchStart = Date.now()
@@ -403,7 +375,6 @@ export async function getWordPressEvents(): Promise<WordPressEvent[]> {
       }),
     )
 
-    setCache("events", eventsWithPartners)
     endMeasure()
     return eventsWithPartners
   } catch (error) {
@@ -612,10 +583,6 @@ export async function getEventsByPageSlug(slug: string): Promise<WordPressEvent[
 }
 
 export async function getTeamMembers(): Promise<TeamMember[]> {
-  const cached = getCached<TeamMember[]>("team-members")
-  if (cached) {
-    return cached
-  }
 
   try {
     const response = await fetch(`${WORDPRESS_URL}/wp-json/wp/v2/membre?per_page=100&_embed&acf_format=standard`, {
@@ -630,7 +597,6 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
     }
 
     const members = await response.json()
-    setCache("team-members", members)
     return members
   } catch (error) {
     console.error("[v0] Error fetching team members:", error)
@@ -639,10 +605,6 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
 }
 
 export async function getWordPressPosts(): Promise<WordPressPost[]> {
-  const cached = getCached<WordPressPost[]>("posts")
-  if (cached) {
-    return cached
-  }
 
   try {
     const response = await fetch(`${WORDPRESS_URL}/wp-json/wp/v2/posts?per_page=100&_embed&acf_format=standard`, {
@@ -657,7 +619,6 @@ export async function getWordPressPosts(): Promise<WordPressPost[]> {
     }
 
     const posts = await response.json()
-    setCache("posts", posts)
     return posts
   } catch (error) {
     console.error("[v0] Error fetching WordPress posts:", error)
@@ -666,10 +627,6 @@ export async function getWordPressPosts(): Promise<WordPressPost[]> {
 }
 
 export async function getPartners(): Promise<Partner[]> {
-  const cached = getCached<Partner[]>("partners")
-  if (cached) {
-    return cached
-  }
 
   try {
     const response = await fetch(`${WORDPRESS_URL}/wp-json/wp/v2/partenaire?per_page=100&_embed&acf_format=standard`, {
@@ -684,25 +641,18 @@ export async function getPartners(): Promise<Partner[]> {
     }
 
     const partners = await response.json()
-    setCache("partners", partners)
     return partners
   } catch (error) {
     console.error("[v0] Error fetching partners:", error)
   }
 
   const defaultOptions: Partner[] = []
-  setCache("partners", defaultOptions)
   return defaultOptions
 }
 
 export async function getSiteOptions(): Promise<SiteOptions | null> {
   const endMeasure = measureTime("getSiteOptions")
 
-  const cached = getCached<SiteOptions>("site-options")
-  if (cached) {
-    endMeasure()
-    return cached
-  }
 
 
   try {
@@ -727,7 +677,6 @@ export async function getSiteOptions(): Promise<SiteOptions | null> {
         logo_du_site: data.logo_du_site,
       }
 
-      setCache("site-options", siteOptions)
       endMeasure()
       return siteOptions
     } else {
@@ -742,7 +691,8 @@ export async function getSiteOptions(): Promise<SiteOptions | null> {
     description_du_site: "Centre culturel de rencontre",
     logo_du_site: undefined,
   }
-  setCache("site-options", defaultOptions)
   endMeasure()
   return defaultOptions
 }
+
+
