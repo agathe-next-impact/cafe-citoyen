@@ -18,6 +18,7 @@ interface Card {
 
 interface PageContentProps {
   content?: string;
+  slug?: string;
   images?: Array<{
     url: string;
     alt: string;
@@ -29,21 +30,12 @@ interface PageContentProps {
   encadres?: Card[];
 }
 
-function decodeHtmlEntities(text: string): string {
-  return text
-    .replace(/&#8217;/g, "'")
-    .replace(/&#8216;/g, "'")
-    .replace(/&#8220;/g, '"')
-    .replace(/&#8221;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&nbsp;/g, " ");
-}
 
-export function PageContent({ content, images, encadres }: PageContentProps) {
+
+
+
+
+export function PageContent({ content, slug, images, encadres }: PageContentProps) {
   const [contentAndCardsHeight, setContentAndCardsHeight] = useState<number>(0);
   const contentRef = useRef<HTMLDivElement>(null);
   const imageColumnRef = useRef<HTMLDivElement>(null);
@@ -122,11 +114,14 @@ export function PageContent({ content, images, encadres }: PageContentProps) {
     return spans[Math.floor(Math.random() * spans.length)];
   };
 
-  console.log("Cartes encadres reçues :", encadres);
+
 
   return (
-    <section className="md:w-max-[90%] lg:max-w-6xl mx-auto py-12 px-6">
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-8 lg:gap-12">
+    <>
+      <div
+        className="pointer-events-none fixed inset-0 z-0 top-0 h-screen w-screen" />
+      <section className="relative md:w-max-[90%] lg:max-w-6xl mx-auto py-12 px-6 z-10">
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-5 gap-8 lg:gap-12">
         {/* Colonne des images à gauche */}
         {Array.isArray(visibleImages) && visibleImages.length > 0 && (
           <div className="md:col-span-1">
@@ -214,6 +209,7 @@ export function PageContent({ content, images, encadres }: PageContentProps) {
           </div>
         </div>
       </div>
-    </section>
+      </section>
+    </>
   );
 }

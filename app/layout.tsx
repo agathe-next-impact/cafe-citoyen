@@ -62,7 +62,7 @@ export default function RootLayout({
       <head>
         <meta charSet="utf-8" />
       </head>
-      <body suppressHydrationWarning className={redHatDisplay.variable}>
+      <body suppressHydrationWarning className={redHatDisplay.variable + " bg-amber-50/10"}>
         <ScrollToTop />
         <AnimatedNavWrapper />
         <BallGarland />

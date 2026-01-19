@@ -85,7 +85,7 @@ export default async function AgendaPage() {
   const encadres = page.acf?.encadres
 
   return (
-    <div className="min-h-screen bg-background pt-8">
+    <div className="min-h-screen">
       <PageHeader
         title={page.title.rendered}
         subtitle={page.acf?.["sous-titre"]}
@@ -93,7 +93,7 @@ export default async function AgendaPage() {
         backgroundAlt={page.acf?.background?.alt}
         slug="agenda"
       />
-      <PageContent content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
+      <PageContent slug="agenda" content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
       <div className="container mx-auto px-4 py-12">
         <AgendaFiltersClient categories={allCategories} tags={allTags} events={upcomingEvents} />
         {page.content?.rendered && (

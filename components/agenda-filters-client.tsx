@@ -168,6 +168,11 @@ export default function AgendaFiltersClient({ categories, tags, events }: Agenda
               const categoryColor = cat?.acf?.couleur_associee;
               const variant = getCategoryVariant(categoryName);
               const featuredImage = event._embedded?.["wp:featuredmedia"]?.[0]?.source_url;
+              
+              // Get event tags
+              const eventTags = event._embedded?.["wp:term"]?.flat()
+                .filter((term: any) => term.taxonomy === "post_tag")
+                .map((term: any) => decodeHtmlEntities(term.name)) || [];
 
               return (
                 <div
@@ -262,9 +267,18 @@ export default function AgendaFiltersClient({ categories, tags, events }: Agenda
                         <svg className="w-16 h-16 text-muted-foreground/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" /></svg>
                       </div>
                     )}
-                    <div className="absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-medium bg-white text-primary border border-primary/30 shadow-sm">
-                      À venir
-                    </div>
+                    {eventTags.length > 0 && (
+                      <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                        {eventTags.map((tag: string, index: number) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 rounded-full text-xs font-medium bg-purple-700 backdrop-blur-sm text-white border border-purple-300 shadow-sm"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               );

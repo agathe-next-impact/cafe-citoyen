@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { WPDecode } from "@/components/wp-decode"; // Utilisation du composant externe
 
 
@@ -9,6 +9,8 @@ type PageHeaderProps = {
   backgroundImage?: string;
   backgroundAlt?: string;
   slug?: string;
+  childPages?: Array<{ id: number; title: { rendered: string }; slug: string }>;
+  allPages?: any[];
 };
 
 
@@ -19,27 +21,27 @@ const MEGAMENU_CARD_COLOR_GROUPS: Array<{
 }> = [
   {
     slugs: ["innovation-citoyenne", "le-tiers-lieu", "equipe", "histoire", "partenaires", "actualites", "etats-generaux-communaux", "les-doleances", "reseau"],
-    bg: "bg-purple-50",
+    bg: "bg-purple-50/50",
     border: "border-purple-500/10"
   },
   {
     slugs: ["cafe-citoyen", "bistrot", "circuits-courts", "causeries", "jeux-de-societe", "food-truck"],
-    bg: "bg-red-50",
+    bg: "bg-red-50/50",
     border: "border-red-500/10"
   },
   {
     slugs: ["saison-culturelle", "ateliers", "maison-dedition", "musique", "residences", "spectacle-vivant", "theatre"],
-    bg: "bg-yellow-50",
+    bg: "bg-yellow-50/50",
     border: "border-yellow-500/10"
   },
   {
-    slugs: ["la-maison-du-vivant", "ateliers", "cuisine-en-commun", "fablab", "gite-communal", "lieux-de-repit"],
-    bg: "bg-emerald-50",
+    slugs: ["la-maison-du-vivant", "ateliers", "cuisine-en-commun", "fablab", "gite-communal", "lieux-de-repit", "agenda"],
+    bg: "bg-emerald-50/50",
     border: "border-emerald-500/10"
   },
   {
     slugs: ["infos-pratiques", "autour-de-nous", "contact", "foire-aux-questions", "venir"],
-    bg: "bg-blue-50",
+    bg: "bg-blue-50/50",
     border: "border-blue-500/10"
   }
 ];
@@ -56,6 +58,40 @@ function getMegaMenuCardStyle(slug?: string) {
   return { bg: "bg-gray-50", border: "border-gray-300" };
 }
 
+function getBadgeStyle(slug?: string) {
+  if (!slug) {
+    return { bg: "bg-gray-500", border: "border-gray-500" };
+  }
+  for (const group of MEGAMENU_CARD_COLOR_GROUPS) {
+    if (group.slugs.includes(slug)) {
+      const baseBg = group.bg.replace("/50", ""); // handle bg-xxx-50/50 variants
+      if (baseBg === "bg-purple-50") return { bg: "bg-purple-500", border: "border-purple-500" };
+      if (baseBg === "bg-red-50") return { bg: "bg-red-500", border: "border-red-500" };
+      if (baseBg === "bg-yellow-50") return { bg: "bg-yellow-500", border: "border-yellow-500" };
+      if (baseBg === "bg-emerald-50") return { bg: "bg-emerald-500", border: "border-emerald-500" };
+      if (baseBg === "bg-blue-50") return { bg: "bg-blue-500", border: "border-blue-500" };
+    }
+  }
+  return { bg: "bg-gray-500", border: "border-gray-500" };
+}
+
+function getColorRgb(slug?: string): string {
+  if (!slug) {
+    return "107, 114, 128"; // gray-500
+  }
+  for (const group of MEGAMENU_CARD_COLOR_GROUPS) {
+    if (group.slugs.includes(slug)) {
+      const baseBg = group.bg.replace("/50", "");
+      if (baseBg === "bg-purple-50") return "168, 85, 247"; // purple-500
+      if (baseBg === "bg-red-50") return "239, 68, 68"; // red-500
+      if (baseBg === "bg-yellow-50") return "234, 179, 8"; // yellow-500
+      if (baseBg === "bg-emerald-50") return "16, 185, 129"; // emerald-500
+      if (baseBg === "bg-blue-50") return "59, 130, 246"; // blue-500
+    }
+  }
+  return "107, 114, 128"; // gray-500
+}
+
 
 const BALL_IMAGES = [
   "/images/fichier-201-404x-1.png",
@@ -65,7 +101,7 @@ const BALL_IMAGES = [
   "/images/fichier-203-404x-2.png",
 ];
 
-export default function PageHeader({ title, subtitle, backgroundImage, backgroundAlt, slug }: PageHeaderProps) {
+export default function PageHeader({ title, subtitle, backgroundImage, backgroundAlt, slug, childPages, allPages }: PageHeaderProps) {
   // Animation state
   const [anim, setAnim] = useState(0);
   const requestRef = useRef<number | null>(null);
@@ -132,9 +168,18 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
   });
 
   const { bg, border } = getMegaMenuCardStyle(slug);
+  const colorRgb = getColorRgb(slug);
 
   return (
-    <section className="relative min-h-50 flex items-center overflow-visible bg-white">
+    <section className={`-mt-16 pt-16 relative min-h-50 flex items-center overflow-visible ${bg} border-b-2 ${border}`}>
+      {/* Halo radial en haut de page */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0 opacity-50"
+        style={{
+          backgroundImage:
+            `radial-gradient(ellipse at -10% -60%, rgba(${colorRgb},0.4) 0%, rgba(${colorRgb},0.05) 38%, white 60%), linear-gradient(to bottom, transparent 0%, white 70%, rgba(255,255,255,0.3) 100%)`,
+        }}
+      />
       {/* Ligne courbe SVG en arrière-plan */}
       <div className="pointer-events-none absolute left-2/5 w-full mt-20 z-0">
         {/* 3 lignes de balles animées */}
@@ -165,16 +210,33 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
         )).flat()}
       </div>
       <div className="container mx-auto px-6 py-6 relative z-10">
-        <div className="flex items-center justify-between gap-8">
+        <div className="flex items-start justify-between gap-8 pt-12">
           <div className="flex-1 gap-4">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-balance mb-4 text-black">
               <WPDecode>{title}</WPDecode>
             </h1>
             {subtitle && (
               <div
-                className={`rounded-2xl shadow-md px-6 py-4 max-w-2xl mt-8 border ${bg} ${border}`}
+                className={`rounded-2xl shadow-md px-6 py-4 max-w-2xl mt-8 border bg-white/80 ${border}`}
               >
-                <blockquote dangerouslySetInnerHTML={{ __html: subtitle }} />
+                <WPDecode>{subtitle}</WPDecode>
+              </div>
+            )}
+            {childPages && childPages.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-6">
+                {childPages.map((childPage) => {
+                    const href = allPages ? getPagePath(childPage, allPages) : `/${childPage.slug}`;
+                    const badgeStyle = getBadgeStyle(childPage.slug);
+                  return (
+                    <a
+                      key={childPage.id}
+                      href={href}
+                      className={`inline-flex items-center px-4 py-1 rounded-full text-base text-white border-2 transition-all hover:scale-105 ${badgeStyle.bg} ${badgeStyle.border} hover:shadow-md`}
+                    >
+                      <WPDecode>{childPage.title.rendered}</WPDecode>
+                    </a>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -200,6 +262,17 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
       </div>
     </section>
   );
+}
+
+// Helper to get the page path from a child page and all pages
+function getPagePath(childPage: { slug: string }, allPages: any[]): string {
+  // Try to find the page in allPages by id or slug
+  const found = allPages.find(
+    (p) => p.id === childPage.id || p.slug === childPage.slug
+  );
+  // If found and has a path, return it; otherwise fallback to /slug
+  if (found && found.path) return found.path;
+  return `/${childPage.slug}`;
 }
 
 // Utilitaire de courbe quadratique (inchangé)

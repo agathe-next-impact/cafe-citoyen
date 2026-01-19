@@ -74,15 +74,15 @@ export function AnimatedNav({
   };
 
   return (
-    <div className={cn("w-full bg-white", className)}>
+    <div className={cn("w-full", className)}>
       {/* Overlay to prevent page interaction and stacking issues when menu is open */}
       {isExpanded && (
-        <div className="fixed inset-0 z-199 bg-white/20 backdrop-blur-xl transition-all duration-300" aria-hidden="true" />
+        <div className="fixed inset-0 z-199 bg-white/05 backdrop-blur-xl transition-all duration-300" aria-hidden="true" />
       )}
       <nav
         className={cn(
-          "fixed top-0 left-0 right-0 z-200 transition-all duration-300 max-h-20 backdrop-blur-lg border-b border-blue-100",
-          isScrolled ? "bg-[var(--background)/0.95]" : `bg-[${baseColor}/0.8]`,
+          "fixed top-0 left-0 right-0 z-200 transition-all duration-300 max-h-20 backdrop-blur-lg border-b border-blue-100 bg-white/10",
+          isScrolled ? "bg-[var(--background)/0.1]" : `bg-[${baseColor}/0.1]`,
         )}
       >
         <div className="container mx-auto max-w-full overflow-x-hidden">

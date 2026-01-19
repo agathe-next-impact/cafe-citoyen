@@ -18,15 +18,28 @@ import {
   getEventsByPageSlug,
   getWordPressPages,
   getTeamMembers,
-  getWordPressPosts, // Added posts import
-  getPartners, // Added getPartners import
+  getPartners,
 } from "@/lib/wordpress-api"
 import Link from "next/link"
 import PageHeader from "@/components/page-header"
-import { TeamMembers } from "@/components/team-members" // Added team members component
-import { PostsList } from "@/components/posts-list" // Added posts list component
+import { TeamMembers } from "@/components/team-members"
 import { PartnersList } from "@/components/partners-list"
-import { PageContent } from "@/components/page-content" // Added PageContent component import
+import { PageContent } from "@/components/page-content"
+import { cn } from "@/lib/utils"
+import { getCategoryVariant } from "@/lib/category-colors"
+import { variantColors } from "@/components/ui/site-card"
+
+const variantBorderColors: Record<string, string> = {
+  primary: "border-primary",
+  secondary: "border-secondary",
+  "chart-1": "border-chart-1",
+  "chart-2": "border-chart-2",
+  "chart-3": "border-chart-3",
+  "chart-4": "border-chart-4",
+  "chart-5": "border-chart-5",
+  info: "border-blue-500",
+  partner: "border-green-500",
+};
 
 
 
@@ -47,7 +60,7 @@ const ArrowRightIcon = ({ className }: { className?: string }) => (
 )
 
 export async function generateStaticParams() {
-  const RESERVED_ROUTES = ["evenement", "api", "not-found", "_next", "favicon.ico"]
+  const RESERVED_ROUTES = ["actualites", "evenement", "api", "not-found", "_next", "favicon.ico", "agenda"]
   const slugs = await getAllPageSlugs()
   const filteredSlugs = slugs.filter((slug) => !RESERVED_ROUTES.includes(slug))
   return filteredSlugs.map((slug) => ({ slug }))
@@ -99,48 +112,6 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
   const childPages = await getChildPages(page.id)
   const events = await getEventsByPageSlug(slug)
 
-  if (slug === "actualites") {
-    encadres = page.acf?.encadres;
-    const allPosts = await getWordPressPosts()
-    const categories = Array.from(
-      new Set(
-        allPosts.flatMap(
-          (post) =>
-            post._embedded?.["wp:term"]
-              ?.flat()
-              .filter((term) => term.taxonomy === "category")
-              .map((term) => decodeHtmlEntities(term.name)) || [],
-        ),
-      ),
-    ).sort()
-    const fixedImages = Array.isArray(page.acf?.images)
-      ? page.acf.images.map(img => ({ ...img, height: 0, width: 0 }))
-      : undefined;
-    return (
-      <div className="min-h-screen bg-background pt-20">
-        <PageHeader
-          title={page.title.rendered}
-          subtitle={page.acf?.["sous-titre"]}
-          backgroundImage={page.acf?.background?.url}
-          backgroundAlt={page.acf?.background?.alt}
-          slug={slug}
-        />
-        <PageContent content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
-        <div className="container mx-auto px-4 py-12">
-          {page.content?.rendered && (
-            <article className="prose prose-lg max-w-4xl mx-auto mb-12">
-              <div
-                className="text-foreground/80 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: page.content.rendered }}
-              />
-            </article>
-          )}
-          <PostsList posts={allPosts} categories={categories} />
-        </div>
-      </div>
-    )
-  }
-
   if (slug === "equipe") {
     encadres = page.acf?.encadres;
     const teamMembers = await getTeamMembers()
@@ -152,15 +123,17 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
         }))
       : undefined;
     return (
-      <div className="min-h-screen bg-background pt-20">
+      <div className="min-h-screen">
         <PageHeader
           title={page.title.rendered}
           subtitle={page.acf?.["sous-titre"]}
           backgroundImage={page.acf?.background?.url}
           backgroundAlt={page.acf?.background?.alt}
           slug={slug}
+          childPages={childPages}
+          allPages={allPages}
         />
-        <PageContent content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
+        <PageContent slug={slug} content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
         <div className="container mx-auto px-4 py-12">
           {page.content?.rendered && (
             <article className="prose prose-lg max-w-4xl mx-auto mb-12">
@@ -187,15 +160,17 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
         }))
       : undefined;
     return (
-      <div className="min-h-screen bg-background pt-20">
+      <div className="min-h-screen">
         <PageHeader
           title={page.title.rendered}
           subtitle={page.acf?.["sous-titre"]}
           backgroundImage={page.acf?.background?.url}
           backgroundAlt={page.acf?.background?.alt}
           slug={slug}
+          childPages={childPages}
+          allPages={allPages}
         />
-        <PageContent content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
+        <PageContent slug={slug} content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
         <div className="container mx-auto px-4 py-12">
           {page.content?.rendered && (
             <article className="prose prose-lg max-w-4xl mx-auto mb-12">
@@ -222,15 +197,17 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
     : undefined;
   encadres = page.acf?.encadres;
   return (
-    <div className="min-h-screen bg-background pt-20">
+    <div className="min-h-screen">
       <PageHeader
         title={page.title.rendered}
         subtitle={page.acf?.["sous-titre"]}
         backgroundImage={page.acf?.background?.url}
         backgroundAlt={page.acf?.background?.alt}
         slug={slug}
+        childPages={childPages}
+        allPages={allPages}
       />
-      <PageContent content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
+      <PageContent slug={slug} content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
       <div className="container mx-auto px-4 py-12">
         <article className="prose prose-lg max-w-4xl mx-auto">
           <div
@@ -238,22 +215,156 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
             dangerouslySetInnerHTML={{ __html: page.content?.rendered || "" }}
           />
         </article>
-        {childPages.length > 0 && (
+        {events.length > 0 && (
           <section className="mt-16 max-w-7xl mx-auto">
-            <h2 className="text-3xl font-bold text-foreground mb-8">Pages associées</h2>
+            <h2 className="text-3xl font-bold text-foreground mb-8">Événements à venir</h2>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {childPages.map((childPage) => (
-                <Link
-                  key={childPage.id}
-                  href={getPagePath(childPage, allPages)}
-                  className="group bg-card rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 p-6 border border-border"
-                >
-                  <h3 className="text-xl font-semibold mb-2 text-foreground group-hover:text-primary transition-colors flex items-center gap-2">
-                    {decodeHtmlEntities(childPage.title.rendered)}
-                    <ArrowRightIcon className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                  </h3>
-                </Link>
-              ))}
+              {events.slice(0, 3).map((event) => {
+                type CategoryTerm = {
+                  id: number;
+                  name: string;
+                  slug: string;
+                  taxonomy: string;
+                  acf?: {
+                    couleur_associee?: string;
+                  };
+                };
+                const cat = event._embedded?.["wp:term"]?.flat().find(
+                  (term: CategoryTerm) => term.taxonomy === "category"
+                ) as CategoryTerm | undefined;
+                const categoryName = cat ? decodeHtmlEntities(cat.name) : undefined;
+                const categoryColor = cat?.acf?.couleur_associee;
+                const variant = getCategoryVariant(categoryName);
+                const featuredImage = event._embedded?.["wp:featuredmedia"]?.[0]?.source_url;
+                
+                // Get event tags
+                const eventTags = event._embedded?.["wp:term"]?.flat()
+                  .filter((term: any) => term.taxonomy === "post_tag")
+                  .map((term: any) => decodeHtmlEntities(term.name)) || [];
+
+                return (
+                  <Link
+                    key={event.id}
+                    href={`/evenement/${event.slug}`}
+                    className="group bg-card rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-yellow-50 flex flex-col h-full"
+                  >
+                    <div className="flex-1 flex flex-col">
+                      <div className="flex items-center gap-2">
+                        {categoryName && (
+                          <span
+                            className={cn(
+                              "w-full inline-flex items-center px-4 py-2 text-sm font-medium border-2",
+                              !categoryColor && (variantColors[variant]?.badge || variantColors["chart-1"].badge),
+                              !categoryColor && (variantBorderColors[variant] || "border-border")
+                            )}
+                            style={categoryColor ? { background: categoryColor, color: "#fff", borderColor: categoryColor } : undefined}
+                          >
+                            {categoryName}
+                          </span>
+                        )}
+                      </div>
+                      <div className="p-4 flex-1">
+                        <h3
+                          className={cn(
+                            "text-xl font-semibold mb-3 transition-colors group-hover:text-primary",
+                            categoryColor && "group-hover:text-(--cat-color)"
+                          )}
+                          style={categoryColor ? { color: "#000", ["--cat-color"]: categoryColor } as React.CSSProperties : { color: "#000" }}
+                        >
+                          {decodeHtmlEntities(event.title.rendered)}
+                        </h3>
+                        {event.acf?.date_de_debut && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                            <svg className="w-4 h-4" style={categoryColor ? { color: categoryColor } : {}} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                              <line x1="16" x2="16" y1="2" y2="6" />
+                              <line x1="8" x2="8" y1="2" y2="6" />
+                              <line x1="3" x2="21" y1="10" y2="10" />
+                            </svg>
+                            <span>
+                              {(() => {
+                                const [day, month, year] = event.acf.date_de_debut.split("/").map(Number);
+                                const date = new Date(year, month - 1, day);
+                                return date.toLocaleDateString('fr-FR', {
+                                  weekday: 'long',
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric',
+                                });
+                              })()}
+                              {event.acf.date_de_fin && (() => {
+                                const [day, month, year] = event.acf.date_de_fin.split("/").map(Number);
+                                const date = new Date(year, month - 1, day);
+                                return ' - ' + date.toLocaleDateString('fr-FR', {
+                                  weekday: 'long',
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric',
+                                });
+                              })()}
+                            </span>
+                          </div>
+                        )}
+                        {event.acf?.heure_de_debut && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <svg className="w-4 h-4" style={categoryColor ? { color: categoryColor } : {}} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="12" cy="12" r="10" />
+                              <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                            <span>{event.acf.heure_de_debut}{event.acf.heure_de_fin && ` - ${event.acf.heure_de_fin}`}</span>
+                          </div>
+                        )}
+                        {event.acf?.["sous-titre"] && (
+                          <div className="text-base text-muted-foreground mt-2">
+                            {decodeHtmlEntities(event.acf["sous-titre"])}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="relative aspect-square overflow-hidden">
+                      {featuredImage ? (
+                        <>
+                          <img
+                            src={featuredImage || "/placeholder.svg"}
+                            alt={event.title.rendered}
+                            className="w-full h-full object-cover group-hover:blur-sm transition-all duration-500"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                          {event.acf?.descriptif && (
+                            <div className="absolute inset-x-0 bottom-0 bg-white p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                              <p className="text-sm text-gray-700 leading-relaxed line-clamp-4">
+                                {decodeHtmlEntities(event.acf.descriptif.replace(/<[^>]*>/g, ""))}
+                              </p>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="w-full h-full bg-linear-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                          <svg className="w-16 h-16 text-muted-foreground/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                            <line x1="16" x2="16" y1="2" y2="6" />
+                            <line x1="8" x2="8" y1="2" y2="6" />
+                            <line x1="3" x2="21" y1="10" y2="10" />
+                          </svg>
+                        </div>
+                      )}
+                      {eventTags.length > 0 && (
+                        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                          {eventTags.map((tag: string, index: number) => (
+                            <span
+                              key={index}
+                              className="px-3 py-1 rounded-full text-xs font-medium bg-purple-700 backdrop-blur-sm text-white border border-purple-300 shadow-sm"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </section>
         )}

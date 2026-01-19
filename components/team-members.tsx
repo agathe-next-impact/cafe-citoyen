@@ -64,7 +64,7 @@ export function TeamMembers({ members }: TeamMembersProps) {
   }
 
   return (
-    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
       {members.map((member) => {
         const profileImage = member._embedded?.["wp:featuredmedia"]?.[0]?.source_url
         const profileAlt = member._embedded?.["wp:featuredmedia"]?.[0]?.alt_text || member.title.rendered
@@ -72,64 +72,69 @@ export function TeamMembers({ members }: TeamMembersProps) {
         return (
           <div
             key={member.id}
-            className="group bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-border"
+            className="group bg-card rounded-2xl overflow-hidden transition-all duration-300 border border-purple-100"
           >
             {/* Photo de profil */}
-            <div className="relative h-72 overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10">
+            <div className="relative h-52 overflow-hidden">
               {profileImage ? (
                 <img
                   src={profileImage || "/placeholder.svg"}
                   alt={profileAlt}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:blur-sm transition-transform duration-500"
                   loading="lazy"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
+                <div className="w-full h-full flex items-center justify-center bg-purple-500/10">
                   <UserIcon className="w-24 h-24 text-muted-foreground/30" />
                 </div>
               )}
+
+              {/* Overlay qui glisse depuis le bas au survol */}
+              <div className="absolute inset-0 flex items-end pointer-events-none group-hover:pointer-events-auto">
+                <div className="w-full p-4 sm:p-5 bg-white translate-y-full group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+                  <div className="flex flex-col gap-3 text-sm text-foreground">
+                    {member.acf?.role && (
+                      <span className="font-medium text-purple-500 text-base">{decodeHtmlEntities(member.acf.role)}</span>
+                    )}
+
+                    {member.acf?.mini_bio && (
+                      <div
+                        className="max-w-none text-muted-foreground"
+                      >
+                        {decodeHtmlEntities(member.acf.mini_bio)}
+                      </div>
+                    )}
+
+                    {member.acf?.liens && member.acf.liens.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-2 border-t border-border/70">
+                        {member.acf.liens.map((linkItem, index) => {
+                          if (!linkItem.lien) return null
+
+                          const { url, title, target } = linkItem.lien
+                          return (
+                            <Link
+                              key={index}
+                              href={url}
+                              target={target || "_blank"}
+                              rel={target === "_blank" ? "noopener noreferrer" : undefined}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs hover:text-purple-500/80 text-purple-500 rounded-full transition-colors"
+                            >
+                              {decodeHtmlEntities(title || url)}
+                              {target === "_blank" && <ExternalLinkIcon className="w-3 h-3" />}
+                            </Link>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Contenu */}
             <div className="p-6">
-              {/* Nom */}
+              {/* Nom toujours visible */}
               <h3 className="text-2xl font-bold text-foreground mb-2">{decodeHtmlEntities(member.title.rendered)}</h3>
-
-              {/* Rôle */}
-              {member.acf?.role && (
-                <p className="text-primary font-medium mb-4">{decodeHtmlEntities(member.acf.role)}</p>
-              )}
-
-              {/* Mini bio */}
-              {member.acf?.mini_bio && (
-                <div
-                  className="prose prose-sm max-w-none text-muted-foreground mb-4 line-clamp-4"
-                  dangerouslySetInnerHTML={{ __html: member.acf.mini_bio }}
-                />
-              )}
-
-              {/* Liens */}
-              {member.acf?.liens && member.acf.liens.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-border">
-                  {member.acf.liens.map((linkItem, index) => {
-                    if (!linkItem.lien) return null
-
-                    const { url, title, target } = linkItem.lien
-                    return (
-                      <Link
-                        key={index}
-                        href={url}
-                        target={target || "_self"}
-                        rel={target === "_blank" ? "noopener noreferrer" : undefined}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-primary/10 hover:bg-primary/20 text-primary rounded-full transition-colors"
-                      >
-                        {decodeHtmlEntities(title || url)}
-                        {target === "_blank" && <ExternalLinkIcon className="w-3 h-3" />}
-                      </Link>
-                    )
-                  })}
-                </div>
-              )}
             </div>
           </div>
         )

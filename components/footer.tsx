@@ -2,12 +2,19 @@ import Link from "next/link"
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-muted/30">
-      <div className="container mx-auto px-4 lg:px-8 py-16">
+    <footer className="relative border-t border-border overflow-hidden bg-white">
+      <div
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundImage:
+            "radial-gradient(ellipse at bottom right, rgba(59,130,246,0.35) 0%, rgba(59,130,246,0.25) 24%, rgba(59,130,246,0.15) 42%, rgba(255,255,255,0.9) 70%, rgba(255,255,255,1) 100%)",
+        }}
+      />
+      <div className="relative z-10 container mx-auto px-4 lg:px-8 py-16">
         <div className="grid gap-12 md:grid-cols-4">
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="relative flex items-center justify-center h-10 w-10 rounded border-2 border-primary">
+              <div className="relative flex items-center justify-center h-10 w-10 rounded border-2 border-white">
                 <svg className="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
