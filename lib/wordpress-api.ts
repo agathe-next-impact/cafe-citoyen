@@ -653,18 +653,21 @@ export async function getPartners(): Promise<Partner[]> {
 export async function getSiteOptions(): Promise<SiteOptions | null> {
   const endMeasure = measureTime("getSiteOptions")
 
-
-
   try {
     const url = `${WORDPRESS_URL}/wp-json/site/v1/reglages`
 
-    const fetchStart = Date.now()
-    const response = await fetch(url, {
+    const fetchInit: RequestInit & { next?: { revalidate: number } } = {
       headers: {
         "Accept-Charset": "utf-8",
       },
-      next: { revalidate: 300 },
-    })
+    }
+
+    // Only use Next.js revalidate option on the server
+    if (typeof window === "undefined") {
+      fetchInit.next = { revalidate: 300 }
+    }
+
+    const response = await fetch(url, fetchInit)
 
     if (response.ok) {
       const result = await response.json()

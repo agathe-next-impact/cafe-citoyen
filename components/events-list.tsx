@@ -33,11 +33,31 @@ interface Event {
   }
 }
 
+
 interface EventsListProps {
   events: Event[]
   categories: string[]
   seasons: string[]
   partners: string[]
+}
+
+function getMonthYearOptions(events: Event[]): { month: number; year: number }[] {
+  const options = new Set<string>();
+  events.forEach((event) => {
+    const dateStr = event.acf?.date_de_debut;
+    if (dateStr) {
+      const [day, month, year] = dateStr.split("/").map(Number);
+      if (month && year) {
+        options.add(`${month}-${year}`);
+      }
+    }
+  });
+  return Array.from(options)
+    .map((str) => {
+      const [month, year] = str.split("-").map(Number);
+      return { month, year };
+    })
+    .sort((a, b) => a.year !== b.year ? a.year - b.year : a.month - b.month);
 }
 
 function parseFrenchDate(dateString: string): Date | null {
@@ -83,40 +103,55 @@ function getEventStatus(
   return { status: "upcoming", color: "text-primary", bgColor: "from-primary to-primary/80" }
 }
 
+
 export const EventsList = memo(function EventsList({ events, categories, seasons, partners }: EventsListProps) {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("")
-  const [selectedSeason, setSelectedSeason] = useState("")
-  const [selectedPartner, setSelectedPartner] = useState("")
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSeason, setSelectedSeason] = useState("");
+  const [selectedPartner, setSelectedPartner] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState<number | "">("");
+  const [selectedYear, setSelectedYear] = useState<number | "">("");
+
+  const monthYearOptions = useMemo(() => getMonthYearOptions(events), [events]);
+
 
   const handleSearchChange = useCallback((value: string) => {
-    setSearchTerm(value)
-  }, [])
+    setSearchTerm(value);
+  }, []);
 
   const handleCategoryChange = useCallback((value: string) => {
-    setSelectedCategory(value)
-  }, [])
+    setSelectedCategory(value);
+  }, []);
 
   const handleSeasonChange = useCallback((value: string) => {
-    setSelectedSeason(value)
-  }, [])
+    setSelectedSeason(value);
+  }, []);
 
   const handlePartnerChange = useCallback((value: string) => {
-    setSelectedPartner(value)
-  }, [])
+    setSelectedPartner(value);
+  }, []);
+
+  const handleMonthChange = useCallback((value: string) => {
+    setSelectedMonth(value ? Number(value) : "");
+  }, []);
+
+  const handleYearChange = useCallback((value: string) => {
+    setSelectedYear(value ? Number(value) : "");
+  }, []);
+
 
   const filteredAndSortedEvents = useMemo(() => {
-    let filtered = [...events]
+    let filtered = [...events];
 
     // Filter by search term
     if (searchTerm) {
-      const search = searchTerm.toLowerCase()
+      const search = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (event) =>
           decodeHtmlEntities(event.title.rendered).toLowerCase().includes(search) ||
           (event.excerpt?.rendered && extractTextFromHtml(event.excerpt.rendered).toLowerCase().includes(search)) ||
           (event.acf?.descriptif && extractTextFromHtml(event.acf.descriptif).toLowerCase().includes(search)),
-      )
+      );
     }
 
     // Filter by category
@@ -125,7 +160,7 @@ export const EventsList = memo(function EventsList({ events, categories, seasons
         event._embedded?.["wp:term"]
           ?.flat()
           .some((term) => term.taxonomy === "category" && decodeHtmlEntities(term.name) === selectedCategory),
-      )
+      );
     }
 
     // Filter by season
@@ -134,27 +169,47 @@ export const EventsList = memo(function EventsList({ events, categories, seasons
         event._embedded?.["wp:term"]
           ?.flat()
           .some((term) => term.taxonomy === "saison-culturelle" && decodeHtmlEntities(term.name) === selectedSeason),
-      )
+      );
     }
 
     // Filter by partner
     if (selectedPartner) {
       filtered = filtered.filter((event) =>
         event.acf?.partenaires_details?.some((p) => decodeHtmlEntities(p.title) === selectedPartner),
-      )
+      );
+    }
+
+    // Filter by month
+    if (selectedMonth) {
+      filtered = filtered.filter((event) => {
+        const dateStr = event.acf?.date_de_debut;
+        if (!dateStr) return false;
+        const [day, month] = dateStr.split("/").map(Number);
+        return month === selectedMonth;
+      });
+    }
+
+    // Filter by year
+    if (selectedYear) {
+      filtered = filtered.filter((event) => {
+        const dateStr = event.acf?.date_de_debut;
+        if (!dateStr) return false;
+        const [day, month, year] = dateStr.split("/").map(Number);
+        return year === selectedYear;
+      });
     }
 
     // Sort by date (most recent first)
     filtered.sort((a, b) => {
-      const dateA = a.acf?.date_de_debut ? parseFrenchDate(a.acf.date_de_debut) : new Date(a.date)
-      const dateB = b.acf?.date_de_debut ? parseFrenchDate(b.acf.date_de_debut) : new Date(b.date)
+      const dateA = a.acf?.date_de_debut ? parseFrenchDate(a.acf.date_de_debut) : new Date(a.date);
+      const dateB = b.acf?.date_de_debut ? parseFrenchDate(b.acf.date_de_debut) : new Date(b.date);
 
-      if (!dateA || !dateB) return 0
-      return dateB.getTime() - dateA.getTime()
-    })
+      if (!dateA || !dateB) return 0;
+      return dateB.getTime() - dateA.getTime();
+    });
 
-    return filtered
-  }, [events, searchTerm, selectedCategory, selectedSeason, selectedPartner])
+    return filtered;
+  }, [events, searchTerm, selectedCategory, selectedSeason, selectedPartner, selectedMonth, selectedYear]);
 
   return (
     <section className="py-16 px-6">
@@ -169,6 +224,11 @@ export const EventsList = memo(function EventsList({ events, categories, seasons
             categories={categories}
             seasons={seasons}
             partners={partners}
+            monthYearOptions={monthYearOptions}
+            selectedMonth={selectedMonth}
+            selectedYear={selectedYear}
+            onMonthChange={handleMonthChange}
+            onYearChange={handleYearChange}
           />
         </div>
 

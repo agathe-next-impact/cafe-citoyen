@@ -91,20 +91,7 @@ export function AnimatedNavWrapper() {
   return (
     <div className="relative z-100">
       <AnimatedNav
-        logo={
-          <div className="flex items-center gap-3 group">
-            {siteOptions?.logo_du_site?.url && (
-              <div className="relative h-full w-full">
-                <Image
-                  src={siteOptions.logo_du_site.url || ""}
-                  alt={siteOptions.logo_du_site.alt || "Logo"}
-                  fill
-                  className="object-contain"
-                />
-              </div>
-            ) }
-          </div>
-        }
+        logo={siteOptions?.logo_du_site?.url || ""}
         items={navItems}
         agendaLink="/agenda"
       />

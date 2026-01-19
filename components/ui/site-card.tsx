@@ -105,7 +105,7 @@ export function SiteCard({
           <img
             src={image || "/placeholder.svg"}
             alt={imageAlt || title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-all duration-500 group-hover:blur-sm"
             loading="lazy"
           />
         ) : (
@@ -143,16 +143,20 @@ export function SiteCard({
           </h5>
         )}
 
-        {/* Description */}
-        {description && (
-          <p className="block font-sans text-base font-light leading-relaxed text-inherit antialiased line-clamp-3">
-            {description}
-          </p>
-        )}
+        {/* Description - Hidden since it's shown in image overlay */}
 
         {/* Children */}
         {children}
       </div>
+
+      {/* Description container with white background */}
+      {description && (
+        <div className="mx-4 mb-4 p-4 bg-white rounded-lg border border-gray-100">
+          <p className="text-sm text-gray-700 leading-relaxed">
+            {description}
+          </p>
+        </div>
+      )}
 
       {/* Read More Button */}
       {href && (

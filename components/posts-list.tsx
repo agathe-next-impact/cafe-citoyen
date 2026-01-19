@@ -157,7 +157,7 @@ export function PostsList({ posts, categories }: PostsListProps) {
                   <img
                     src={featuredImage || "/placeholder.svg"}
                     alt={decodeHtmlEntities(post.title.rendered)}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:blur-sm transition-transform duration-300"
                     loading="lazy"
                   />
                 ) : (

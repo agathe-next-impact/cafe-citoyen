@@ -5,7 +5,6 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import PageHeader from "@/components/page-header"
 import { SiteCard } from "@/components/ui/site-card"
-import { Timeline } from "@/components/ui/timeline"
 import { decodeHtmlEntities } from "@/components/wp-decode"
 import { formatDate } from "@/lib/utils"
 
@@ -74,8 +73,8 @@ export default async function SingleEventPage({ params }: { params: { slug: stri
     return eventDate >= now;
   }).sort((a, b) => {
     // Tri par date croissante
-    const aParts = a.acf.date_de_debut.split("/").map(Number);
-    const bParts = b.acf.date_de_debut.split("/").map(Number);
+    const aParts = a.acf?.date_de_debut ? a.acf.date_de_debut.split("/").map(Number) : [0, 0, 0];
+    const bParts = b.acf?.date_de_debut ? b.acf.date_de_debut.split("/").map(Number) : [0, 0, 0];
     const aDate = new Date(aParts[2], aParts[1] - 1, aParts[0]);
     const bDate = new Date(bParts[2], bParts[1] - 1, bParts[0]);
     return aDate.getTime() - bDate.getTime();
@@ -154,9 +153,9 @@ export default async function SingleEventPage({ params }: { params: { slug: stri
                   <h3 className="font-medium mb-2">{isPonctuel ? "Date de l'événement" : "Événement récurrent"}</h3>
                   {isPonctuel ? (
                     <>
-                      {dateDebut && <p className="text-sm text-muted-foreground">{formatDate(dateDebut)}</p>}
+                      {dateDebut && <p className="text-sm text-muted-foreground">{formatDate(dateDebut.toISOString())}</p>}
                       {dateFin && dateDebut?.getTime() !== dateFin.getTime() && (
-                        <p className="text-sm text-muted-foreground">au {formatDate(dateFin)}</p>
+                        <p className="text-sm text-muted-foreground">au {formatDate(dateFin.toISOString())}</p>
                       )}
                     </>
                   ) : (

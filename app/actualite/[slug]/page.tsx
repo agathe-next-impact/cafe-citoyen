@@ -13,8 +13,22 @@ export async function generateStaticParams() {
   }))
 }
 
+type Embedded = {
+  author?: { name: string }[] | undefined;
+  "wp:featuredmedia"?: { source_url: string; alt_text: string; }[] | undefined;
+  "wp:term"?: { id: number; name: string; slug: string; taxonomy: string; }[][] | undefined;
+};
+
+type Post = {
+  title: { rendered: string };
+  date: string;
+  content?: { rendered: string };
+  _embedded?: Embedded;
+  // add other fields as needed
+};
+
 export default async function SinglePostPage({ params }: { params: { slug: string } }) {
-  const post = await getPost(params.slug)
+  const post: Post | null = await getPost(params.slug)
   if (!post) return notFound()
 
   return (
@@ -28,7 +42,7 @@ export default async function SinglePostPage({ params }: { params: { slug: strin
         </div>
         <div
           className="prose max-w-none"
-          dangerouslySetInnerHTML={{ __html: decodeHtmlEntities(post.content.rendered) }}
+          dangerouslySetInnerHTML={{ __html: decodeHtmlEntities(post.content?.rendered || "") }}
         />
       </article>
     </main>

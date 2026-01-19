@@ -10,6 +10,11 @@ interface EventsFiltersProps {
   categories: string[]
   seasons: string[]
   partners: string[]
+  monthYearOptions?: { month: number; year: number }[]
+  selectedMonth?: number | ""
+  selectedYear?: number | ""
+  onMonthChange?: (value: string) => void
+  onYearChange?: (value: string) => void
 }
 
 export function EventsFilters({
@@ -20,6 +25,11 @@ export function EventsFilters({
   categories,
   seasons,
   partners,
+  monthYearOptions = [],
+  selectedMonth = "",
+  selectedYear = "",
+  onMonthChange,
+  onYearChange,
 }: EventsFiltersProps) {
   const [search, setSearch] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("")
@@ -128,7 +138,7 @@ export function EventsFilters({
 
       {/* Filters */}
       {showFilters && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-border/50">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-4 border-t border-border/50">
           {/* Category Filter */}
           <div>
             <label htmlFor="category" className="block text-sm font-medium mb-2 text-muted-foreground">
@@ -146,6 +156,46 @@ export function EventsFilters({
                   {category}
                 </option>
               ))}
+            </select>
+          </div>
+
+          {/* Month Filter */}
+          <div>
+            <label htmlFor="month" className="block text-sm font-medium mb-2 text-muted-foreground">
+              Mois
+            </label>
+            <select
+              id="month"
+              value={selectedMonth}
+              onChange={(e) => onMonthChange && onMonthChange(e.target.value)}
+              className="w-full px-4 py-2 bg-background rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+            >
+              <option value="">Tous les mois</option>
+              {Array.from(new Set(monthYearOptions.map(opt => opt.month)))
+                .sort((a, b) => a - b)
+                .map((month) => (
+                  <option key={month} value={month}>{month.toString().padStart(2, '0')}</option>
+                ))}
+            </select>
+          </div>
+
+          {/* Year Filter */}
+          <div>
+            <label htmlFor="year" className="block text-sm font-medium mb-2 text-muted-foreground">
+              Année
+            </label>
+            <select
+              id="year"
+              value={selectedYear}
+              onChange={(e) => onYearChange && onYearChange(e.target.value)}
+              className="w-full px-4 py-2 bg-background rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+            >
+              <option value="">Toutes les années</option>
+              {Array.from(new Set(monthYearOptions.map(opt => opt.year)))
+                .sort((a, b) => a - b)
+                .map((year) => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
             </select>
           </div>
 
