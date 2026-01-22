@@ -498,6 +498,12 @@ export class WordPressAPI {
           } else if (point.mapPinPoint?.position?.latitude !== undefined) {
             latitude = point.mapPinPoint.position.latitude
             longitude = point.mapPinPoint.position.longitude
+          } else if (point.map_pin_point?.latitude !== undefined) {
+            latitude = point.map_pin_point.latitude
+            longitude = point.map_pin_point.longitude
+          } else if (point.map_pin_point?.position?.latitude !== undefined) {
+            latitude = point.map_pin_point.position.latitude
+            longitude = point.map_pin_point.position.longitude
           } else if (point.coordonnees?.latitude !== undefined) {
             latitude = point.coordonnees.latitude
             longitude = point.coordonnees.longitude
@@ -514,12 +520,12 @@ export class WordPressAPI {
         })
         .map((point: any) => {
           // Find latitude/longitude
-          let latitude = point.latitude || point.position?.latitude || point.mapPinPoint?.latitude || point.mapPinPoint?.position?.latitude || point.coordonnees?.latitude || point.localisation?.latitude || 0
-          let longitude = point.longitude || point.position?.longitude || point.mapPinPoint?.longitude || point.mapPinPoint?.position?.longitude || point.coordonnees?.longitude || point.localisation?.longitude || 0
-          let altitude = point.altitude || point.position?.altitude || point.mapPinPoint?.altitude || point.mapPinPoint?.position?.altitude || point.coordonnees?.altitude || point.localisation?.altitude || 0
+          let latitude = point.latitude || point.position?.latitude || point.mapPinPoint?.latitude || point.mapPinPoint?.position?.latitude || point.map_pin_point?.latitude || point.map_pin_point?.position?.latitude || point.coordonnees?.latitude || point.localisation?.latitude || 0
+          let longitude = point.longitude || point.position?.longitude || point.mapPinPoint?.longitude || point.mapPinPoint?.position?.longitude || point.map_pin_point?.longitude || point.map_pin_point?.position?.longitude || point.coordonnees?.longitude || point.localisation?.longitude || 0
+          let altitude = point.altitude || point.position?.altitude || point.mapPinPoint?.altitude || point.mapPinPoint?.position?.altitude || point.map_pin_point?.altitude || point.map_pin_point?.position?.altitude || point.coordonnees?.altitude || point.localisation?.altitude || 0
 
-          // Handle images
-          const images = point.images || point.image || []
+          // Handle images - check in various possible locations including ACF snake_case
+          const images = point.images || point.image || point.mapPinPoint?.images || point.map_pin_point?.images || []
           const optimizedImages = Array.isArray(images)
             ? images.slice(0, 1).map((img: any) => ({
                 url: typeof img === 'string' ? img : (img.sizes?.thumbnail || img.url),

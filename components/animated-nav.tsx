@@ -137,14 +137,25 @@ export function AnimatedNav({
               )}
             </Link>
 
+
+            <div className="flex items-between">
+            <Link
+              href="/visite-virtuelle"
+              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-blue-400 hover:bg-blue-400/90 text-white rounded-full mt-2 mr-2 px-4 py-2 shadow-sm relative z-110"
+              aria-label="Accueil"
+            >
+              Visiter
+            </Link>
             {/* Agenda Link */}
             <Link
               href={agendaLink}
               onClick={handleLinkClick}
-              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-emerald-600 hover:bg-emerald-600/90 text-white rounded-full mt-2 mr-2 px-4 py-2 shadow-sm relative z-110"
+              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-amber-500 hover:bg-amber-500/90 text-white rounded-full mt-2 mr-2 px-4 py-2 shadow-sm relative z-110"
             >
               Agenda
             </Link>
+            </div>
+
           </div>
         </div>
 

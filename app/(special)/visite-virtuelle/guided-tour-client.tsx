@@ -11,7 +11,7 @@ interface MapPinPointData {
   mapPinPoint: {
     visibilite: boolean
     nom?: string
-    images?: Array<{ url: string; alt: string }>
+    image?: { url: string; alt: string }
     descriptif?: string
     lien?: string | { url: string; title: string }
     position?: {

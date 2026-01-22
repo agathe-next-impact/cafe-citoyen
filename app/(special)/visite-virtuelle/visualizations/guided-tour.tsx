@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useMemo, useCallback } from "react"
 import { ExternalLink, Camera } from "lucide-react"
 import Image from "next/image"
 
@@ -40,42 +40,42 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
   const [mapReady, setMapReady] = useState(false)
   const initSentRef = useRef(false)
 
-  const overviewStop = {
-    name: "Vue d'ensemble",
-    description:
-      "Bienvenue dans la visite virtuelle de l'Hermitage Saint-Antoine. Découvrez les différents points d'intérêt en cliquant sur les vignettes.",
-    longitude: 3.128,
-    latitude: 49.437,
-    zoom: 16,
-    image: "/logo-hermitage.webp",
-    link: "",
-    externalLink: "",
-    type: "vue-panoramique",
-    slug: "overview",
-    pointId: 0,
-  }
+  const tourStops = useMemo(() => {
+    const overviewStop = {
+      name: "Vue d'ensemble",
+      description:
+        "Bienvenue dans la visite virtuelle du Café Citoyen. Découvrez les différents points d'intérêt en cliquant sur les vignettes.",
+      longitude: 2.8096222306956653,
+      latitude: 49.21918795340305,
+      zoom: 18,
+      image: { url: "/logo-cafe-citoyen.png", alt: "Logo Café Citoyen" },
+      link: "",
+      externalLink: "",
+      type: "vue-panoramique",
+      slug: "overview",
+      pointId: 0,
+    }
 
-  const dataStops = mapPinPoints.map((point) => ({
-    name: point.mapPinPoint?.nom || point.title || "Point d'intérêt",
-    description: point.mapPinPoint?.descriptif || "",
-    longitude: point.mapPinPoint?.position?.longitude || 3.128,
-    latitude: point.mapPinPoint?.position?.latitude || 49.437,
-    zoom: 19,
-    image: point.mapPinPoint?.images?.[0]?.url,
-    link: `/${point.type}/${point.slug}`,
-    externalLink: typeof point.mapPinPoint?.lien === "string" ? point.mapPinPoint?.lien : point.mapPinPoint?.lien?.url,
-    type: point.type,
-    slug: point.slug,
-    pointId: point.id,
-  }))
+    const dataStops = mapPinPoints.map((point) => ({
+      name: point.mapPinPoint?.nom || point.title || "Point d'intérêt",
+      description: point.mapPinPoint?.descriptif || "",
+      longitude: point.mapPinPoint?.position?.longitude || 2.808,
+      latitude: point.mapPinPoint?.position?.latitude || 49.217,
+      zoom: 19,
+      image: point.mapPinPoint?.images?.[0]?.url,
+      link: `/${point.type}/${point.slug}`,
+      externalLink: typeof point.mapPinPoint?.lien === "string" ? point.mapPinPoint?.lien : point.mapPinPoint?.lien?.url,
+      type: point.type,
+      slug: point.slug,
+      pointId: point.id,
+    }))
 
-  const tourStops = [overviewStop, ...dataStops]
-  // </CHANGE>
+    return [overviewStop, ...dataStops]
+  }, [mapPinPoints])
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data.type === "ready") {
-        console.log("[v0] Satellite map ready")
         setMapReady(true)
       }
       if (event.data.type === "markerClick") {
@@ -131,7 +131,7 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
         "*",
       )
     }
-  }, [currentStop, mapReady])
+  }, [currentStop, mapReady, tourStops])
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying)
@@ -168,7 +168,7 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
     }
   }
 
-  const handleStopClick = (index: number) => {
+  const handleStopClick = useCallback((index: number) => {
     if (index !== currentStop) {
       setShowInfoPanel(false)
       setIsTransitioning(true)
@@ -192,9 +192,9 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
         }, 50)
       }, 300)
     }
-  }
+  }, [currentStop])
 
-  const currentStopData = tourStops[currentStop]
+  const currentStopData = useMemo(() => tourStops[currentStop], [tourStops, currentStop])
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">

@@ -11,6 +11,7 @@ import {
   type SiteOptions,
   type WordPressEvent,
 } from "@/lib/wordpress-api"
+import { Link } from "lucide-react"
 
 export function AnimatedNavWrapper() {
   const [navItems, setNavItems] = useState<NavItem[]>([])
@@ -89,7 +90,7 @@ export function AnimatedNavWrapper() {
   }
 
   return (
-    <div className="relative z-100">
+    <div className="relative z-100">      
       <AnimatedNav
         logo={siteOptions?.logo_du_site?.url || ""}
         items={navItems}
