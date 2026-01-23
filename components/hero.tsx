@@ -23,7 +23,7 @@ export function Hero() {
 
           <div className="mt-16 space-y-2 max-w-md">
             {[
-              { title: "LE CHÂTEAU DE GOUTELAS", icon: "+" },
+              { title: "LE Café citoyen", icon: "+" },
               { title: "PROJET CULTUREL", icon: "+" },
               { title: "SÉMINAIRES & ÉVÉNEMENTS", icon: "+" },
               { title: "VOTRE VISITE", icon: "+" },

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { WPDecode } from "@/components/wp-decode"; // Utilisation du composant externe
+import { decodeHtmlEntities } from "@/lib/decode";
 
 
 type PageHeaderProps = {
@@ -213,13 +214,13 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
         <div className="flex items-start justify-between gap-8 pt-12">
           <div className="flex-1 gap-4">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-balance mb-4 text-black">
-              <WPDecode>{title}</WPDecode>
+              <WPDecode>{decodeHtmlEntities(title)}</WPDecode>
             </h1>
             {subtitle && (
               <div
                 className={`rounded-2xl shadow-md px-6 py-4 max-w-2xl mt-8 border bg-white/80 ${border}`}
               >
-                <WPDecode>{subtitle}</WPDecode>
+                <WPDecode>{decodeHtmlEntities(subtitle)}</WPDecode>
               </div>
             )}
             {childPages && childPages.length > 0 && (
@@ -233,7 +234,7 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
                       href={href}
                       className={`inline-flex items-center px-4 py-1 rounded-full text-base text-white border-2 transition-all hover:scale-105 ${badgeStyle.bg} ${badgeStyle.border} hover:shadow-md`}
                     >
-                      <WPDecode>{childPage.title.rendered}</WPDecode>
+                      <WPDecode>{decodeHtmlEntities(childPage.title.rendered)}</WPDecode>
                     </a>
                   );
                 })}

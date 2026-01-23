@@ -1,15 +1,3 @@
-// Génère le chemin complet d'une page WordPress à partir de son slug et de la hiérarchie parentale
-function getPagePath(page: any, allPages: any[]): string {
-  let path = page.slug;
-  let current = page;
-  while (current.parent) {
-    const parentPage = allPages.find((p) => p.id === current.parent);
-    if (!parentPage) break;
-    path = `${parentPage.slug}/${path}`;
-    current = parentPage;
-  }
-  return `/${path}`;
-}
 import { cookies } from "next/headers"
 import { notFound } from "next/navigation"
 import {
@@ -41,23 +29,6 @@ const variantBorderColors: Record<string, string> = {
   partner: "border-green-500",
 };
 
-
-
-const ArrowRightIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M5 12h14" />
-    <path d="m12 5 7 7-7 7" />
-  </svg>
-)
 
 export async function generateStaticParams() {
   const RESERVED_ROUTES = ["actualites", "evenement", "api", "not-found", "_next", "favicon.ico", "agenda"]
@@ -100,7 +71,6 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
 
   let encadres: any = undefined;
 
-
   const page = isPreview
     ? await getWordPressPageBySlug(slug, { status: "any" })
     : await getWordPressPageBySlug(slug)
@@ -122,6 +92,10 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           width: 0,
         }))
       : undefined;
+    // Récupération de la vidéo (tableau, un seul élément)
+    const teamVideoArray = page.acf?.video_de_lequipe;
+    console.warn("TeamVideoArray dans page.tsx :", teamVideoArray.url);
+    const teamVideoUrl = teamVideoArray.url;
     return (
       <div className="min-h-screen">
         <PageHeader
@@ -133,7 +107,13 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           childPages={childPages}
           allPages={allPages}
         />
-        <PageContent slug={slug} content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
+        <PageContent
+          slug={slug}
+          content={page.acf?.contenu}
+          images={fixedImages}
+          encadres={encadres}
+          teamVideoUrl={teamVideoUrl} // Ajout ici
+        />
         <div className="container mx-auto px-4 py-12">
           {page.content?.rendered && (
             <article className="prose prose-lg max-w-4xl mx-auto mb-12">

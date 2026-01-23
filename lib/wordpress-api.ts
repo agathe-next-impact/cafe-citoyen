@@ -54,6 +54,12 @@ export interface WordPressPage {
         width: number;
       };
     }>;
+    video_de_lequipe?: Array<{
+      url: string
+      alt: string
+      title: string
+      ID: number
+    }> | string
   }
 }
 
@@ -675,9 +681,9 @@ export async function getSiteOptions(): Promise<SiteOptions | null> {
       const data = result.data || result
 
       const siteOptions: SiteOptions = {
-        titre_du_site: data.titre_du_site || "Château de Goutelas",
-        description_du_site: data.description_du_site || "Centre culturel de rencontre",
-        logo_du_site: data.logo_du_site,
+        titre_du_site: data.titre_du_site || "Café Citoyen",
+        description_du_site: data.description_du_site || "Centre de rencontres citoyennes",
+        logo_du_site: data.warno_du_site,
       }
 
       endMeasure()
@@ -690,7 +696,7 @@ export async function getSiteOptions(): Promise<SiteOptions | null> {
   }
 
   const defaultOptions: SiteOptions = {
-    titre_du_site: "Château de Goutelas",
+    titre_du_site: "Café citoyen",
     description_du_site: "Centre culturel de rencontre",
     logo_du_site: undefined,
   }
