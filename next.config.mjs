@@ -7,6 +7,10 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'wordpress-starter.fr',
+      },
+      {
+        protocol: 'https',
         hostname: '**.wordpress-starter.fr',
       },
       {

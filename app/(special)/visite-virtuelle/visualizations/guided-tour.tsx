@@ -241,10 +241,10 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
             >
               <div className="relative bg-white rounded-2xl shadow-2xl border-2 border-muted mx-4 mb-4 flex overflow-hidden">
                 {currentStopData.image && (
-                  <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden rounded-l-2xl bg-white p-2">
+                  <div className="relative w-48 h-48 flex-shrink-0 overflow-hidden rounded-l-2xl bg-white p-2">
                     <div className="relative h-full w-full rounded-lg overflow-hidden">
                       <Image
-                        src={typeof currentStopData.image === "string" ? currentStopData.image : (currentStopData.image?.url ?? "/placeholder.svg")}
+                        src={typeof currentStopData.image === "string" ? currentStopData.image : (currentStopData.image?.url ?? "/logo-cafe-citoyen.png")}
                         alt={currentStopData.name}
                         fill
                         className="object-cover rounded-lg"
@@ -313,43 +313,36 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide px-1">
             Points d'intérêt ({tourStops.length})
           </h3>
-          <div className="grid grid-cols-2 gap-3 max-h-[80vh] pr-2">
+          <div className="grid grid-cols-2 gap-3 pr-2">
             {tourStops.map((stop, index) => (
               <button
                 key={index}
                 onClick={() => handleStopClick(index)}
-                className={`group relative aspect-video overflow-hidden rounded-lg transition-all ${
-                  index === currentStop
-                    ? "border-primary ring-2 ring-yellow-500/50"
-                    : "border-muted hover:border-yellow-500/50"
-                }`}
+                className={`group relative aspect-square overflow-hidden rounded-3xl transition-all `}
               >
                 {stop.image ? (
                   <Image
                     src={typeof stop.image === "string" ? stop.image : (stop.image?.url ?? "/placeholder.svg")}
                     alt={stop.name}
                     fill
-                    className="object-cover rounded-lg"
+                    className="object-cover rounded-3xl transition-transform duration-300"
                     sizes="(max-width: 768px) 50vw, (max-width: 1280px) 25vw, 12.5vw"
                     loading="lazy"
                   />
                 ) : (
-                  <div className="absolute inset-0  flex items-center justify-center rounded-lg">
+                  <div className="absolute inset-0  flex items-center justify-center rounded-3xl">
                     <Camera className="h-8 w-8 text-amber-600" />
                   </div>
                 )}
                 <div className="absolute inset-0" />
-                <div className="absolute bottom-0 left-0 right-0 px-2 pt-1 bg-white">
-                  <p className="text-xs font-medium text-black line-clamp-2 text-balance">{stop.name}</p>
+                <div className="absolute bottom-0 pb-4 pl-4 left-0 right-0 bg-white/60 backdrop-blur-sm transition-all duration-300 ease-in-out h-12 group-hover:h-1/2 flex items-end overflow-hidden">
+                  <p className="text-sm font-medium text-black text-center line-clamp-2 text-balance transition-transform duration-300 ease-in-out group-hover:-translate-y-2">
+                    {stop.name}
+                  </p>
                 </div>
                 {index === currentStop && (
-                  <div className="absolute top-2 right-2 h-2 w-2 rounded-full bg-white animate-pulse" />
+                  <div className="absolute top-2 right-2 h-4 w-4 rounded-full bg-red-600 animate-pulse" />
                 )}
-                <div className="absolute top-2 left-2 rounded-full bg-yellow-500/90 px-2 py-0.5">
-                  <span className="text-xs font-medium text-white flex items-center gap-1">
-                    <Camera className="h-3 w-3" />
-                  </span>
-                </div>
               </button>
             ))}
           </div>
