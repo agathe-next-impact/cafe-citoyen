@@ -205,22 +205,23 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
           ref={mapContainerRef}
           className="relative overflow-hidden rounded-xl border-2 border-muted bg-black shadow-2xl"
         >
-          <div className="relative h-[70vh] min-h-[600px] w-full">
+          <div className="relative h-[70vh] min-h-[600px] w-full" style={{ isolation: 'isolate' }}>
             <iframe
               ref={iframeRef}
               src="/satellite-viewer.html"
               className="absolute inset-0 w-full h-full border-0"
+              style={{ willChange: 'transform', transform: 'translateZ(0)' }}
               title="Vue Satellite IGN"
               onLoad={handleIframeLoad}
               loading="eager"
             />
 
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
+            {/* Gradient overlay - simplified for performance */}
+            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
 
             {/* Top info bar */}
             <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-10">
-              <div className="rounded-lg bg-black/70 backdrop-blur-md px-4 py-2 text-white border border-white/20">
+              <div className="rounded-lg bg-black/80 px-4 py-2 text-white border border-white/20">
                 <div className="flex items-center gap-2">
                   <Camera className="h-4 w-4" />
                   <span className="text-sm font-medium">
@@ -228,7 +229,7 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
                   </span>
                 </div>
               </div>
-              <div className="rounded-lg bg-black/70 backdrop-blur-md px-3 py-1.5 text-white border border-white/20">
+              <div className="rounded-lg bg-black/80 px-3 py-1.5 text-white border border-white/20">
                 <span className="text-xs font-medium">IGN Satellite</span>
               </div>
             </div>

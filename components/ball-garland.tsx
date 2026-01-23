@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Image from "next/image"
 
 export function BallGarland() {
   const [mounted, setMounted] = useState(false)
@@ -11,11 +12,19 @@ export function BallGarland() {
   }, [])
 
   useEffect(() => {
+    let ticking = false
+    
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 50)
+          ticking = false
+        })
+        ticking = true
+      }
     }
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
@@ -51,16 +60,12 @@ export function BallGarland() {
             height: `${ball.size}px`,
           }}
         >
-          <img
+          <Image
             src={ball.image || "/placeholder.svg"}
             alt=""
+            width={ball.size}
+            height={ball.size}
             loading="lazy"
-            fetchPriority="low"
-            style={{
-              width: "100%",
-              height: "100%",
-              display: "block",
-            }}
             className="opacity-90 drop-shadow-lg rounded-full"
           />
         </div>

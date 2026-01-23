@@ -1,8 +1,9 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { getCategoryVariant } from "@/lib/category-colors";
 import { variantColors } from "@/components/ui/site-card";
+import { decodeHtmlEntities } from "@/lib/decode";
 
 const variantBorderColors: Record<string, string> = {
   primary: "border-primary",
@@ -27,21 +28,6 @@ const variantSelectedBg: Record<string, string> = {
   info: "bg-blue-500 text-white border-blue-500",
   partner: "bg-green-500 text-white border-green-500",
 };
-
-function decodeHtmlEntities(text: string) {
-  return text
-    .replace(/&#8217;/g, "'")
-    .replace(/&#8216;/g, "'")
-    .replace(/&#8220;/g, '"')
-    .replace(/&#8221;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&nbsp;/g, " ")
-    .trim();
-}
 
 export type AgendaFiltersClientProps = {
   categories: string[];
@@ -81,17 +67,19 @@ export default function AgendaFiltersClient({ categories, tags, events }: Agenda
     return Array.from(tagSet);
   }, [events, tags]);
 
-  const filteredEvents = events.filter(event => {
-    const eventCategories = event._embedded?.["wp:term"]?.flat()
-      .filter((term: any) => term.taxonomy === "category")
-      .map((term: any) => decodeHtmlEntities(term.name)) || [];
-    const eventTags = event._embedded?.["wp:term"]?.flat()
-      .filter((term: any) => term.taxonomy === "post_tag")
-      .map((term: any) => decodeHtmlEntities(term.name)) || [];
-    const catMatch = selectedCategories.length === 0 || selectedCategories.some(cat => eventCategories.includes(cat));
-    const tagMatch = selectedTags.length === 0 || selectedTags.some(tag => eventTags.includes(tag));
-    return catMatch && tagMatch;
-  });
+  const filteredEvents = useMemo(() => {
+    return events.filter(event => {
+      const eventCategories = event._embedded?.["wp:term"]?.flat()
+        .filter((term: any) => term.taxonomy === "category")
+        .map((term: any) => decodeHtmlEntities(term.name)) || [];
+      const eventTags = event._embedded?.["wp:term"]?.flat()
+        .filter((term: any) => term.taxonomy === "post_tag")
+        .map((term: any) => decodeHtmlEntities(term.name)) || [];
+      const catMatch = selectedCategories.length === 0 || selectedCategories.some(cat => eventCategories.includes(cat));
+      const tagMatch = selectedTags.length === 0 || selectedTags.some(tag => eventTags.includes(tag));
+      return catMatch && tagMatch;
+    });
+  }, [events, selectedCategories, selectedTags]);
 
   return (
     <>

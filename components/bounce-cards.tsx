@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo, useRef } from "react"
 import { motion } from "framer-motion"
+import Image from "next/image"
 import "./BounceCards.css"
 
 interface BounceCardsProps {
@@ -26,11 +27,22 @@ export default function BounceCards({
   const [mounted, setMounted] = useState(false)
   const [animationComplete, setAnimationComplete] = useState(false)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
+  const [isTablet, setIsTablet] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
+  // Detect screen size on client
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768)
+      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024)
+    }
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+    return () => window.removeEventListener('resize', checkScreenSize)
+  }, [])
+
   const randomTransforms = useMemo(() => {
-    const isMobile = typeof window !== "undefined" && window.innerWidth < 768
-    const isTablet = typeof window !== "undefined" && window.innerWidth >= 768 && window.innerWidth < 1024
 
     const cardWidth = isMobile ? 180 : isTablet ? 240 : 300
     const cardHeight = isMobile ? 180 : isTablet ? 240 : 300
@@ -176,7 +188,14 @@ export default function BounceCards({
               : undefined
           }
         >
-          <img className="image" src={src || "/placeholder.svg"} alt={`card-${idx}`} loading="lazy" decoding="async" />
+          <Image 
+            className="image" 
+            src={src || "/placeholder.svg"} 
+            alt={`card-${idx}`} 
+            fill
+            sizes="(max-width: 768px) 180px, (max-width: 1024px) 240px, 300px"
+            loading="lazy" 
+          />
         </motion.div>
       ))}
     </div>

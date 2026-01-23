@@ -8,6 +8,31 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { getSiteOptions } from "@/lib/wordpress-api"
 
+// Animation variants for staggered children
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
+}
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.4,
+      ease: "easeOut",
+    },
+  },
+}
+
 type NavLink = {
   label: string
   href: string
@@ -91,7 +116,7 @@ export function AnimatedNav({
             <button
               onClick={toggleMenu}
               className={cn(
-                "tracking-wider hover:shadow-md bg-blue-500 hover:bg-blue-500/90 rounded-full mt-2 ml-2 px-4 py-2 shadow-sm gap-1.5 relative z-110 cursor-pointer transition-all",
+                "tracking-wider hover:shadow-md bg-amber-500 hover:bg-amber-500/90 rounded-full mt-2 ml-2 px-4 py-2 shadow-sm gap-1.5 relative z-110 cursor-pointer transition-all",
                 isExpanded && "gap-0",
               )}
               aria-label={isExpanded ? "Fermer le menu" : "Ouvrir le menu"}
@@ -141,7 +166,7 @@ export function AnimatedNav({
             <div className="flex items-between">
             <Link
               href="/visite-virtuelle"
-              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-blue-400 hover:bg-blue-400/90 text-white rounded-full mt-2 mr-2 px-4 py-2 shadow-sm relative z-110"
+              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-blue-600 hover:bg-blue-600/90 text-white rounded-full mt-2 mr-2 px-4 py-2 shadow-sm relative z-110"
               aria-label="Accueil"
             >
               Visiter
@@ -173,18 +198,23 @@ export function AnimatedNav({
             >
               <div className="relative">
                 <div className="container mx-auto mt-8 px-4 lg:px-8 py-4 max-w-full overflow-x-hidden max-h-[calc(100vh-5rem)] lg:overflow-visible">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4">
+                  <motion.div 
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate={isExpanded ? "visible" : "hidden"}
+                  >
                     {(items || []).map((item, idx) => {
                       const bgClass = colorImageMap[idx % colorImageMap.length]?.bgClass || 'bg-yellow-100';
                       const imgSrc = colorImageMap[idx % colorImageMap.length]?.img || '/placeholder.svg';
                       return (
-                        <div
+                        <motion.div
                           key={`${item.label}-${idx}`}
+                          variants={cardVariants}
                           className={cn(
                             "rounded-xl flex flex-col transition-all duration-500 ease-out relative",
                             "lg:min-h-45 border border-blue-100 backdrop-blur-md",
                             expandedCardIndex === idx ? "min-h-45" : "min-h-15 lg:min-h-45",
-                            isExpanded ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0",
                             item.label === ""
                               ? "items-center justify-center p-2"
                               : expandedCardIndex === idx
@@ -195,7 +225,6 @@ export function AnimatedNav({
                           )}
                           style={{
                             color: item.textColor,
-                            transitionDelay: `${idx * 80}ms`,
                             overflow: "visible",
                           }}
                         >
@@ -335,10 +364,10 @@ export function AnimatedNav({
                                 </div>
                               )}
                             </>}
-                        </div>
+                        </motion.div>
                       );
                     })}
-                  </div>
+                  </motion.div>
                 </div>
               </div>
             </motion.div>
