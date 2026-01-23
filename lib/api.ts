@@ -46,13 +46,13 @@ export class WordPressAPI {
         // For 404 errors, return empty array for list endpoints
         if (response.status === 404) {
           if (endpoint.includes("?") || !/\/\d+$/.test(endpoint)) {
-            console.log(`[v0] Returning empty array for 404 on endpoint: ${endpoint}`)
+            console.warn(`[v0] Returning empty array for 404 on endpoint: ${endpoint}`)
             return [] as T
           }
         }
 
         if (response.status >= 500 && retries > 0) {
-          console.log(`[v0] Retrying request (${retries} retries left)...`)
+          console.warn(`[v0] Retrying request (${retries} retries left)...`)
           await new Promise((resolve) => setTimeout(resolve, Math.pow(2, 3 - retries) * 1000))
           return this.fetch<T>(endpoint, params, retries - 1)
         }
@@ -76,7 +76,7 @@ export class WordPressAPI {
 
           // Retry on timeout
           if (retries > 0) {
-            console.log(`[v0] Retrying after timeout (${retries} retries left)...`)
+            console.warn(`[v0] Retrying after timeout (${retries} retries left)...`)
             await new Promise((resolve) => setTimeout(resolve, 3000)) // 3s delay between retries
             return this.fetch<T>(endpoint, params, retries - 1)
           }
@@ -85,7 +85,7 @@ export class WordPressAPI {
 
           // Retry on network error
           if (retries > 0) {
-            console.log(`[v0] Retrying after network error (${retries} retries left)...`)
+            console.warn(`[v0] Retrying after network error (${retries} retries left)...`)
             await new Promise((resolve) => setTimeout(resolve, 3000)) // 3s delay between retries
             return this.fetch<T>(endpoint, params, retries - 1)
           }
@@ -104,7 +104,7 @@ export class WordPressAPI {
 
   // Pages
   async getPages(params?: { parent?: number; per_page?: number }): Promise<WPPage[]> {
-    console.log("[v0] WordPress API - getPages() called with params:", params)
+    console.warn("[v0] WordPress API - getPages() called with params:", params)
 
     const perPage = 100 // WordPress maximum
     let allPages: WPPage[] = []
@@ -134,7 +134,7 @@ export class WordPressAPI {
       }
     }
 
-    console.log("[v0] WordPress API - Total pages fetched:", allPages.length)
+    console.warn("[v0] WordPress API - Total pages fetched:", allPages.length)
     return allPages
   }
 
@@ -146,19 +146,19 @@ export class WordPressAPI {
     })
 
     if (pages[0]) {
-      console.log("[v0] WordPress API - Full page data for slug:", slug)
-      console.log("[v0] Full page object:", JSON.stringify(pages[0], null, 2))
-      console.log("[v0] Page title:", pages[0].title?.rendered)
-      console.log("[v0] Page ACF data:", JSON.stringify(pages[0].acf, null, 2))
+      console.warn("[v0] WordPress API - Full page data for slug:", slug)
+      console.warn("[v0] Full page object:", JSON.stringify(pages[0], null, 2))
+      console.warn("[v0] Page title:", pages[0].title?.rendered)
+      console.warn("[v0] Page ACF data:", JSON.stringify(pages[0].acf, null, 2))
 
       if (pages[0].acf?.hero) {
-        console.log("[v0] Hero sous-titre:", pages[0].acf.hero["sous-titre"])
-        console.log("[v0] Hero image:", pages[0].acf.hero.image)
+        console.warn("[v0] Hero sous-titre:", pages[0].acf.hero["sous-titre"])
+        console.warn("[v0] Hero image:", pages[0].acf.hero.image)
       } else {
-        console.log("[v0] WARNING: No hero data found in ACF")
+        console.warn("[v0] WARNING: No hero data found in ACF")
       }
     } else {
-      console.log("[v0] WARNING: No page found for slug:", slug)
+      console.warn("[v0] WARNING: No page found for slug:", slug)
     }
 
     return pages[0] || null
@@ -167,11 +167,11 @@ export class WordPressAPI {
   async getPageByPath(path: string): Promise<WPPage | null> {
     const cleanPath = path.replace(/^\/+|\/+$/g, "")
 
-    console.log("[v0] WordPress API - getPageByPath() called with path:", cleanPath)
+    console.warn("[v0] WordPress API - getPageByPath() called with path:", cleanPath)
 
     const allPages = await this.getPages()
 
-    console.log("[v0] WordPress API - Total pages fetched:", allPages.length)
+    console.warn("[v0] WordPress API - Total pages fetched:", allPages.length)
 
     // Find page that matches the full path
     const page = allPages.find((p) => {
@@ -180,16 +180,16 @@ export class WordPressAPI {
       const wpBaseUrl = this.baseUrl.replace("/wp-json/wp/v2", "")
       const pagePath = pageUrl.replace(wpBaseUrl, "").replace(/^\/+|\/+$/g, "")
 
-      console.log(`[v0] Comparing: "${pagePath}" === "${cleanPath}"`)
+      console.warn(`[v0] Comparing: "${pagePath}" === "${cleanPath}"`)
 
       return pagePath === cleanPath
     })
 
     if (page) {
-      console.log("[v0] WordPress API - Found page by path:", page.title.rendered)
-      console.log("[v0] Page link:", page.link)
+      console.warn("[v0] WordPress API - Found page by path:", page.title.rendered)
+      console.warn("[v0] Page link:", page.link)
     } else {
-      console.log("[v0] WordPress API - No page found for path:", cleanPath)
+      console.warn("[v0] WordPress API - No page found for path:", cleanPath)
     }
 
     return page || null
@@ -207,8 +207,8 @@ export class WordPressAPI {
     postType: string,
     params?: { per_page?: number; orderby?: string; order?: string },
   ): Promise<WPPost<T>[]> {
-    console.log("[v0] WordPress API - getPosts() called for postType:", postType)
-    console.log("[v0] WordPress API - Full URL will be:", `${this.baseUrl}/${postType}`)
+    console.warn("[v0] WordPress API - getPosts() called for postType:", postType)
+    console.warn("[v0] WordPress API - Full URL will be:", `${this.baseUrl}/${postType}`)
 
     try {
       const result = await this.fetch<WPPost<T>[]>(`/${postType}`, {
@@ -218,11 +218,9 @@ export class WordPressAPI {
         ...params,
       })
 
-      console.log("[v0] WordPress API - getPosts() returned:", result.length, "items for", postType)
-      console.log("[v0] WordPress API - getPosts() first item:", JSON.stringify(result[0], null, 2))
+    
       return result
     } catch (error) {
-      console.error("[v0] WordPress API - getPosts() ERROR for", postType, ":", error)
       return []
     }
   }
@@ -245,13 +243,13 @@ export class WordPressAPI {
 
   // Specific post types
   async getSejours() {
-    console.log("[v0] WordPress API - getSejours() called")
+    console.warn("[v0] WordPress API - getSejours() called")
 
     try {
       // Fetch sejours with embedded data
       const sejours = await this.getPosts("sejour")
 
-      console.log("[v0] Sejours fetched:", sejours.length)
+      console.warn("[v0] Sejours fetched:", sejours.length)
 
       const extractSlugFromUrl = (url: string): string | null => {
         try {
@@ -269,7 +267,7 @@ export class WordPressAPI {
       const sejoursWithCompleteData = await Promise.all(
         sejours.map(async (sejour) => {
           try {
-            console.log("[v0] Processing sejour:", sejour.title?.rendered || "Unknown")
+            console.warn("[v0] Processing sejour:", sejour.title?.rendered || "Unknown")
 
             if (!sejour.acf) {
               console.warn("[v0] Sejour has no ACF data:", sejour.id)
@@ -287,7 +285,7 @@ export class WordPressAPI {
                         if (slug) {
                           const fullHebergement = await this.getPostBySlug("hebergement", slug)
                           if (fullHebergement) {
-                            console.log(
+                            console.warn(
                               "[v0] Fetched hebergement from URL:",
                               fullHebergement.title?.rendered || "Unknown",
                               fullHebergement.slug,
@@ -299,7 +297,7 @@ export class WordPressAPI {
                       // If it's already an object with ID
                       else if (urlOrItem?.hebergement?.ID) {
                         const fullHebergement = await this.getPostById("hebergement", urlOrItem.hebergement.ID)
-                        console.log(
+                        console.warn(
                           "[v0] Fetched hebergement from ID:",
                           fullHebergement.title?.rendered || "Unknown",
                           fullHebergement.slug,
@@ -341,7 +339,7 @@ export class WordPressAPI {
                         if (slug) {
                           const fullActivite = await this.getPostBySlug("activite", slug)
                           if (fullActivite) {
-                            console.log(
+                            console.warn(
                               "[v0] Fetched activite from URL:",
                               fullActivite.title?.rendered || "Unknown",
                               fullActivite.slug,
@@ -353,7 +351,7 @@ export class WordPressAPI {
                       // If it's already an object with ID
                       else if (urlOrItem?.activite?.ID) {
                         const fullActivite = await this.getPostById("activite", urlOrItem.activite.ID)
-                        console.log(
+                        console.warn(
                           "[v0] Fetched activite from ID:",
                           fullActivite.title?.rendered || "Unknown",
                           fullActivite.slug,
@@ -387,7 +385,7 @@ export class WordPressAPI {
         }),
       )
 
-      console.log("[v0] Sejours with complete data:", sejoursWithCompleteData.length)
+      console.warn("[v0] Sejours with complete data:", sejoursWithCompleteData.length)
       return sejoursWithCompleteData
     } catch (error) {
       console.error("[v0] Error in getSejours():", error instanceof Error ? error.message : error)
@@ -396,32 +394,29 @@ export class WordPressAPI {
   }
 
   async getHebergements() {
-    console.log("[v0] WordPress API - getHebergements() called")
+    console.warn("[v0] WordPress API - getHebergements() called")
     const result = await this.getPosts("hebergement")
-    console.log("[v0] WordPress API - getHebergements() result count:", result.length)
+    console.warn("[v0] WordPress API - getHebergements() result count:", result.length)
     return result
   }
 
   async getActivites() {
-    console.log("[v0] WordPress API - getActivites() method called - START")
+    console.warn("[v0] WordPress API - getActivites() method called - START")
 
     try {
       const activites = await this.getPosts("activite")
-      console.log("[v0] WordPress API - getActivites() returned:", activites.length, "activités")
+      console.warn("[v0] WordPress API - getActivites() returned:", activites.length, "activités")
 
       if (activites.length > 0) {
-        console.log("[v0] First activité full data:", JSON.stringify(activites[0], null, 2))
-        console.log("[v0] First activité title:", activites[0].title?.rendered)
-        console.log("[v0] First activité ACF:", JSON.stringify(activites[0].acf, null, 2))
 
         if (activites[0].acf) {
-          console.log("[v0] Activité nom:", activites[0].acf.nom)
-          console.log("[v0] Activité descriptif:", activites[0].acf.descriptif)
+          console.warn("[v0] Activité nom:", activites[0].acf.nom)
+          console.warn("[v0] Activité descriptif:", activites[0].acf.descriptif)
         } else {
-          console.log("[v0] WARNING: No ACF data found for activité")
+          console.warn("[v0] WARNING: No ACF data found for activité")
         }
       } else {
-        console.log("[v0] WARNING: No activités found in WordPress")
+        console.warn("[v0] WARNING: No activités found in WordPress")
       }
 
       return activites
@@ -451,32 +446,31 @@ export class WordPressAPI {
   }
 
   async getEspacesDeTravail() {
-    console.log("[v0] WordPress API - getEspacesDeTravail() called")
+    console.warn("[v0] WordPress API - getEspacesDeTravail() called")
     return this.getPosts("espace-de-travail")
   }
 
   async getMapPinPoints() {
-    console.log("[v0] getMapPinPoints() - START")
 
     try {
       // Fetch the visite-virtuelle page to get map pin points from ACF
       const page = await this.getPageBySlug("visite-virtuelle")
       
       if (!page) {
-        console.warn("[v0] visite-virtuelle page not found")
         return []
       }
 
       if (!page.acf?.map_pin_points || !Array.isArray(page.acf.map_pin_points)) {
-        console.warn("[v0] No map_pin_points found in visite-virtuelle page ACF data")
         console.warn("[v0] Available ACF keys:", Object.keys(page.acf || {}))
         return []
       }
 
       // Log first point to see structure
       if (page.acf.map_pin_points.length > 0) {
-        console.log("[v0] FIRST POINT STRUCTURE:", JSON.stringify(page.acf.map_pin_points[0], null, 2))
-        console.log("[v0] FIRST POINT KEYS:", Object.keys(page.acf.map_pin_points[0]))
+        const first = page.acf.map_pin_points[0]
+        console.warn("[v0] FIRST POINT KEYS:", Object.keys(first))
+        console.warn("[v0] FIRST POINT MAP_PIN_POINT KEYS:", Object.keys(first?.map_pin_point || {}))
+        console.warn("[v0] FIRST POINT raw image (map_pin_point.image):", first?.map_pin_point?.image)
       }
 
       const pinPoints = page.acf.map_pin_points
@@ -514,7 +508,6 @@ export class WordPressAPI {
 
           const hasPosition = latitude !== undefined && latitude !== null && longitude !== undefined && longitude !== null
 
-          console.log(`[v0] Point "${point.title || point.nom}" - Lat: ${latitude}, Lng: ${longitude}, Has Position: ${hasPosition}`)
 
           return hasPosition
         })
@@ -524,14 +517,20 @@ export class WordPressAPI {
           let longitude = point.longitude || point.position?.longitude || point.mapPinPoint?.longitude || point.mapPinPoint?.position?.longitude || point.map_pin_point?.longitude || point.map_pin_point?.position?.longitude || point.coordonnees?.longitude || point.localisation?.longitude || 0
           let altitude = point.altitude || point.position?.altitude || point.mapPinPoint?.altitude || point.mapPinPoint?.position?.altitude || point.map_pin_point?.altitude || point.map_pin_point?.position?.altitude || point.coordonnees?.altitude || point.localisation?.altitude || 0
 
-          // Handle images - check in various possible locations including ACF snake_case
-          const images = point.images || point.image || point.mapPinPoint?.images || point.map_pin_point?.images || []
-          const optimizedImages = Array.isArray(images)
-            ? images.slice(0, 1).map((img: any) => ({
-                url: typeof img === 'string' ? img : (img.sizes?.thumbnail || img.url),
-                alt: img.alt || point.title || point.nom || "Image",
-              }))
-            : []
+
+          const rawImage = point.map_pin_point?.image || null
+
+          const toImg = (img: any) => {
+            if (!img) return null
+            if (Array.isArray(img)) return toImg(img[0])
+            if (typeof img === "string") return { url: img, alt: point.title || point.nom || "Image" }
+            return {
+              url: img.sizes?.thumbnail || img.url,
+              alt: img.alt || point.title || point.nom || "Image",
+            }
+          }
+
+          
 
           // Handle description
           const descriptif = point.descriptif || point.description || point.descriptive || ""
@@ -548,7 +547,7 @@ export class WordPressAPI {
             mapPinPoint: {
               visibilite: true,
               nom: point.nom || point.title || "",
-              images: optimizedImages,
+              image: rawImage|| null,
               descriptif: shortDescription,
               lien: point.lien || point.link || point.url,
               position: {
@@ -560,7 +559,6 @@ export class WordPressAPI {
           }
         })
 
-      console.log("[v0] Filtered pin points from visite-virtuelle page:", pinPoints.length)
       return pinPoints
     } catch (error) {
       console.error("[v0] ERROR fetching map pin points:", error)
@@ -573,7 +571,7 @@ export class WordPressAPI {
   }
 
   async getGlobalOptions(): Promise<GlobalOptionsACF> {
-    console.log("[v0] WordPress API - getGlobalOptions() called")
+    console.warn("[v0] WordPress API - getGlobalOptions() called")
 
     try {
       const data = await this.fetch<any>("/options-globales", {
@@ -634,12 +632,12 @@ export class WordPressAPI {
   }
 
   async getMenu(menuSlug = "menu-1"): Promise<WPMenuItem[]> {
-    console.log(`[v0] Fetching WordPress menu: ${menuSlug}`)
+    console.warn(`[v0] Fetching WordPress menu: ${menuSlug}`)
 
     try {
       // Try custom endpoint first
       const customUrl = `${this.wpJsonBase}/custom/v1/menu/${menuSlug}`
-      console.log(`[v0] Trying custom menu endpoint: ${customUrl}`)
+      console.warn(`[v0] Trying custom menu endpoint: ${customUrl}`)
 
       const response = await fetch(customUrl, {
         headers: {
@@ -650,8 +648,8 @@ export class WordPressAPI {
 
       if (response.ok) {
         const data = await response.json()
-        console.log(`[v0] Successfully fetched menu from custom endpoint`)
-        console.log(`[v0] Menu data:`, JSON.stringify(data, null, 2))
+        console.warn(`[v0] Successfully fetched menu from custom endpoint`)
+        console.warn(`[v0] Menu data:`, JSON.stringify(data, null, 2))
         return decodeObjectEntities(data)
       } else {
         console.error(`[v0] Custom menu endpoint failed with status: ${response.status}`)
@@ -661,27 +659,27 @@ export class WordPressAPI {
     }
 
     // Return empty array as fallback
-    console.log(`[v0] Returning empty menu array`)
+    console.warn(`[v0] Returning empty menu array`)
     return []
   }
 
   async getTaxonomyTerms(taxonomy: string): Promise<WPTerm[]> {
-    console.log(`[v0] Fetching terms for taxonomy: ${taxonomy}`)
-    return this.fetch<WPTerm[]>(`/${taxonomy}`, {
+    console.warn(`[v0] Fetching terms for taxonomy: ${taxonomy}`)
+    return this.fetch<WPTerm>(`/${taxonomy}`, {
       per_page: 100,
       hide_empty: true,
     })
   }
 
   async getTeamMembers() {
-    console.log("[v0] WordPress API - getTeamMembers() called")
+    console.warn("[v0] WordPress API - getTeamMembers() called")
     try {
       const membres = await this.getPosts<TeamMemberACF>("membre", {
         per_page: 100,
         orderby: "date",
         order: "asc", // Changed order from "desc" to "asc"
       })
-      console.log("[v0] WordPress API - getTeamMembers() returned:", membres.length, "membres")
+      console.warn("[v0] WordPress API - getTeamMembers() returned:", membres.length, "membres")
       return membres
     } catch (error) {
       console.error("[v0] Error fetching team members:", error)

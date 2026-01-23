@@ -91,7 +91,7 @@ export function AnimatedNav({
             <button
               onClick={toggleMenu}
               className={cn(
-                "tracking-wider hover:shadow-md bg-blue-500 hover:bg-blue-500/90 rounded-full mt-2 ml-2 px-4 py-2 shadow-sm gap-1.5 relative z-110 cursor-pointer transition-all",
+                "tracking-wider hover:shadow-md bg-amber-600 hover:bg-amber-600/90 rounded-full mt-2 ml-2 px-4 py-2 shadow-sm gap-1.5 relative z-110 cursor-pointer transition-all",
                 isExpanded && "gap-0",
               )}
               aria-label={isExpanded ? "Fermer le menu" : "Ouvrir le menu"}
@@ -141,7 +141,7 @@ export function AnimatedNav({
             <div className="flex items-between">
             <Link
               href="/visite-virtuelle"
-              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-blue-400 hover:bg-blue-400/90 text-white rounded-full mt-2 mr-2 px-4 py-2 shadow-sm relative z-110"
+              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-emerald-700 hover:bg-emerald-700/90 text-white rounded-full mt-2 mr-2 px-4 py-2 shadow-sm relative z-110"
               aria-label="Accueil"
             >
               Visiter
@@ -150,7 +150,7 @@ export function AnimatedNav({
             <Link
               href={agendaLink}
               onClick={handleLinkClick}
-              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-amber-500 hover:bg-amber-500/90 text-white rounded-full mt-2 mr-2 px-4 py-2 shadow-sm relative z-110"
+              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-amber-600 hover:bg-amber-600/90 text-white rounded-full mt-2 mr-2 px-4 py-2 shadow-sm relative z-110"
             >
               Agenda
             </Link>

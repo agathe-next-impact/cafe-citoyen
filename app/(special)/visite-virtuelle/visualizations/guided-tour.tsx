@@ -13,7 +13,7 @@ interface MapPinPointData {
   mapPinPoint: {
     visibilite: boolean
     nom?: string
-    images?: Array<{ url: string; alt: string }>
+    image?: Array<{ url: string; alt: string }>
     descriptif?: string
     lien?: string | { url: string; title: string }
     position?: {
@@ -62,8 +62,8 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
       longitude: point.mapPinPoint?.position?.longitude || 2.808,
       latitude: point.mapPinPoint?.position?.latitude || 49.217,
       zoom: 19,
-      image: point.mapPinPoint?.images?.[0]?.url,
-      link: `/${point.type}/${point.slug}`,
+      image: point.mapPinPoint?.image?.url,
+      link: `/${point.slug}`,
       externalLink: typeof point.mapPinPoint?.lien === "string" ? point.mapPinPoint?.lien : point.mapPinPoint?.lien?.url,
       type: point.type,
       slug: point.slug,
@@ -80,7 +80,7 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
       }
       if (event.data.type === "markerClick") {
         const stopIndex = event.data.stopIndex
-        console.log("[v0] Marker clicked, changing to stop index:", stopIndex)
+        console.warn("[v0] Marker clicked, changing to stop index:", stopIndex)
         handleStopClick(stopIndex)
       }
     }
@@ -92,11 +92,11 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
 
   const handleIframeLoad = () => {
     if (initSentRef.current) {
-      console.log("[v0] Init message already sent, skipping")
+      console.warn("[v0] Init message already sent, skipping")
       return
     }
 
-    console.log("[v0] Iframe loaded, sending init message")
+    console.warn("[v0] Iframe loaded, sending init message")
     if (iframeRef.current?.contentWindow) {
       iframeRef.current.contentWindow.postMessage(
         {
@@ -117,7 +117,7 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
   useEffect(() => {
     if (mapReady && iframeRef.current?.contentWindow) {
       const stop = tourStops[currentStop]
-      console.log("[v0] Flying to stop:", stop.name)
+      console.warn("[v0] Flying to stop:", stop.name)
       iframeRef.current.contentWindow.postMessage(
         {
           type: "flyTo",
@@ -203,7 +203,7 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
         {/* Main Panoramax viewer */}
         <div
           ref={mapContainerRef}
-          className="relative overflow-hidden rounded-xl border-2 border-muted bg-black shadow-2xl"
+          className="relative overflow-hidden rounded-xl bg-black shadow-2xl"
         >
           <div className="relative h-[70vh] min-h-[600px] w-full">
             <iframe
@@ -243,7 +243,7 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
                   <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden rounded-l-2xl bg-white p-2">
                     <div className="relative h-full w-full rounded-lg overflow-hidden">
                       <Image
-                        src={currentStopData.image || "/placeholder.svg"}
+                        src={typeof currentStopData.image === "string" ? currentStopData.image : (currentStopData.image?.url ?? "/placeholder.svg")}
                         alt={currentStopData.name}
                         fill
                         className="object-cover rounded-lg"
@@ -276,10 +276,10 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
                     </p>
                   )}
 
-                  {currentStopData.link && (
+                  {(currentStopData.externalLink || currentStopData.link) && (
                     <div className="pt-0.5">
                       <button className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
-                        <a href={currentStopData.link} className="flex items-center gap-2">
+                        <a href={currentStopData.externalLink ? currentStopData.externalLink : currentStopData.link} target={currentStopData.externalLink ? "_blank" : undefined} rel={currentStopData.externalLink ? "noopener noreferrer" : undefined} className="flex items-center gap-2">
                           Voir les détails
                           <ExternalLink className="h-3.5 w-3.5" />
                         </a>
@@ -325,7 +325,7 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
               >
                 {stop.image ? (
                   <Image
-                    src={stop.image || "/placeholder.svg"}
+                    src={typeof stop.image === "string" ? stop.image : (stop.image?.url ?? "/placeholder.svg")}
                     alt={stop.name}
                     fill
                     className="object-cover transition-transform group-hover:scale-110 rounded-lg"
