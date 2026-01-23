@@ -11,7 +11,7 @@ interface MapPinPointData {
   mapPinPoint: {
     visibilite: boolean
     nom?: string
-    image?: { url: string; alt: string }
+    image?: { url: string; alt: string }[] 
     descriptif?: string
     lien?: string | { url: string; title: string }
     position?: {
@@ -36,7 +36,6 @@ interface GuidedTourClientProps {
 }
 
 export function GuidedTourClient({ mapPinPoints }: GuidedTourClientProps) {
-  console.log("[v0] GuidedTourClient - Received map pin points:", mapPinPoints.length)
 
   return <GuidedTour mapPinPoints={mapPinPoints} />
 }

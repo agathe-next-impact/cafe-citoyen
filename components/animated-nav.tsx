@@ -175,7 +175,7 @@ export function AnimatedNav({
             <Link
               href={agendaLink}
               onClick={handleLinkClick}
-              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-amber-500 hover:bg-amber-500/90 text-white rounded-full mt-2 mr-2 px-4 py-2 shadow-sm relative z-110"
+              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-amber-600 hover:bg-amber-600/90 text-white rounded-full mt-2 mr-2 px-4 py-2 shadow-sm relative z-110"
             >
               Agenda
             </Link>
