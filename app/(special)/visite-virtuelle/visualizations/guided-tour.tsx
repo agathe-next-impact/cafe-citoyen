@@ -252,13 +252,6 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
                         loading="lazy"
                       />
                     </div>
-
-                    {/* Category badge */}
-                    {currentStopData.type && (
-                      <span className="absolute top-2 left-2 bg-primary text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow-md z-10 capitalize">
-                        {currentStopData.type}
-                      </span>
-                    )}
                   </div>
                 )}
 
@@ -279,9 +272,9 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
 
                   {(currentStopData.externalLink || currentStopData.link) && (
                     <div className="pt-0.5">
-                      <button className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
+                      <button className="text-xs text-amber-600 font-medium hover:underline flex items-center gap-1">
                         <a href={currentStopData.externalLink ? currentStopData.externalLink : currentStopData.link} target={currentStopData.externalLink ? "_blank" : undefined} rel={currentStopData.externalLink ? "noopener noreferrer" : undefined} className="flex items-center gap-2">
-                          Voir les détails
+                          Voir le lieu
                           <ExternalLink className="h-3.5 w-3.5" />
                         </a>
                       </button>
