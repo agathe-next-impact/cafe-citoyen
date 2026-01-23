@@ -308,19 +308,19 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
       </div>
 
       <div className="lg:w-1/4 lg:max-w-sm">
-        <div className="sticky top-4 space-y-3">
+        <div className="sticky top-4 space-y-3 overflow-hidden">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide px-1">
             Points d'intérêt ({tourStops.length})
           </h3>
-          <div className="grid grid-cols-2 gap-3 max-h-[80vh] overflow-y-scroll pr-2">
+          <div className="grid grid-cols-2 gap-3 max-h-[80vh] pr-2">
             {tourStops.map((stop, index) => (
               <button
                 key={index}
                 onClick={() => handleStopClick(index)}
-                className={`group relative aspect-video overflow-hidden rounded-lg border-2 transition-all ${
+                className={`group relative aspect-video overflow-hidden rounded-lg transition-all ${
                   index === currentStop
-                    ? "border-primary ring-2 ring-primary/50"
-                    : "border-muted hover:border-primary/50"
+                    ? "border-primary ring-2 ring-yellow-500/50"
+                    : "border-muted hover:border-yellow-500/50"
                 }`}
               >
                 {stop.image ? (
@@ -328,23 +328,23 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
                     src={typeof stop.image === "string" ? stop.image : (stop.image?.url ?? "/placeholder.svg")}
                     alt={stop.name}
                     fill
-                    className="object-cover transition-transform group-hover:scale-110 rounded-lg"
+                    className="object-cover rounded-lg"
                     sizes="(max-width: 768px) 50vw, (max-width: 1280px) 25vw, 12.5vw"
                     loading="lazy"
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center rounded-lg">
-                    <Camera className="h-8 w-8 text-primary/50" />
+                  <div className="absolute inset-0  flex items-center justify-center rounded-lg">
+                    <Camera className="h-8 w-8 text-amber-600" />
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-2">
-                  <p className="text-xs font-medium text-white line-clamp-2 text-balance">{stop.name}</p>
+                <div className="absolute inset-0" />
+                <div className="absolute bottom-0 left-0 right-0 px-2 pt-1 bg-white">
+                  <p className="text-xs font-medium text-black line-clamp-2 text-balance">{stop.name}</p>
                 </div>
                 {index === currentStop && (
-                  <div className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary animate-pulse" />
+                  <div className="absolute top-2 right-2 h-2 w-2 rounded-full bg-white animate-pulse" />
                 )}
-                <div className="absolute top-2 left-2 rounded-full bg-primary/90 px-2 py-0.5">
+                <div className="absolute top-2 left-2 rounded-full bg-yellow-500/90 px-2 py-0.5">
                   <span className="text-xs font-medium text-white flex items-center gap-1">
                     <Camera className="h-3 w-3" />
                   </span>
