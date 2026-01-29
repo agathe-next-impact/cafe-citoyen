@@ -11,7 +11,6 @@ import {
   type SiteOptions,
   type WordPressEvent,
 } from "@/lib/wordpress-api"
-import { Link } from "lucide-react"
 
 export function AnimatedNavWrapper() {
   const [navItems, setNavItems] = useState<NavItem[]>([])
@@ -30,6 +29,8 @@ export function AnimatedNavWrapper() {
 
         if (options) {
           setSiteOptions(options)
+          console.log('Site options reçues:', options)
+          console.log('Réseaux sociaux:', options.reseaux_sociaux)
         }
 
         const sortedEvents = events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -88,6 +89,7 @@ export function AnimatedNavWrapper() {
   if (loading || navItems.length === 0) {
     return null
   }
+  console.log('Rendu AnimatedNav avec les items:', siteOptions)
 
   return (
     <div className="relative z-100">      
@@ -95,6 +97,7 @@ export function AnimatedNavWrapper() {
         logo={siteOptions?.logo_du_site?.url || ""}
         items={navItems}
         agendaLink="/agenda"
+        reseaux_sociaux={siteOptions?.reseaux_sociaux || []}
       />
     </div>
   )

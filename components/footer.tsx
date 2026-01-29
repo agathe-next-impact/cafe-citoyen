@@ -1,9 +1,8 @@
 import Link from "next/link"
-import { Video } from "next-video"
 
 export function Footer() {
   return (
-    <footer className="relative border-t border-yellow-50 overflow-hidden bg-white">
+    <footer className="mt-20 relative border-t border-yellow-50 overflow-hidden bg-white">
       <div
         className="pointer-events-none absolute inset-0 z-0"
         style={{

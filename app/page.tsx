@@ -5,7 +5,7 @@ import BounceCards from "@/components/bounce-cards"
 import { VideoHero } from "@/components/video-hero"
 import { notFound } from "next/navigation"
 
-type VideoType = { url: string; [key: string]: any };
+type VideoType = string; // oEmbed HTML
 type AcfType = {
   video?: VideoType | null;
   galerie?: { url: string }[];
@@ -24,7 +24,7 @@ export default async function Home() {
 
   const acf = page.acf as AcfType | undefined;
 
-  const hasVideoHero = acf?.video && typeof acf.video === 'object' && !Array.isArray(acf.video) && acf.video.url
+  const hasVideoHero = acf?.video && typeof acf.video === 'string' && acf.video.trim().length > 0
   const hasHeroGallery = acf?.galerie && acf.galerie.length > 0
 
   let siteOptions = null
@@ -37,7 +37,7 @@ export default async function Home() {
   return (
     <div className="min-h-screen -mt-20 pt-20">
       {hasVideoHero ? (
-        <VideoHero videoSrc={acf?.video && typeof acf.video === 'object' && !Array.isArray(acf.video) ? acf.video.url || "" : ""} />
+        <VideoHero embedHtml={acf?.video || ""} />
       ) : hasHeroGallery ? (
         <section className="relative h-screen flex items-center justify-center overflow-hidden">
           <div className="container mx-auto h-full flex items-center justify-center max-w-full">

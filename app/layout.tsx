@@ -7,6 +7,7 @@ import { ScrollToTop } from "@/components/scroll-to-top"
 import { BallGarland } from "@/components/ball-garland"
 import { getSiteOptions } from "@/lib/wordpress-api"
 import "./globals.css"
+import '@wordpress/block-library/build-style/style.css';
 
 const redHatDisplay = Red_Hat_Display({
   subsets: ["latin"],
@@ -17,11 +18,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteOptions = await getSiteOptions()
 
   return {
-    title: siteOptions?.titre_du_site || "WordPress Starter - Site Headless Moderne",
+    title: siteOptions?.titre_du_site || "",
     description:
       siteOptions?.description_du_site ||
-      "Solution WordPress headless avec Next.js pour des expériences web rapides et évolutives",
-    generator: "v0.app",
+      "",
+    generator: "",
     other: {
       charset: "utf-8",
     },
@@ -61,6 +62,7 @@ export default function RootLayout({
     <html lang="fr">
       <head>
         <meta charSet="utf-8" />
+        <link rel="icon" href="/logo-cafe-citoyen.png" />
       </head>
       <body suppressHydrationWarning className={redHatDisplay.variable + " bg-amber-50/10"}>
         <ScrollToTop />

@@ -239,6 +239,15 @@ export interface SiteOptions {
     title: string
     ID: number
   }
+  reseaux_sociaux?: Array<{
+    icone?: {
+      url: string
+      alt: string
+      title: string
+      ID: number
+    }
+    lien?: string
+  }>
 }
 
 const WORDPRESS_URL = "https://wordpress-starter.fr"
@@ -666,30 +675,38 @@ export async function getSiteOptions(): Promise<SiteOptions | null> {
       headers: {
         "Accept-Charset": "utf-8",
       },
+      cache: 'no-store', // Désactiver le cache pour le debug
     }
 
     // Only use Next.js revalidate option on the server
     if (typeof window === "undefined") {
-      fetchInit.next = { revalidate: 300 }
+      fetchInit.next = { revalidate: 0 } // Désactiver la revalidation pour le debug
     }
 
+    console.log('[getSiteOptions] Appel API vers:', url)
     const response = await fetch(url, fetchInit)
 
     if (response.ok) {
       const result = await response.json()
+      console.log('[getSiteOptions] Réponse brute:', result)
 
       const data = result.data || result
+      console.log('[getSiteOptions] Data extraite:', data)
+      console.log('[getSiteOptions] Réseaux sociaux bruts:', data.reseaux_sociaux)
 
       const siteOptions: SiteOptions = {
         titre_du_site: data.titre_du_site || "Café Citoyen",
         description_du_site: data.description_du_site || "Centre de rencontres citoyennes",
-        logo_du_site: data.warno_du_site,
+        logo_du_site: data.logo_du_site,
+        reseaux_sociaux: data.reseaux_sociaux || [],
       }
 
+      console.log('[getSiteOptions] Options finales:', siteOptions)
       endMeasure()
       return siteOptions
     } else {
       const errorText = await response.text()
+      console.error('[getSiteOptions] Erreur HTTP:', response.status, errorText)
     }
   } catch (error) {
     console.error("[v0] Error fetching site options:", error)
@@ -699,6 +716,7 @@ export async function getSiteOptions(): Promise<SiteOptions | null> {
     titre_du_site: "Café citoyen",
     description_du_site: "Centre culturel de rencontre",
     logo_du_site: undefined,
+    reseaux_sociaux: [],
   }
   endMeasure()
   return defaultOptions

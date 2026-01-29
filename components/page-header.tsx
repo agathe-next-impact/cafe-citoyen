@@ -172,7 +172,7 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
   const colorRgb = getColorRgb(slug);
 
   return (
-    <section className={`-mt-16 pt-16 relative min-h-50 flex items-center overflow-visible ${bg} border-b-2 ${border}`}>
+    <section className={`-mt-20 pt-16 relative min-h-50 flex items-center overflow-visible ${bg} border-b-2 ${border}`}>
       {/* Halo radial en haut de page */}
       <div
         className="pointer-events-none absolute inset-0 z-0 opacity-50"
@@ -181,9 +181,9 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
             `radial-gradient(ellipse at -10% -60%, rgba(${colorRgb},0.4) 0%, rgba(${colorRgb},0.05) 38%, white 60%), linear-gradient(to bottom, transparent 0%, white 70%, rgba(255,255,255,0.3) 100%)`,
         }}
       />
-      {/* Ligne courbe SVG en arrière-plan */}
+      {/* Ligne courbe SVG en arrière-plan 
       <div className="pointer-events-none absolute left-2/5 w-full mt-20 z-0">
-        {/* 3 lignes de balles animées */}
+        
         {lines.map((line, lineIndex) => (
           allBallPositions[lineIndex].map((ballPos, ballIndex) => {
             // theta varie de pi à 0 pour un demi-cercle bas
@@ -210,19 +210,15 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
           })
         )).flat()}
       </div>
-      <div className="container mx-auto px-6 py-6 relative z-10">
+      */}
+      <div className="container mx-auto py-6 relative z-10">
         <div className="flex items-start justify-between gap-8 pt-12">
           <div className="flex-1 gap-4">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-balance mb-4 text-black">
               <WPDecode>{decodeHtmlEntities(title)}</WPDecode>
             </h1>
-            {subtitle && (
-              <div
-                className={`rounded-2xl shadow-md px-6 py-4 max-w-2xl mt-8 border bg-white/80 ${border}`}
-              >
-                <WPDecode>{decodeHtmlEntities(subtitle)}</WPDecode>
-              </div>
-            )}
+                {subtitle && <WPDecode>{decodeHtmlEntities(subtitle)}</WPDecode>}
+                
             {childPages && childPages.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-6">
                 {childPages.map((childPage) => {
@@ -242,22 +238,19 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
             )}
           </div>
           {backgroundImage && (
-            <div className="shrink-0 relative bg-white">
-              <div
-                className="relative w-64 h-56 md:w-56 md:h-64 lg:w-64 lg:h-72 rounded-3xl overflow-hidden shadow-2xl"
-                style={{
-                  boxShadow: "0 20px 40px rgba(0,0,0,0.3), 0 10px 20px rgba(0,0,0,0.2)",
-                }}
-              >
-                <img
-                  src={backgroundImage || "/placeholder.svg"}
-                  alt={backgroundAlt || title}
-                  className="w-full h-full object-cover"
-                  loading="eager"
-                  decoding="async"
-                />
-              </div>
+          <div className="shrink-0 relative bg-white">
+            <div
+              className="absolute right-0 w-64 h-56 md:w-56 md:h-64 lg:w-64 lg:h-72 overflow-hidden"
+            >
+              <img
+                src={backgroundImage || "/placeholder.svg"}
+                alt={backgroundAlt || title}
+                className="w-full h-full object-cover"
+                loading="eager"
+                decoding="async"
+              />
             </div>
+          </div>
           )}
         </div>
       </div>

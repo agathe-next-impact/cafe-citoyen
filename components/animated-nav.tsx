@@ -52,6 +52,15 @@ export interface AnimatedNavProps {
   baseColor?: string
   menuColor?: string
   agendaLink?: string
+  reseaux_sociaux?: Array<{
+    icone?: {
+      url: string
+      alt: string
+      title: string
+      ID: number
+    }
+    lien?: string
+  }>
 }
 
 export function AnimatedNav({
@@ -61,6 +70,7 @@ export function AnimatedNav({
   baseColor = "oklch(var(--background))",
   menuColor = "oklch(var(--foreground))",
   agendaLink = "/agenda",
+  reseaux_sociaux = [],
 }: AnimatedNavProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [expandedCardIndex, setExpandedCardIndex] = useState<number | null>(null)
@@ -98,25 +108,27 @@ export function AnimatedNav({
     setExpandedCardIndex(expandedCardIndex === index ? null : index);
   };
 
+
   return (
     <div className={cn("w-full", className)}>
       {/* Overlay to prevent page interaction and stacking issues when menu is open */}
       {isExpanded && (
-        <div className="fixed inset-0 z-199 bg-white/05 backdrop-blur-xl transition-all duration-300" aria-hidden="true" />
+        <div className="fixed inset-0 bg-white/80 backdrop-blur-xl transition-all duration-300 z-50" aria-hidden="true" />
       )}
       <nav
         className={cn(
-          "fixed top-0 left-0 right-0 z-200 transition-all duration-300 max-h-20 backdrop-blur-lg border-b border-blue-100 bg-white/10",
+          "fixed top-0 left-0 right-0 z-200 transition-all duration-300 max-h-20",
           isScrolled ? "bg-[var(--background)/0.1]" : `bg-[${baseColor}/0.1]`,
         )}
       >
-        <div className="container mx-auto max-w-full overflow-x-hidden">
-          <div className="flex items-center justify-between px-4">
+
+        <div className="bg-black container mx-auto max-w-full overflow-x-hidden">
+          <div className="flex items-center justify-between">
             {/* Hamburger Button */}
             <button
               onClick={toggleMenu}
               className={cn(
-                "tracking-wider hover:shadow-md bg-amber-500 hover:bg-amber-500/90 rounded-full mt-2 ml-2 px-4 py-2 shadow-sm gap-1.5 relative z-110 cursor-pointer transition-all",
+                "min-w-34 tracking-wider hover:shadow-md bg-amber-500 hover:bg-amber-500/90 px-6 py-2 shadow-sm gap-1.5 relative z-110 cursor-pointer transition-all",
                 isExpanded && "gap-0",
               )}
               aria-label={isExpanded ? "Fermer le menu" : "Ouvrir le menu"}
@@ -143,8 +155,21 @@ export function AnimatedNav({
               </div>
             </button>
 
-            {/* Logo */}
-            <Link href="/" onClick={handleLinkClick} className="flex items-center">
+            {/* Logo */}        
+            {/* Triangle blanc décoratif en arrière-plan */}
+            <div 
+              className="absolute top-28 left-0 w-18 h-5 bg-black"
+            />    
+            <div 
+              className="absolute top-8 left-0 w-34 h-20 bg-black"
+            />            
+            <div 
+              className="absolute top-4 left-34 w-30 h-10 bg-black"
+            />     
+            <div 
+              className="absolute top-18 left-34 w-15 h-5 bg-black"
+            />
+            <Link href="/" onClick={handleLinkClick} className="w-34 absolute top-8 left-4">
               {logo ? (
                 <img
                   src={logo}
@@ -163,10 +188,10 @@ export function AnimatedNav({
             </Link>
 
 
-            <div className="flex items-between">
+            <div className="flex items-center">
             <Link
               href="/visite-virtuelle"
-              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-blue-600 hover:bg-blue-600/90 text-white rounded-full mt-2 mr-2 px-4 py-2 shadow-sm relative z-110"
+              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-blue-600 hover:bg-blue-600/90 text-white px-8 py-2 shadow-sm relative z-110"
               aria-label="Accueil"
             >
               Visiter
@@ -175,7 +200,7 @@ export function AnimatedNav({
             <Link
               href={agendaLink}
               onClick={handleLinkClick}
-              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-amber-600 hover:bg-amber-600/90 text-white rounded-full mt-2 mr-2 px-4 py-2 shadow-sm relative z-110"
+              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-amber-500 hover:bg-amber-500/90 text-white px-9 py-2 shadow-sm relative z-110"
             >
               Agenda
             </Link>
@@ -183,6 +208,43 @@ export function AnimatedNav({
 
           </div>
         </div>
+
+          {/* Réseaux sociaux */}                  
+            <div 
+              className="absolute top-28 right-0 w-18 h-5 bg-black"
+            />    
+            <div 
+              className="absolute top-8 right-0 w-34 h-20 bg-black"
+            />            
+            <div 
+              className="absolute top-4 right-34 w-30 h-10 bg-black"
+            />     
+            <div 
+              className="absolute top-18 right-34 w-15 h-5 bg-black"
+            />
+            
+            <div className="w-34 absolute top-9 right-0 flex justify-end items-center gap-2 px-2">
+              {reseaux_sociaux && reseaux_sociaux.length > 0 && (
+                reseaux_sociaux.map((reseau, idx) => (
+                  reseau.lien && reseau.icone?.url && (
+                    <a
+                      key={idx}
+                      href={reseau.lien}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="transition-all hover:opacity-70 hover:scale-110"
+                      aria-label={reseau.icone?.alt || "Lien réseau social"}
+                    >
+                      <img
+                        src={reseau.icone.url}
+                        alt={reseau.icone.alt || ""}
+                        className="h-6 w-6 object-contain"
+                      />
+                    </a>
+                  )
+                ))
+              )}
+            </div>
 
         {/* Megamenu déroulant animé avec framer-motion */}
         <AnimatePresence>
@@ -193,13 +255,13 @@ export function AnimatedNav({
               exit={{ opacity: 0, y: -30 }}
               transition={{ duration: 0.35, ease: "easeOut" }}
               className={cn(
-                "overflow-hidden -mt-14",
+                "overflow-hidden -mt-4",
               )}
             >
               <div className="relative">
-                <div className="container mx-auto mt-8 px-4 lg:px-8 py-4 max-w-full overflow-x-hidden max-h-[calc(100vh-5rem)] lg:overflow-visible">
+                <div className="bg-black container mx-auto pt-4 px-4 lg:px-8 py-4 max-w-full overflow-x-hidden h-screen lg:overflow-visible">
                   <motion.div 
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4 pt-4"
                     variants={containerVariants}
                     initial="hidden"
                     animate={isExpanded ? "visible" : "hidden"}
@@ -212,8 +274,8 @@ export function AnimatedNav({
                           key={`${item.label}-${idx}`}
                           variants={cardVariants}
                           className={cn(
-                            "rounded-xl flex flex-col transition-all duration-500 ease-out relative",
-                            "lg:min-h-45 border border-blue-100 backdrop-blur-md",
+                            "flex flex-col transition-all duration-500 ease-out relative",
+                            "lg:min-h-45 border border-white backdrop-blur-md",
                             expandedCardIndex === idx ? "min-h-45" : "min-h-15 lg:min-h-45",
                             item.label === ""
                               ? "items-center justify-center p-2"
