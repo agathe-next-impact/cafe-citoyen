@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { AnimatePresence, m, LazyMotion, domAnimation } from "framer-motion"
 import Link from "next/link"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 // Animation variants for staggered children
@@ -165,20 +166,22 @@ export function AnimatedNav({
             {/* Logo */}        
             <Link href="/" onClick={handleLinkClick} className="w-20 absolute top-9 left-0 bg-white border-t-2 border-r-2 border-b-2 border-black">
               {logo ? (
-                <img
+                <Image
                   src={logo}
                   alt="Logo"
-                  fetchPriority="high"
+                  width={80}
+                  height={80}
+                  priority
                   className="h-20 w-20 object-contain"
-                  style={{ aspectRatio: "1 / 1" }}
                 />
               ) : (
-                <img
+                <Image
                   src="/logo-cafe-citoyen.png"
                   alt="Café Citoyen"
-                  fetchPriority="high"
+                  width={80}
+                  height={80}
+                  priority
                   className="h-20 w-20 object-contain"
-                  style={{ aspectRatio: "1 / 1" }}
                 />
               )}
             </Link>
@@ -224,9 +227,11 @@ export function AnimatedNav({
                           rel="noopener noreferrer"
                           aria-label={icone?.alt || "Lien réseau social"}
                         >
-                          <img
+                          <Image
                             src={icone.url}
                             alt={icone.alt || ""}
+                            width={24}
+                            height={24}
                             className="h-6 w-6 object-contain"
                           />
                         </a>
@@ -362,52 +367,56 @@ export function AnimatedNav({
                               {(expandedCardIndex === idx || window.innerWidth >= 1024) && (
                                 <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
                                   {/* Ball 1 - 0 degrees (bottom right) */}
-                                  <img
+                                  <Image
                                     src={imgSrc}
                                     alt=""
+                                    width={50}
+                                    height={50}
                                     className="absolute"
+                                    fetchPriority="high"
                                     style={{
-                                      width: "50px",
-                                      height: "50px",
                                       right: "-10px",
                                       bottom: "-10px",
                                       opacity: 0.5,
                                     }}
                                   />
                                   {/* Ball 2 - 30 degrees */}
-                                  <img
+                                  <Image
                                     src={imgSrc}
                                     alt=""
+                                    width={45}
+                                    height={45}
                                     className="absolute"
+                                    fetchPriority="high"
                                     style={{
-                                      width: "45px",
-                                      height: "45px",
                                       right: "calc(-10px + 60px * 0.866)",
                                       bottom: "calc(-10px + 60px * 0.5)",
                                       opacity: 0.55,
                                     }}
                                   />
                                   {/* Ball 3 - 60 degrees */}
-                                  <img
+                                  <Image
                                     src={imgSrc}
                                     alt=""
+                                    width={40}
+                                    height={40}
                                     className="absolute"
+                                    fetchPriority="high"
                                     style={{
-                                      width: "40px",
-                                      height: "40px",
                                       right: "calc(-10px + 90px * 0.5)",
                                       bottom: "calc(-10px + 90px * 0.866)",
                                       opacity: 0.6,
                                     }}
                                   />
                                   {/* Ball 4 - 90 degrees (directly above) */}
-                                  <img
+                                  <Image
                                     src={imgSrc}
                                     alt=""
+                                    width={35}
+                                    height={35}
                                     className="absolute"
+                                    fetchPriority="high"
                                     style={{
-                                      width: "35px",
-                                      height: "35px",
                                       right: "-10px",
                                       bottom: "calc(-10px + 110px)",
                                       opacity: 0.65,
