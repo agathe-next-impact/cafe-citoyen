@@ -182,36 +182,7 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
             `radial-gradient(ellipse at -10% -60%, rgba(${colorRgb},0.4) 0%, rgba(${colorRgb},0.05) 38%, white 60%), linear-gradient(to bottom, transparent 0%, white 70%, rgba(255,255,255,0.3) 100%)`,
         }}
       />
-      {/* Ligne courbe SVG en arrière-plan 
-      <div className="pointer-events-none absolute left-2/5 w-full mt-20 z-0">
-        
-        {lines.map((line, lineIndex) => (
-          allBallPositions[lineIndex].map((ballPos, ballIndex) => {
-            // theta varie de pi à 0 pour un demi-cercle bas
-            const theta = Math.PI + Math.sin(anim + line.phase[ballIndex]) * Math.PI;
-            const xOffset = Math.cos(theta) * line.radius[ballIndex];
-            const yOffset = Math.sin(theta) * line.radius[ballIndex] + line.baseY[ballIndex];
-            return (
-              <img
-                key={`line-${lineIndex}-ball-${ballIndex}`}
-                src={BALL_IMAGES[line.colorPattern[ballIndex]]}
-                alt="balle décorative"
-                style={{
-                  position: 'absolute',
-                  left: `calc(${((ballPos.x / 1920) * 100).toFixed(2)}% - 24px + ${xOffset.toFixed(2)}px)`,
-                  top: `${(ballPos.y - 240 + yOffset).toFixed(2)}px`,
-                  width: '48px',
-                  height: '48px',
-                  pointerEvents: 'none',
-                  zIndex: 2,
-                  filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.15)) drop-shadow(0 1px 3px rgba(0,0,0,0.1))',
-                }}
-              />
-            );
-          })
-        )).flat()}
-      </div>
-      */}
+
       <div className="container mx-auto py-6 relative z-10">
         <div className="flex items-start justify-between gap-8 pt-12">
           <div className="flex-1 gap-4">

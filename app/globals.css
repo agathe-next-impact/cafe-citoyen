@@ -1,14 +1,18 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Red Hat Display - Font metric overrides for FCP optimization */
 @font-face {
   font-family: "Red Hat Display";
   font-display: swap;
+  size-adjust: 96.7%;
 }
 
+/* Crimson Text - Font metric overrides for FCP optimization */
 @font-face {
   font-family: "Crimson Text";
   font-display: swap;
+  size-adjust: 98.5%;
 }
 
 @custom-variant dark (&:is(.dark *));

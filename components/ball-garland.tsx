@@ -175,7 +175,8 @@ export function BallGarland() {
             alt=""
             width={ball.size}
             height={ball.size}
-            loading="lazy"
+            loading={index === 0 ? "eager" : "lazy"}
+            fetchPriority={index === 0 ? "high" : "auto"}
             className="opacity-90 drop-shadow-lg rounded-full"
           />
         </div>

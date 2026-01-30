@@ -11,6 +11,10 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['framer-motion', 'lucide-react'],
   },
+  // Minification avancée du JavaScript
+  swcMinify: true,
+  compress: true,
+  productionBrowserSourceMaps: false,
   images: {
     // Formats modernes pour réduire la taille des images
     formats: ['image/avif', 'image/webp'],

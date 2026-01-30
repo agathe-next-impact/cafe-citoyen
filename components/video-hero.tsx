@@ -39,12 +39,13 @@ export function VideoHero({ embedHtml }: VideoHeroProps) {
     if (!iframe || !iframe.src) return html;
 
     try {
-      const url = new URL(iframe.src);
+      const originalUrl = new URL(iframe.src);
       const src = iframe.src;
+      let finalUrl: URL = originalUrl;
 
       if (src.includes("youtube.com") || src.includes("youtu.be")) {
         // Utiliser le domaine nocookie pour un meilleur cache
-        const newUrl = new URL("https://www.youtube-nocookie.com/embed/" + (url.pathname.split("/").pop() || url.searchParams.get("v")));
+        const newUrl = new URL("https://www.youtube-nocookie.com/embed/" + (originalUrl.pathname.split("/").pop() || originalUrl.searchParams.get("v")));
         newUrl.searchParams.set("controls", "0");
         newUrl.searchParams.set("showinfo", "0");
         newUrl.searchParams.set("rel", "0");
@@ -54,23 +55,23 @@ export function VideoHero({ embedHtml }: VideoHeroProps) {
         newUrl.searchParams.set("mute", "1");
         newUrl.searchParams.set("playsinline", "1");
         const videoId =
-          url.pathname.split("/").pop() || url.searchParams.get("v");
+          originalUrl.pathname.split("/").pop() || originalUrl.searchParams.get("v");
         if (videoId) {
           newUrl.searchParams.set("playlist", videoId);
         }
-        url = newUrl;
+        finalUrl = newUrl;
       } else if (src.includes("vimeo.com")) {
-        url.searchParams.set("controls", "0");
-        url.searchParams.set("title", "0");
-        url.searchParams.set("byline", "0");
-        url.searchParams.set("portrait", "0");
-        url.searchParams.set("loop", "1");
-        url.searchParams.set("autoplay", "1");
-        url.searchParams.set("muted", "1");
-        url.searchParams.set("playsinline", "1");
+        finalUrl.searchParams.set("controls", "0");
+        finalUrl.searchParams.set("title", "0");
+        finalUrl.searchParams.set("byline", "0");
+        finalUrl.searchParams.set("portrait", "0");
+        finalUrl.searchParams.set("loop", "1");
+        finalUrl.searchParams.set("autoplay", "1");
+        finalUrl.searchParams.set("muted", "1");
+        finalUrl.searchParams.set("playsinline", "1");
       }
 
-      iframe.src = url.toString();
+      iframe.src = finalUrl.toString();
     } catch (error) {
       console.warn("Impossible d'optimiser l'URL de la vidéo", error);
     }
