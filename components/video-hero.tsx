@@ -54,6 +54,9 @@ export function VideoHero({ embedHtml }: VideoHeroProps) {
         newUrl.searchParams.set("autoplay", "1");
         newUrl.searchParams.set("mute", "1");
         newUrl.searchParams.set("playsinline", "1");
+        newUrl.searchParams.set("iv_load_policy", "3");
+        newUrl.searchParams.set("disablekb", "1");
+        newUrl.searchParams.set("enablejsapi", "1");
         const videoId =
           originalUrl.pathname.split("/").pop() || originalUrl.searchParams.get("v");
         if (videoId) {
@@ -94,6 +97,27 @@ export function VideoHero({ embedHtml }: VideoHeroProps) {
     if (!shouldLoad) return;
     setProcessedEmbed(buildIframeHtml(embedHtml));
   }, [buildIframeHtml, embedHtml, shouldLoad]);
+
+  // Force la lecture de la vidéo au retour sur l'onglet
+  useEffect(() => {
+    if (!shouldLoad || typeof window === "undefined") return;
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        const iframe = containerRef.current?.querySelector("iframe");
+        if (iframe && iframe.contentWindow) {
+          // Force la lecture via l'API YouTube
+          iframe.contentWindow.postMessage(
+            '{"event":"command","func":"playVideo","args":""}',
+            "*"
+          );
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [shouldLoad]);
 
   const placeholder = useMemo(
     () => (

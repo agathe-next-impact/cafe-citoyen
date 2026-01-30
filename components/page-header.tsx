@@ -48,17 +48,7 @@ const MEGAMENU_CARD_COLOR_GROUPS: Array<{
   }
 ];
 
-function getMegaMenuCardStyle(slug?: string) {
-  if (!slug) {
-    return { bg: "bg-gray-50", border: "border-gray-300" };
-  }
-  for (const group of MEGAMENU_CARD_COLOR_GROUPS) {
-    if (group.slugs.includes(slug)) {
-      return { bg: group.bg, border: group.border };
-    }
-  }
-  return { bg: "bg-gray-50", border: "border-gray-300" };
-}
+
 
 function getBadgeStyle(slug?: string) {
   if (!slug) {
@@ -77,22 +67,6 @@ function getBadgeStyle(slug?: string) {
   return { bg: "bg-gray-500", border: "border-gray-500" };
 }
 
-function getColorRgb(slug?: string): string {
-  if (!slug) {
-    return "107, 114, 128"; // gray-500
-  }
-  for (const group of MEGAMENU_CARD_COLOR_GROUPS) {
-    if (group.slugs.includes(slug)) {
-      const baseBg = group.bg.replace("/50", "");
-      if (baseBg === "bg-purple-50") return "168, 85, 247"; // purple-500
-      if (baseBg === "bg-red-50") return "239, 68, 68"; // red-500
-      if (baseBg === "bg-yellow-50") return "234, 179, 8"; // yellow-500
-      if (baseBg === "bg-emerald-50") return "16, 185, 129"; // emerald-500
-      if (baseBg === "bg-blue-50") return "59, 130, 246"; // blue-500
-    }
-  }
-  return "107, 114, 128"; // gray-500
-}
 
 
 const BALL_IMAGES = [
@@ -121,78 +95,38 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
     };
   }, []);
 
-  // Création de 3 lignes de balles
-  const lines = [
-    {
-      Y1: 80, Y2: 40, Y3: 100,
-      yOffset: -40,
-      tList: [0.20, 0.50, 0.80],
-      baseY: [20, 25, 18],
-      radius: [15, 20, 12],
-      phase: [0, 0.8, 1.5],
-      colorPattern: [0, 1, 2]
-    },
-    {
-      Y1: 120, Y2: 60, Y3: 140,
-      yOffset: 0,
-      tList: [0.10, 0.22, 0.41, 0.65, 0.87],
-      baseY: [30, 36, 24, 72, 28],
-      radius: [18, 24, 14, 20, 16],
-      phase: [0, 0.7, 1.2, 2.1, 2.8],
-      colorPattern: [4, 3, 2, 1, 0]
-    },
-    {
-      Y1: 160, Y2: 100, Y3: 180,
-      yOffset: 40,
-      tList: [0.15, 0.35, 0.55, 0.85],
-      baseY: [40, 45, 35, 55],
-      radius: [20, 26, 16, 22],
-      phase: [0.5, 1.2, 1.8, 2.6],
-      colorPattern: [2, 3, 4, 0]
-    }
-  ];
-
-  const allBallPositions = lines.map(line => {
-    return line.tList.map(t => {
-      let x, y;
-      if (t <= 0.5) {
-        const localT = t / 0.5;
-        x = 0 + (960 - 0) * t * 2;
-        y = quadBezier(localT, 80 + line.yOffset, line.Y1, line.Y2);
-      } else {
-        const localT = (t - 0.5) / 0.5;
-        x = 960 + (1920 - 960) * (t - 0.5) * 2;
-        const ctrl = (line.Y1 + line.Y2) / 2;
-        y = quadBezier(localT, line.Y2, ctrl, line.Y3);
-      }
-      return { x, y: y + line.yOffset };
-    });
-  });
-
-  const { bg, border } = getMegaMenuCardStyle(slug);
-  const colorRgb = getColorRgb(slug);
 
   return (
-    <section className={`-mt-20 pt-16 relative min-h-50 flex items-center overflow-visible ${bg} border-b-2 ${border}`}>
+    <section className={`-mt-20 pt-16 relative min-h-100 flex items-end overflow-visible border-b-1 border-black`}>
+      {/* Image de fond */}
+      {backgroundImage && (
+        <div className="absolute inset-0 z-0">
+          <Image
+            src={backgroundImage}
+            alt={backgroundAlt || title}
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+          />
+        </div>
+      )}
+      
       {/* Halo radial en haut de page */}
       <div
         className="pointer-events-none absolute inset-0 z-0 opacity-50"
-        style={{
-          backgroundImage:
-            `radial-gradient(ellipse at -10% -60%, rgba(${colorRgb},0.4) 0%, rgba(${colorRgb},0.05) 38%, white 60%), linear-gradient(to bottom, transparent 0%, white 70%, rgba(255,255,255,0.3) 100%)`,
-        }}
       />
-
-      <div className="container mx-auto py-6 relative z-10">
-        <div className="flex items-start justify-between gap-8 pt-12">
-          <div className="flex-1 gap-4">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-balance mb-4 text-black">
+      
+      <div className="w-full mx-auto relative z-10">
+        <div className="flex gap-8">
+          <div className="flex-1 gap-4 bg-black text-white py-4">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-balance mb-4 ml-4 text-white">
               <WPDecode>{decodeHtmlEntities(title)}</WPDecode>
             </h1>
-                {subtitle && <WPDecode>{decodeHtmlEntities(subtitle)}</WPDecode>}
+                <span className="ml-4">{subtitle && <WPDecode>{decodeHtmlEntities(subtitle)}</WPDecode>}</span>
                 
             {childPages && childPages.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-6">
+              <div className="flex flex-wrap gap-1 mt-6 pt-1 bg-black">
                 {childPages.map((childPage) => {
                     const href = allPages ? getPagePath(childPage, allPages) : `/${childPage.slug}`;
                     const badgeStyle = getBadgeStyle(childPage.slug);
@@ -200,7 +134,7 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
                     <a
                       key={childPage.id}
                       href={href}
-                      className={`inline-flex items-center px-4 py-1 rounded-full text-base text-white border-2 transition-all hover:scale-105 ${badgeStyle.bg} ${badgeStyle.border} hover:shadow-md`}
+                      className={`inline-flex items-center px-4 py-1 mb-1 text-base bg-white text-black`}
                     >
                       <WPDecode>{decodeHtmlEntities(childPage.title.rendered)}</WPDecode>
                     </a>
@@ -209,22 +143,6 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
               </div>
             )}
           </div>
-          {backgroundImage && (
-          <div className="shrink-0 relative bg-white">
-            <div
-              className="absolute right-0 w-64 h-56 md:w-56 md:h-64 lg:w-64 lg:h-72 overflow-hidden relative"
-            >
-              <Image
-                src={backgroundImage || "/placeholder.svg"}
-                alt={backgroundAlt || title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 220px, 256px"
-                priority
-              />
-            </div>
-          </div>
-          )}
         </div>
       </div>
     </section>
@@ -242,13 +160,6 @@ function getPagePath(childPage: { slug: string }, allPages: any[]): string {
   return `/${childPage.slug}`;
 }
 
-// Utilitaire de courbe quadratique (inchangé)
-function quadBezier(t: number, p0: number, p1: number, p2: number) {
-  return (
-    (1 - t) * (1 - t) * p0 +
-    2 * (1 - t) * t * p1 +
-    t * t * p2
-  );
-}
+
 
 
