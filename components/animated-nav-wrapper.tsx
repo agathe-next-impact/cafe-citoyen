@@ -5,11 +5,10 @@ import Image from "next/image"
 import { AnimatedNav } from "./animated-nav"
 import type { NavItem } from "./animated-nav"
 import {
-  getWordPressPages,
   organizePagesByParent,
-  getWordPressEvents,
   type SiteOptions,
   type WordPressEvent,
+  type WordPressPage,
 } from "@/lib/wordpress-api"
 
 export function AnimatedNavWrapper({ siteOptions }: { siteOptions: SiteOptions | null }) {
@@ -19,10 +18,13 @@ export function AnimatedNavWrapper({ siteOptions }: { siteOptions: SiteOptions |
   useEffect(() => {
     async function fetchData() {
       try {
-        const [pages, events] = await Promise.all([
-          getWordPressPages(),
-          getWordPressEvents(),
+        const [pagesRes, eventsRes] = await Promise.all([
+          fetch("/api/wordpress/pages"),
+          fetch("/api/wordpress/events"),
         ])
+
+        const pages: WordPressPage[] = await pagesRes.json()
+        const events: WordPressEvent[] = await eventsRes.json()
 
         const sortedEvents = events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         setLatestEvents(sortedEvents.slice(0, 3)) // Keep top 3 events
