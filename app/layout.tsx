@@ -1,17 +1,33 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Red_Hat_Display } from "next/font/google"
+import { Red_Hat_Display, Crimson_Text } from "next/font/google"
 import { AnimatedNavWrapper } from "@/components/animated-nav-wrapper"
-import { Footer } from "@/components/footer"
 import { ScrollToTop } from "@/components/scroll-to-top"
-import { BallGarland } from "@/components/ball-garland"
 import { getSiteOptions } from "@/lib/wordpress-api"
+import dynamic from "next/dynamic"
 import "./globals.css"
 import '@wordpress/block-library/build-style/style.css';
+
+// Lazy-load du Footer (non critique pour le rendu initial)
+const Footer = dynamic(() => import("@/components/footer").then(mod => mod.Footer), {
+  loading: () => <footer className="h-64 bg-black" />,
+})
+
+// Lazy-load de BallGarland (décoratif, non critique)
+const BallGarland = dynamic(() => import("@/components/ball-garland").then(mod => mod.BallGarland))
 
 const redHatDisplay = Red_Hat_Display({
   subsets: ["latin"],
   variable: "--font-sans",
+  display: "swap",
+})
+
+const crimsonText = Crimson_Text({
+  weight: ["400", "600", "700"],
+  style: ["normal", "italic"],
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
 })
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -64,7 +80,7 @@ export default function RootLayout({
         <meta charSet="utf-8" />
         <link rel="icon" href="/logo-cafe-citoyen.png" />
       </head>
-      <body suppressHydrationWarning className={redHatDisplay.variable + " bg-amber-50/10"}>
+      <body suppressHydrationWarning className={`${redHatDisplay.variable} ${crimsonText.variable} bg-amber-50/10`}>
         <ScrollToTop />
         <AnimatedNavWrapper />
         <BallGarland />

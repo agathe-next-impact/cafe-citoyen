@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 interface VideoHeroProps {
   embedHtml: string
@@ -8,68 +8,108 @@ interface VideoHeroProps {
 
 export function VideoHero({ embedHtml }: VideoHeroProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [key, setKey] = useState(0)
+  const [shouldLoad, setShouldLoad] = useState(false)
+  const [processedEmbed, setProcessedEmbed] = useState<string | null>(null)
 
+  // N'observe le composant que côté client pour différer le chargement de l'iframe
   useEffect(() => {
-    // Forcer le rechargement de l'iframe à chaque fois que le composant est monté
-    setKey(prev => prev + 1)
+    if (!containerRef.current) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoad(true)
+            observer.disconnect()
+          }
+        })
+      },
+      { rootMargin: "200px", threshold: 0.1 }
+    )
+
+    observer.observe(containerRef.current)
+    return () => observer.disconnect()
   }, [])
 
-  useEffect(() => {
-    if (containerRef.current) {
-      const iframe = containerRef.current.querySelector('iframe')
-      if (iframe) {
+  const buildIframeHtml = useCallback(
+    (html: string) => {
+      if (!html || typeof window === "undefined") return html
+
+      const wrapper = document.createElement("div")
+      wrapper.innerHTML = html.trim()
+      const iframe = wrapper.querySelector("iframe")
+      if (!iframe || !iframe.src) return html
+
+      try {
+        const url = new URL(iframe.src)
         const src = iframe.src
-        const url = new URL(src)
-        
-        // Ajouter les paramètres pour masquer les contrôles selon la plateforme
-        if (src.includes('youtube.com') || src.includes('youtu.be')) {
-          url.searchParams.set('controls', '0')
-          url.searchParams.set('showinfo', '0')
-          url.searchParams.set('rel', '0')
-          url.searchParams.set('modestbranding', '1')
-          url.searchParams.set('loop', '1')
-          url.searchParams.set('autoplay', '1')
-          url.searchParams.set('mute', '1')
-          url.searchParams.set('playsinline', '1')
-          // Pour YouTube, loop nécessite le paramètre playlist avec l'ID de la vidéo
-          const videoId = url.pathname.split('/').pop() || url.searchParams.get('v')
+
+        if (src.includes("youtube.com") || src.includes("youtu.be")) {
+          url.searchParams.set("controls", "0")
+          url.searchParams.set("showinfo", "0")
+          url.searchParams.set("rel", "0")
+          url.searchParams.set("modestbranding", "1")
+          url.searchParams.set("loop", "1")
+          url.searchParams.set("autoplay", "1")
+          url.searchParams.set("mute", "1")
+          url.searchParams.set("playsinline", "1")
+          const videoId = url.pathname.split("/").pop() || url.searchParams.get("v")
           if (videoId) {
-            url.searchParams.set('playlist', videoId)
+            url.searchParams.set("playlist", videoId)
           }
-        } else if (src.includes('vimeo.com')) {
-          url.searchParams.set('controls', '0')
-          url.searchParams.set('title', '0')
-          url.searchParams.set('byline', '0')
-          url.searchParams.set('portrait', '0')
-          url.searchParams.set('loop', '1')
-          url.searchParams.set('autoplay', '1')
-          url.searchParams.set('muted', '1')
-          url.searchParams.set('playsinline', '1')
+        } else if (src.includes("vimeo.com")) {
+          url.searchParams.set("controls", "0")
+          url.searchParams.set("title", "0")
+          url.searchParams.set("byline", "0")
+          url.searchParams.set("portrait", "0")
+          url.searchParams.set("loop", "1")
+          url.searchParams.set("autoplay", "1")
+          url.searchParams.set("muted", "1")
+          url.searchParams.set("playsinline", "1")
         }
-        
-        // Forcer le rechargement avec les nouveaux paramètres
-        const newSrc = url.toString()
-        if (iframe.src !== newSrc) {
-          iframe.src = newSrc
-        }
+
+        iframe.src = url.toString()
+      } catch (error) {
+        console.warn("Impossible d'optimiser l'URL de la vidéo", error)
       }
-    }
-  }, [embedHtml, key])
+
+      iframe.setAttribute("loading", "lazy")
+      iframe.setAttribute("referrerpolicy", "strict-origin-when-cross-origin")
+      iframe.setAttribute("allow", "autoplay; fullscreen; picture-in-picture; encrypted-media")
+      iframe.setAttribute("title", iframe.getAttribute("title") || "Vidéo de présentation")
+
+      return wrapper.innerHTML
+    },
+    []
+  )
+
+  useEffect(() => {
+    if (!shouldLoad) return
+    setProcessedEmbed(buildIframeHtml(embedHtml))
+  }, [buildIframeHtml, embedHtml, shouldLoad])
+
+  const placeholder = useMemo(
+    () => (
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-black via-neutral-900 to-black">
+        <div className="h-24 w-24 rounded-full bg-white/5 border border-white/10 animate-pulse" aria-hidden />
+        <span className="sr-only">Chargement de la vidéo</span>
+      </div>
+    ),
+    []
+  )
 
   return (
-    <section className="relative w-full h-screen overflow-hidden bg-black -mt-20">
-      <div 
-        key={key}
+    <section className="relative w-full h-screen overflow-hidden bg-black -mt-20" aria-label="Vidéo de présentation">
+      <div
         ref={containerRef}
         className="absolute inset-0 w-full h-full"
-        dangerouslySetInnerHTML={{ __html: embedHtml }}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      />
+        style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      >
+        {processedEmbed ? (
+          <div className="w-full h-full" dangerouslySetInnerHTML={{ __html: processedEmbed }} />
+        ) : (
+          placeholder
+        )}
+      </div>
       <style jsx>{`
         section :global(iframe) {
           position: absolute;

@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, lazy, Suspense } from "react"
 import Image from "next/image"
-import { AnimatedNav, type NavItem } from "./animated-nav"
+import type { NavItem } from "./animated-nav"
 import {
   getWordPressPages,
   organizePagesByParent,
@@ -11,6 +11,9 @@ import {
   type SiteOptions,
   type WordPressEvent,
 } from "@/lib/wordpress-api"
+
+// Lazy load du composant AnimatedNav (réduit le bundle initial de ~200KB)
+const AnimatedNav = lazy(() => import("./animated-nav").then(mod => ({ default: mod.AnimatedNav })))
 
 export function AnimatedNavWrapper() {
   const [navItems, setNavItems] = useState<NavItem[]>([])
@@ -93,12 +96,14 @@ export function AnimatedNavWrapper() {
 
   return (
     <div className="relative z-100">      
-      <AnimatedNav
-        logo={siteOptions?.logo_du_site?.url || ""}
-        items={navItems}
-        agendaLink="/agenda"
-        reseaux_sociaux={siteOptions?.reseaux_sociaux || []}
-      />
+      <Suspense fallback={<div className="h-20 bg-black" />}>
+        <AnimatedNav
+          logo={siteOptions?.logo_du_site?.url || ""}
+          items={navItems}
+          agendaLink="/agenda"
+          reseaux_sociaux={siteOptions?.reseaux_sociaux || []}
+        />
+      </Suspense>
     </div>
   )
 }

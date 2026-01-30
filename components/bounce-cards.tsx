@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useMemo, useRef } from "react"
-import { motion } from "framer-motion"
+import { m, LazyMotion, domAnimation } from "framer-motion"
 import Image from "next/image"
 import "./BounceCards.css"
 
@@ -145,6 +145,7 @@ export default function BounceCards({
   }
 
   return (
+    <LazyMotion features={domAnimation}>
     <div
       ref={containerRef}
       className={`bounceCardsContainer ${className} max-w-full overflow-hidden`}
@@ -156,7 +157,7 @@ export default function BounceCards({
       }}
     >
       {images.map((src, idx) => (
-        <motion.div
+        <m.div
           key={idx}
           className={`card card-${idx} ${mounted ? "card-mounted" : ""}`}
           style={{
@@ -196,8 +197,9 @@ export default function BounceCards({
             sizes="(max-width: 768px) 180px, (max-width: 1024px) 240px, 300px"
             loading="lazy" 
           />
-        </motion.div>
+        </m.div>
       ))}
     </div>
+    </LazyMotion>
   )
 }

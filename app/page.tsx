@@ -1,9 +1,12 @@
 import { getWordPressPageBySlug, getSiteOptions } from "@/lib/wordpress-api"
 import PageHeader from "@/components/page-header"
 import { PageContent } from "@/components/page-content"
-import BounceCards from "@/components/bounce-cards"
-import { VideoHero } from "@/components/video-hero"
 import { notFound } from "next/navigation"
+import Image from "next/image"
+import dynamic from "next/dynamic"
+
+const BounceCards = dynamic(() => import("@/components/bounce-cards"))
+const VideoHero = dynamic(() => import("@/components/video-hero").then((mod) => mod.VideoHero))
 
 type VideoType = string; // oEmbed HTML
 type AcfType = {
@@ -54,10 +57,13 @@ export default async function Home() {
         </section>
       ) : acf?.background?.url ? (
         <section className="relative h-screen w-full flex items-center justify-center overflow-hidden -mt-20">
-          <img
+          <Image
             src={acf.background.url}
-            alt={acf.background.alt || ""}
-            className="absolute inset-0 w-full h-full object-cover object-center"
+            alt={acf.background.alt || page.title.rendered}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
             style={{ zIndex: 0 }}
           />
         </section>

@@ -3,7 +3,7 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence, m, LazyMotion, domAnimation } from "framer-motion"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { getSiteOptions } from "@/lib/wordpress-api"
@@ -110,6 +110,7 @@ export function AnimatedNav({
 
 
   return (
+    <LazyMotion features={domAnimation}>
     <div className={cn("w-full", className)}>
       {/* Overlay to prevent page interaction and stacking issues when menu is open */}
       {isExpanded && (
@@ -249,7 +250,7 @@ export function AnimatedNav({
         {/* Megamenu déroulant animé avec framer-motion */}
         <AnimatePresence>
           {isExpanded && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: -30 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -30 }}
@@ -260,7 +261,7 @@ export function AnimatedNav({
             >
               <div className="relative">
                 <div className="bg-black container mx-auto pt-4 px-4 lg:px-8 py-4 max-w-full overflow-x-hidden h-screen lg:overflow-visible">
-                  <motion.div 
+                  <m.div 
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4 pt-4"
                     variants={containerVariants}
                     initial="hidden"
@@ -270,7 +271,7 @@ export function AnimatedNav({
                       const bgClass = colorImageMap[idx % colorImageMap.length]?.bgClass || 'bg-yellow-100';
                       const imgSrc = colorImageMap[idx % colorImageMap.length]?.img || '/placeholder.svg';
                       return (
-                        <motion.div
+                        <m.div
                           key={`${item.label}-${idx}`}
                           variants={cardVariants}
                           className={cn(
@@ -426,16 +427,17 @@ export function AnimatedNav({
                                 </div>
                               )}
                             </>}
-                        </motion.div>
+                        </m.div>
                       );
                     })}
-                  </motion.div>
+                  </m.div>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </nav>
     </div>
+    </LazyMotion>
   );
 }

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { WPDecode } from "@/components/wp-decode"; // Utilisation du composant externe
 import { decodeHtmlEntities } from "@/lib/decode";
+import Image from "next/image";
 
 
 type PageHeaderProps = {
@@ -240,14 +241,15 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
           {backgroundImage && (
           <div className="shrink-0 relative bg-white">
             <div
-              className="absolute right-0 w-64 h-56 md:w-56 md:h-64 lg:w-64 lg:h-72 overflow-hidden"
+              className="absolute right-0 w-64 h-56 md:w-56 md:h-64 lg:w-64 lg:h-72 overflow-hidden relative"
             >
-              <img
+              <Image
                 src={backgroundImage || "/placeholder.svg"}
                 alt={backgroundAlt || title}
-                className="w-full h-full object-cover"
-                loading="eager"
-                decoding="async"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 220px, 256px"
+                priority
               />
             </div>
           </div>
