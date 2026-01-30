@@ -69,11 +69,12 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const siteOptions = await getSiteOptions()
   return (
     <html lang="fr">
       <head>
@@ -87,7 +88,7 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning className={`${redHatDisplay.variable} ${crimsonText.variable} bg-amber-50/10`}>
         <ScrollToTop />
-        <AnimatedNavWrapper />
+        <AnimatedNavWrapper siteOptions={siteOptions} />
         <BallGarland />
         <main>{children}</main>
         <Footer />

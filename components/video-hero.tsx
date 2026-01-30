@@ -1,12 +1,25 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+
+type HeroMenuLink = {
+  lien: {
+    texte_du_lien: string;
+    page: Array<{
+      ID: number;
+      post_title: string;
+      post_name: string;
+    }>;
+  };
+};
 
 interface VideoHeroProps {
   embedHtml: string;
+  menuLinks?: HeroMenuLink[];
 }
 
-export function VideoHero({ embedHtml }: VideoHeroProps) {
+export function VideoHero({ embedHtml, menuLinks }: VideoHeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [shouldLoad, setShouldLoad] = useState(false);
   const [processedEmbed, setProcessedEmbed] = useState<string | null>(null);
@@ -57,6 +70,8 @@ export function VideoHero({ embedHtml }: VideoHeroProps) {
         newUrl.searchParams.set("iv_load_policy", "3");
         newUrl.searchParams.set("disablekb", "1");
         newUrl.searchParams.set("enablejsapi", "1");
+        newUrl.searchParams.set("fs", "0");
+        newUrl.searchParams.set("cc_load_policy", "0");
         const videoId =
           originalUrl.pathname.split("/").pop() || originalUrl.searchParams.get("v");
         if (videoId) {
@@ -72,6 +87,7 @@ export function VideoHero({ embedHtml }: VideoHeroProps) {
         finalUrl.searchParams.set("autoplay", "1");
         finalUrl.searchParams.set("muted", "1");
         finalUrl.searchParams.set("playsinline", "1");
+        finalUrl.searchParams.set("background", "1");
       }
 
       iframe.src = finalUrl.toString();
@@ -166,10 +182,54 @@ export function VideoHero({ embedHtml }: VideoHeroProps) {
           min-height: 100vh;
           min-width: 177.77vh; /* 16:9 aspect ratio */
           border: none;
-          pointer-events: auto;
+          pointer-events: none;
         }
       `}</style>
       <div className="absolute inset-0 bg-black/20 pointer-events-none" />
+      
+      {/* Menu vertical surimposé */}
+      {menuLinks && menuLinks.length > 0 && (
+        <nav 
+          className="absolute right-8 -bottom-20 -translate-y-1/2 z-10"
+          aria-label="Navigation rapide"
+        >
+          <ul className="flex flex-col gap-3">
+            {menuLinks.map((item, index) => {
+              const pageData = item.lien?.page?.[0];
+              const linkText = item.lien?.texte_du_lien || pageData?.post_title;
+              const linkSlug = pageData?.post_name;
+              
+              if (!linkText || !linkSlug) return null;
+              
+              return (
+                <li key={index}>
+                  <Link
+                    href={`/${linkSlug}`}
+                    className="group flex items-center justify-end gap-3 px-5 py-3 
+                               bg-white/90 backdrop-blur-md
+                               border-2 border-black 
+                               text-black text-base
+                               transition-all duration-300 ease-out
+                               hover:bg-white/40 hover:border-white/40 hover:scale-105"
+                  >
+                    <span className="transition-transform duration-300 group-hover:-translate-x-1">
+                      {linkText}
+                    </span>
+                    <svg 
+                      className="w-4 h-4 opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      )}
     </section>
   );
 }

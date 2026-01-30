@@ -74,7 +74,7 @@ export default async function ActualitesArchivePage() {
               <Link
                 key={post.id}
                 href={`/actualites/${post.slug}`}
-                className="group rounded-2xl overflow-hidden bg-white shadow-md hover:shadow-xl transition-all duration-300 border border-purple-100"
+                className="group overflow-hidden bg-white transition-all duration-300 border-2 border-black"
               >
                 {/* Image */}
                 {featuredImage?.source_url && (
@@ -88,14 +88,14 @@ export default async function ActualitesArchivePage() {
                 )}
 
                 {/* Contenu */}
-                <div className="p-6">
+                <div>
                   {/* Catégories */}
                   {categories.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-3">
+                    <div className="flex flex-wrap gap-2">
                       {categories.slice(0, 2).map((cat: string) => (
                         <span
                           key={cat}
-                          className="text-xs font-medium px-2.5 py-1 rounded-full bg-purple-100 text-purple-700"
+                          className="text-xs font-medium px-2.5 py-1 bg-black text-white"
                         >
                           {decodeHtmlEntities(cat)}
                         </span>
@@ -104,12 +104,12 @@ export default async function ActualitesArchivePage() {
                   )}
 
                   {/* Titre */}
-                  <h3 className="text-xl font-bold mb-2 group-hover:text-purple-600 transition-colors line-clamp-2">
+                  <h3 className="text-xl font-bold mb-2 transition-colors line-clamp-2 px-4 pt-4">
                     {decodeHtmlEntities(post.title.rendered)}
                   </h3>
 
                   {/* Excerpt */}
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-2 px-4">
                     {post.excerpt?.rendered
                       ? decodeHtmlEntities(
                           post.excerpt.rendered.replace(/<[^>]*>/g, ""),
@@ -118,8 +118,7 @@ export default async function ActualitesArchivePage() {
                   </p>
 
                   {/* Métadonnées */}
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>{decodeHtmlEntities(author)}</span>
+                  <div className="flex items-center justify-between text-xs text-gray-700 px-4 pb-4">
                     <time>{formatDate(post.date)}</time>
                   </div>
                 </div>

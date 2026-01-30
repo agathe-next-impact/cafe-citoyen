@@ -6,7 +6,6 @@ import { useState, useEffect } from "react"
 import { AnimatePresence, m, LazyMotion, domAnimation } from "framer-motion"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { getSiteOptions } from "@/lib/wordpress-api"
 
 // Animation variants for staggered children
 const containerVariants = {
@@ -53,12 +52,19 @@ export interface AnimatedNavProps {
   menuColor?: string
   agendaLink?: string
   reseaux_sociaux?: Array<{
-    icone?: {
-      url: string
-      alt: string
-      title: string
-      ID: number
-    }
+    icone?:
+      | {
+          url: string
+          alt: string
+          title: string
+          ID: number
+        }
+      | Array<{
+          url: string
+          alt: string
+          title: string
+          ID: number
+        }>
     lien?: string
   }>
 }
@@ -66,7 +72,7 @@ export interface AnimatedNavProps {
 export function AnimatedNav({
   logo,
   items,
-  className = "",
+  className,
   baseColor = "oklch(var(--background))",
   menuColor = "oklch(var(--foreground))",
   agendaLink = "/agenda",
@@ -118,7 +124,7 @@ export function AnimatedNav({
       )}
       <nav
         className={cn(
-          "fixed top-0 left-0 right-0 z-200 transition-all duration-300 max-h-20",
+          "fixed top-0 left-0 right-0 z-200 transition-all duration-300 max-h-20 border-y-2 border-black",
           isScrolled ? "bg-[var(--background)/0.1]" : `bg-[${baseColor}/0.1]`,
         )}
       >
@@ -129,7 +135,7 @@ export function AnimatedNav({
             <button
               onClick={toggleMenu}
               className={cn(
-                "min-w-34 tracking-wider hover:shadow-md bg-white hover:bg-white/90 px-6 py-2 shadow-sm gap-1.5 relative z-110 cursor-pointer transition-all",
+                "min-w-34 tracking-wider hover:shadow-md bg-white hover:bg-white/90 px-6 py-2 border-r-2 border-black gap-1.5 relative z-110 cursor-pointer transition-all",
                 isExpanded && "gap-0",
               )}
               aria-label={isExpanded ? "Fermer le menu" : "Ouvrir le menu"}
@@ -157,20 +163,7 @@ export function AnimatedNav({
             </button>
 
             {/* Logo */}        
-            {/* Triangle blanc décoratif en arrière-plan */}
-            <div 
-              className="absolute top-28 left-0 w-18 h-5 bg-black"
-            />    
-            <div 
-              className="absolute top-8 left-0 w-34 h-20 bg-black"
-            />            
-            <div 
-              className="absolute top-4 left-34 w-18 h-10 bg-black"
-            />     
-            <div 
-              className="absolute top-18 left-34 w-8 h-5 bg-black"
-            />
-            <Link href="/" onClick={handleLinkClick} className="w-34 absolute top-8 left-4">
+            <Link href="/" onClick={handleLinkClick} className="w-20 absolute top-9 left-0 bg-white border-t-2 border-r-2 border-b-2 border-black">
               {logo ? (
                 <img
                   src={logo}
@@ -214,38 +207,32 @@ export function AnimatedNav({
 
           {/* Réseaux sociaux */}                  
             <div 
-              className="absolute top-28 right-0 w-18 h-5 bg-black"
+              className="absolute top-9 right-0 w-10 h-34 bg-white border-l-2 border-b-2 border-black"
             />    
-            <div 
-              className="absolute top-8 right-0 w-34 h-20 bg-black"
-            />            
-            <div 
-              className="absolute top-4 right-34 w-18 h-10 bg-black"
-            />     
-            <div 
-              className="absolute top-18 right-34 w-8 h-5 bg-black"
-            />
             
-            <div className="w-34 absolute top-9 right-0 flex justify-end items-center gap-2 px-2">
+            <div className="absolute top-9 right-0 flex flex-col gap-4 px-2 pb-2 pt-4">
               {reseaux_sociaux && reseaux_sociaux.length > 0 && (
-                reseaux_sociaux.map((reseau, idx) => (
-                  reseau.lien && reseau.icone?.url && (
-                    <a
-                      key={idx}
-                      href={reseau.lien}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="transition-all hover:opacity-70 hover:scale-110"
-                      aria-label={reseau.icone?.alt || "Lien réseau social"}
-                    >
-                      <img
-                        src={reseau.icone.url}
-                        alt={reseau.icone.alt || ""}
-                        className="h-6 w-6 object-contain"
-                      />
-                    </a>
-                  )
-                ))
+                  reseaux_sociaux.map((reseau, idx) => {
+                    const icone = Array.isArray(reseau.icone) ? reseau.icone[0] : reseau.icone
+
+                    return (
+                      reseau.lien && icone?.url && (
+                        <a
+                          key={idx}
+                          href={reseau.lien}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={icone?.alt || "Lien réseau social"}
+                        >
+                          <img
+                            src={icone.url}
+                            alt={icone.alt || ""}
+                            className="h-6 w-6 object-contain"
+                          />
+                        </a>
+                      )
+                    )
+                  })
               )}
             </div>
 

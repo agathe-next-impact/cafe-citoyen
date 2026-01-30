@@ -1,8 +1,10 @@
 import { decodeHtmlEntities } from "@/components/wp-decode"
 import { formatDate } from "@/lib/utils"
 import { notFound } from "next/navigation"
+import Link from "next/link"
 
 import { getPost, getPosts } from "./data"
+import PageHeader from "@/components/page-header"
 
 export const revalidate = 60
 
@@ -40,46 +42,43 @@ export default async function SinglePostPage({ params }: { params: Promise<{ slu
     post._embedded?.["wp:term"]
       ?.flat()
       .filter((term: any) => term.taxonomy === "category")
-      .map((term: any) => term.name) || []
+      .map((term: any) => ({ name: term.name, slug: term.slug })) || []
 
   return (
     <div className="min-h-screen bg-amber-50/10">
-      <article className="md:w-max-[90%] lg:max-w-6xl mx-auto py-12 px-6">
-        {/* Image à la une */}
-        {featuredImage?.source_url && (
-          <div className="relative h-96 rounded-2xl overflow-hidden mb-8">
-            <img
-              src={featuredImage.source_url}
-              alt={featuredImage.alt_text || post.title.rendered}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
+      <PageHeader
+        title={post.title.rendered}
+        subtitle={null}
+        backgroundImage={featuredImage?.source_url || null}
+        backgroundAlt={featuredImage?.alt_text || post.title.rendered}
+        slug="actualites"
+        childPages={[]}
+        allPages={[]}
+      />
 
+      <article className="md:w-max-[90%] lg:max-w-6xl mx-auto py-12 px-6">
+
+        <div className="flex items-center gap-4 text-muted-foreground border-b">
         {/* Catégories */}
         {categories.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6">
-            {categories.map((cat: string) => (
-              <span
-                key={cat}
-                className="text-sm font-medium px-3 py-1.5 rounded-full bg-purple-100 text-purple-700"
+          <div className="flex flex-wrap gap-2">
+            {categories.map((cat) => (
+              <Link
+                key={cat.slug}
+                href={`/actualites?categorie=${cat.slug}`}
+                className="text-sm font-medium px-3 py-1.5 bg-black text-white hover:bg-black/80 transition-colors"
               >
-                {decodeHtmlEntities(cat)}
-              </span>
+                {decodeHtmlEntities(cat.name)}
+              </Link>
             ))}
           </div>
         )}
 
-        {/* Titre */}
-        <h1 className="text-4xl md:text-5xl font-bold mb-6">
-          {decodeHtmlEntities(post.title.rendered)}
-        </h1>
-
         {/* Métadonnées */}
-        <div className="flex items-center gap-4 text-muted-foreground mb-8 pb-8 border-b">
-          <span>{decodeHtmlEntities(author)}</span>
-          <span>•</span>
+        <div className="flex items-center gap-4 text-muted-foreground">
           <time>{formatDate(post.date)}</time>
+        </div>
+
         </div>
 
         {/* Contenu */}

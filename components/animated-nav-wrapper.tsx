@@ -7,31 +7,22 @@ import type { NavItem } from "./animated-nav"
 import {
   getWordPressPages,
   organizePagesByParent,
-  getSiteOptions,
   getWordPressEvents,
   type SiteOptions,
   type WordPressEvent,
 } from "@/lib/wordpress-api"
 
-export function AnimatedNavWrapper() {
+export function AnimatedNavWrapper({ siteOptions }: { siteOptions: SiteOptions | null }) {
   const [navItems, setNavItems] = useState<NavItem[]>([])
-  const [siteOptions, setSiteOptions] = useState<SiteOptions | null>(null)
   const [latestEvents, setLatestEvents] = useState<WordPressEvent[]>([])
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [pages, options, events] = await Promise.all([
+        const [pages, events] = await Promise.all([
           getWordPressPages(),
-          getSiteOptions(),
           getWordPressEvents(),
         ])
-
-        if (options) {
-          setSiteOptions(options)
-          console.log('Site options reçues:', options)
-          console.log('Réseaux sociaux:', options.reseaux_sociaux)
-        }
 
         const sortedEvents = events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         setLatestEvents(sortedEvents.slice(0, 3)) // Keep top 3 events
@@ -84,15 +75,13 @@ export function AnimatedNavWrapper() {
     fetchData()
   }, [])
 
-  console.log('Rendu AnimatedNav avec les items:', siteOptions)
-
   return (
     <div className="absolute z-100">      
       <AnimatedNav
         logo={siteOptions?.logo_du_site?.url || ""}
         items={navItems}
         agendaLink="/agenda"
-        reseaux_sociaux={siteOptions?.reseaux_sociaux || []}
+        reseaux_sociaux={siteOptions?.reseaux_sociaux ?? []}
       />
     </div>
   )

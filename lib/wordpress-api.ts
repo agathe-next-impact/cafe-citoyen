@@ -240,12 +240,19 @@ export interface SiteOptions {
     ID: number
   }
   reseaux_sociaux?: Array<{
-    icone?: {
-      url: string
-      alt: string
-      title: string
-      ID: number
-    }
+    icone?:
+      | {
+          url: string
+          alt: string
+          title: string
+          ID: number
+        }
+      | Array<{
+          url: string
+          alt: string
+          title: string
+          ID: number
+        }>
     lien?: string
   }>
 }

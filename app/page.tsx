@@ -9,6 +9,18 @@ const BounceCards = dynamic(() => import("@/components/bounce-cards"))
 const VideoHero = dynamic(() => import("@/components/video-hero").then((mod) => mod.VideoHero))
 
 type VideoType = string; // oEmbed HTML
+
+type HeroMenuLink = {
+  lien: {
+    texte_du_lien: string;
+    page: Array<{
+      ID: number;
+      post_title: string;
+      post_name: string;
+    }>;
+  };
+};
+
 type AcfType = {
   video?: VideoType | null;
   galerie?: { url: string }[];
@@ -16,6 +28,7 @@ type AcfType = {
   ["sous-titre"]?: string;
   contenu?: any;
   images?: any;
+  liens_du_menu_du_hero?: HeroMenuLink[];
 };
 
 export default async function Home() {
@@ -40,7 +53,7 @@ export default async function Home() {
   return (
     <div className="min-h-screen -mt-20">
       {hasVideoHero ? (
-        <VideoHero embedHtml={acf?.video || ""} />
+        <VideoHero embedHtml={acf?.video || ""} menuLinks={acf?.liens_du_menu_du_hero} />
       ) : hasHeroGallery ? (
         <section className="relative h-screen flex items-center justify-center overflow-hidden">
           <div className="container mx-auto h-full flex items-center justify-center max-w-full">
