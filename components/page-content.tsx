@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useLayoutEffect, useRef } from "react";
+import { useState, useLayoutEffect, useRef, useEffect } from "react";
+import Image from "next/image";
 import { WPDecode } from "@/components/wp-decode"; // Ajout de l'import
 
 interface Card {
@@ -46,41 +47,31 @@ export function PageContent({ content, slug, images, encadres, teamVideoUrl }: P
       if (contentRef.current && imageColumnRef.current) {
         const totalHeight = contentRef.current.offsetHeight;
         let imgs = Array.isArray(images) ? images : [];
-        let imgHeights: number[] = [];
+        
+        // Utilise les dimensions fournies au lieu de charger les images
+        let totalImgHeight = imgs.reduce((sum, img) => {
+          const aspectRatio = img.width / img.height;
+          const containerWidth = imageColumnRef.current?.offsetWidth || 300;
+          const calculatedHeight = containerWidth / aspectRatio;
+          return sum + calculatedHeight + 16; // 16px = gap-4
+        }, 0);
 
-        // Crée des refs temporaires pour mesurer la hauteur des images
-        const tempDiv = document.createElement("div");
-        tempDiv.style.visibility = "hidden";
-        tempDiv.style.position = "absolute";
-        tempDiv.style.width = imageColumnRef.current.offsetWidth + "px";
-        document.body.appendChild(tempDiv);
+        // Si la colonne est trop haute, retire les dernières images
+        while (totalImgHeight > totalHeight && imgs.length > 0) {
+          const lastImg = imgs[imgs.length - 1];
+          const aspectRatio = lastImg.width / lastImg.height;
+          const containerWidth = imageColumnRef.current?.offsetWidth || 300;
+          const calculatedHeight = containerWidth / aspectRatio;
+          totalImgHeight -= calculatedHeight + 16;
+          imgs = imgs.slice(0, -1);
+        }
 
-        imgs.forEach((img, idx) => {
-          const imgEl = document.createElement("img");
-          imgEl.src = img.url;
-          imgEl.style.width = "100%";
-          imgEl.style.display = "block";
-          tempDiv.appendChild(imgEl);
-          imgEl.onload = () => {
-            imgHeights[idx] = imgEl.offsetHeight;
-            if (imgHeights.length === imgs.length) {
-              let totalImgHeight = imgHeights.reduce((a, b) => a + b, 0);
-              // Si la colonne est trop haute, retire la dernière image
-              while (totalImgHeight > totalHeight && imgs.length > 0) {
-                imgs = imgs.slice(0, -1);
-                imgHeights = imgHeights.slice(0, -1);
-                totalImgHeight = imgHeights.reduce((a, b) => a + b, 0);
-              }
-              // Masquer la dernière image, même si elle rentre
-              if (imgs.length > 1) {
-                imgs = imgs.slice(0, -1);
-              }
-              setVisibleImages(imgs);
-              document.body.removeChild(tempDiv);
-            }
-          };
-        });
+        // Masquer la dernière image, même si elle rentre
+        if (imgs.length > 1) {
+          imgs = imgs.slice(0, -1);
+        }
 
+        setVisibleImages(imgs);
         setContentAndCardsHeight(totalHeight);
       }
     };
@@ -120,10 +111,14 @@ export function PageContent({ content, slug, images, encadres, teamVideoUrl }: P
                     key={`image-${image.ID || index}`}
                     className="overflow-hidden border-2 border-black"
                   >
-                    <img
+                    <Image
                       src={image.url}
                       alt={image.alt || "Image du contenu"}
+                      width={100}
+                      height={100}
                       className="w-full h-auto object-cover"
+                      priority={index === 0}
+                      loading={index === 0 ? "eager" : "lazy"}
                     />
                   </div>
                 ))}
