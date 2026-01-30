@@ -121,7 +121,11 @@ export function AnimatedNav({
     <div className={cn("w-full", className)}>
       {/* Overlay to prevent page interaction and stacking issues when menu is open */}
       {isExpanded && (
-        <div className="fixed inset-0 bg-white/80 backdrop-blur-xl transition-all duration-300 z-50" aria-hidden="true" />
+        <div 
+          className="fixed inset-0 bg-white/80 backdrop-blur-xl transition-all duration-300 z-50 cursor-pointer" 
+          aria-hidden="true"
+          onClick={() => setIsExpanded(false)}
+        />
       )}
       <nav
         className={cn(
@@ -136,14 +140,14 @@ export function AnimatedNav({
             <button
               onClick={toggleMenu}
               className={cn(
-                "min-w-34 tracking-wider hover:shadow-md bg-white hover:bg-white/90 px-6 py-2 border-r-2 border-black gap-1.5 relative z-110 cursor-pointer transition-all",
+                "min-w-34 tracking-wider hover:shadow-md bg-black hover:bg-black/90 px-6 py-2 border-r-2 border-white gap-1.5 relative z-110 cursor-pointer transition-all",
                 isExpanded && "gap-0",
               )}
               aria-label={isExpanded ? "Fermer le menu" : "Ouvrir le menu"}
               style={{ color: menuColor }}
             >
             <div className="flex items-center gap-2">
-            <div className="flex flex-col gap-1.5 items-center text-black">
+            <div className="flex flex-col gap-1.5 items-center text-white">
               <span
                 className={cn(
                   "block h-0.5 w-6 bg-current transition-all duration-300",
@@ -157,14 +161,14 @@ export function AnimatedNav({
                 )}
               />
               </div>
-              <span className="text-sm font-semibold uppercase text-black tracking-wider transition-all">
+              <span className="text-sm font-semibold uppercase text-white tracking-wider transition-all">
                 MENU 
               </span>
               </div>
             </button>
 
             {/* Logo */}        
-            <Link href="/" onClick={handleLinkClick} className="w-20 absolute top-9 left-0 bg-white border-t-2 border-r-2 border-b-2 border-black">
+            <Link href="/" onClick={handleLinkClick} className="w-20 absolute top-9 left-0 bg-black border-t-2 border-r-2 border-b-2 border-black">
               {logo ? (
                 <Image
                   src={logo}
@@ -190,7 +194,7 @@ export function AnimatedNav({
             <div className="flex items-center">
             <Link
               href="/visite-virtuelle"
-              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-white hover:bg-white/90 text-black border-r-2 border-black px-9 py-2 relative z-110"
+              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-black hover:bg-black/90 text-white border-r-2 border-white px-9 py-2 relative z-110"
               aria-label="Accueil"
             >
               Visiter
@@ -199,7 +203,7 @@ export function AnimatedNav({
             <Link
               href={agendaLink}
               onClick={handleLinkClick}
-              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-white hover:bg-white/90 text-black px-9 py-2 relative z-110"
+              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-black hover:bg-black/90 text-white px-9 py-2 relative z-110"
             >
               Agenda
             </Link>
@@ -210,7 +214,7 @@ export function AnimatedNav({
 
           {/* Réseaux sociaux */}                  
             <div 
-              className="absolute top-9 right-0 w-10 h-34 bg-white border-l-2 border-b-2 border-black"
+              className="absolute top-9 right-0 w-10 h-34 bg-black"
             />    
             
             <div className="absolute top-9 right-0 flex flex-col gap-4 px-2 pb-2 pt-4">
@@ -254,12 +258,16 @@ export function AnimatedNav({
               )}
             >
               <div className="relative">
-                <div className="bg-black container mx-auto pt-4 px-4 lg:px-8 py-4 max-w-full overflow-x-hidden h-screen lg:overflow-visible">
+                <div 
+                  className="bg-black container mx-auto pt-4 px-4 lg:px-8 py-4 max-w-full overflow-x-hidden h-screen lg:overflow-visible cursor-pointer"
+                  onClick={() => setIsExpanded(false)}
+                >
                   <m.div 
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4 pt-4"
                     variants={containerVariants}
                     initial="hidden"
                     animate={isExpanded ? "visible" : "hidden"}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     {(items || []).map((item, idx) => {
                       const bgClass = colorImageMap[idx % colorImageMap.length]?.bgClass || 'bg-yellow-100';

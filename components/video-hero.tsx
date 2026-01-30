@@ -206,9 +206,9 @@ export function VideoHero({ embedHtml, menuLinks }: VideoHeroProps) {
                   <Link
                     href={`/${linkSlug}`}
                     className="group flex items-center justify-end gap-3 px-5 py-3 
-                               bg-white/90 backdrop-blur-md
-                               border-2 border-black 
-                               text-black text-base
+                               bg-white/20 backdrop-blur-md
+                               border-1 border-white 
+                               text-white text-base font-light
                                transition-all duration-300 ease-out
                                hover:bg-white/40 hover:border-white/40 hover:scale-105"
                   >

@@ -132,7 +132,7 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
                   href={getPagePath(parentPage, allPages || [])}
                   className="inline-flex items-center px-4 py-1 mb-1 text-base bg-white text-black"
                 >
-                  <WPDecode>{decodeHtmlEntities(parentPage.title.rendered)}</WPDecode>
+                  <WPDecode>{parentPage.title.rendered}</WPDecode>
                 </a>
               </div>
             )}
