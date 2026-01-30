@@ -165,16 +165,17 @@ export function AnimatedNav({
               className="absolute top-8 left-0 w-34 h-20 bg-black"
             />            
             <div 
-              className="absolute top-4 left-34 w-30 h-10 bg-black"
+              className="absolute top-4 left-34 w-18 h-10 bg-black"
             />     
             <div 
-              className="absolute top-18 left-34 w-15 h-5 bg-black"
+              className="absolute top-18 left-34 w-8 h-5 bg-black"
             />
             <Link href="/" onClick={handleLinkClick} className="w-34 absolute top-8 left-4">
               {logo ? (
                 <img
                   src={logo}
                   alt="Logo"
+                  fetchPriority="high"
                   className="h-20 w-20 object-contain"
                   style={{ aspectRatio: "1 / 1" }}
                 />
@@ -182,6 +183,7 @@ export function AnimatedNav({
                 <img
                   src="/logo-cafe-citoyen.png"
                   alt="Café Citoyen"
+                  fetchPriority="high"
                   className="h-20 w-20 object-contain"
                   style={{ aspectRatio: "1 / 1" }}
                 />
@@ -192,7 +194,7 @@ export function AnimatedNav({
             <div className="flex items-center">
             <Link
               href="/visite-virtuelle"
-              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-blue-600 hover:bg-blue-600/90 text-white px-8 py-2 shadow-sm relative z-110"
+              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-blue-600 hover:bg-blue-600/90 text-white px-9 py-2 shadow-sm relative z-110"
               aria-label="Accueil"
             >
               Visiter
@@ -218,10 +220,10 @@ export function AnimatedNav({
               className="absolute top-8 right-0 w-34 h-20 bg-black"
             />            
             <div 
-              className="absolute top-4 right-34 w-30 h-10 bg-black"
+              className="absolute top-4 right-34 w-18 h-10 bg-black"
             />     
             <div 
-              className="absolute top-18 right-34 w-15 h-5 bg-black"
+              className="absolute top-18 right-34 w-8 h-5 bg-black"
             />
             
             <div className="w-34 absolute top-9 right-0 flex justify-end items-center gap-2 px-2">

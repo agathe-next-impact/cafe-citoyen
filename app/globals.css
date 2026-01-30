@@ -1,6 +1,16 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@font-face {
+  font-family: "Red Hat Display";
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Crimson Text";
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {

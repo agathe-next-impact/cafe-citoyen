@@ -43,19 +43,22 @@ export function VideoHero({ embedHtml }: VideoHeroProps) {
       const src = iframe.src;
 
       if (src.includes("youtube.com") || src.includes("youtu.be")) {
-        url.searchParams.set("controls", "0");
-        url.searchParams.set("showinfo", "0");
-        url.searchParams.set("rel", "0");
-        url.searchParams.set("modestbranding", "1");
-        url.searchParams.set("loop", "1");
-        url.searchParams.set("autoplay", "1");
-        url.searchParams.set("mute", "1");
-        url.searchParams.set("playsinline", "1");
+        // Utiliser le domaine nocookie pour un meilleur cache
+        const newUrl = new URL("https://www.youtube-nocookie.com/embed/" + (url.pathname.split("/").pop() || url.searchParams.get("v")));
+        newUrl.searchParams.set("controls", "0");
+        newUrl.searchParams.set("showinfo", "0");
+        newUrl.searchParams.set("rel", "0");
+        newUrl.searchParams.set("modestbranding", "1");
+        newUrl.searchParams.set("loop", "1");
+        newUrl.searchParams.set("autoplay", "1");
+        newUrl.searchParams.set("mute", "1");
+        newUrl.searchParams.set("playsinline", "1");
         const videoId =
           url.pathname.split("/").pop() || url.searchParams.get("v");
         if (videoId) {
-          url.searchParams.set("playlist", videoId);
+          newUrl.searchParams.set("playlist", videoId);
         }
+        url = newUrl;
       } else if (src.includes("vimeo.com")) {
         url.searchParams.set("controls", "0");
         url.searchParams.set("title", "0");
