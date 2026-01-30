@@ -129,14 +129,14 @@ export function AnimatedNav({
             <button
               onClick={toggleMenu}
               className={cn(
-                "min-w-34 tracking-wider hover:shadow-md bg-amber-500 hover:bg-amber-500/90 px-6 py-2 shadow-sm gap-1.5 relative z-110 cursor-pointer transition-all",
+                "min-w-34 tracking-wider hover:shadow-md bg-white hover:bg-white/90 px-6 py-2 shadow-sm gap-1.5 relative z-110 cursor-pointer transition-all",
                 isExpanded && "gap-0",
               )}
               aria-label={isExpanded ? "Fermer le menu" : "Ouvrir le menu"}
               style={{ color: menuColor }}
             >
             <div className="flex items-center gap-2">
-            <div className="flex flex-col gap-1.5 items-center text-white">
+            <div className="flex flex-col gap-1.5 items-center text-black">
               <span
                 className={cn(
                   "block h-0.5 w-6 bg-current transition-all duration-300",
@@ -150,7 +150,7 @@ export function AnimatedNav({
                 )}
               />
               </div>
-              <span className="text-sm font-semibold uppercase text-white tracking-wider transition-all">
+              <span className="text-sm font-semibold uppercase text-black tracking-wider transition-all">
                 MENU 
               </span>
               </div>
@@ -194,7 +194,7 @@ export function AnimatedNav({
             <div className="flex items-center">
             <Link
               href="/visite-virtuelle"
-              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-blue-600 hover:bg-blue-600/90 text-white px-9 py-2 shadow-sm relative z-110"
+              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-white hover:bg-white/90 text-black border-r-2 border-black px-9 py-2 relative z-110"
               aria-label="Accueil"
             >
               Visiter
@@ -203,7 +203,7 @@ export function AnimatedNav({
             <Link
               href={agendaLink}
               onClick={handleLinkClick}
-              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-amber-500 hover:bg-amber-500/90 text-white px-9 py-2 shadow-sm relative z-110"
+              className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-white hover:bg-white/90 text-black px-9 py-2 relative z-110"
             >
               Agenda
             </Link>

@@ -81,6 +81,11 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
   const allPages = await getWordPressPages();
   const childPages = await getChildPages(page.id)
   const events = await getEventsByPageSlug(slug)
+  
+  // Trouver la page parente si elle existe
+  const parentPage = page.parent && page.parent !== 0
+    ? allPages.find(p => p.id === page.parent)
+    : undefined;
 
   if (slug === "equipe") {
     encadres = page.acf?.encadres;
@@ -106,6 +111,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           slug={slug}
           childPages={childPages}
           allPages={allPages}
+          parentPage={parentPage}
         />
         <PageContent
           slug={slug}
@@ -149,6 +155,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           slug={slug}
           childPages={childPages}
           allPages={allPages}
+          parentPage={parentPage}
         />
         <PageContent slug={slug} content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
         <div className="container mx-auto px-4 py-12">
@@ -186,6 +193,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
         slug={slug}
         childPages={childPages}
         allPages={allPages}
+        parentPage={parentPage}
       />
       <PageContent slug={slug} content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
       <div className="container mx-auto px-4 py-12">
@@ -223,26 +231,39 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
                   .map((term: any) => decodeHtmlEntities(term.name)) || [];
 
                 return (
-                  <Link
+                  <section
                     key={event.id}
                     href={`/evenement/${event.slug}`}
-                    className="group bg-card rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-yellow-50 flex flex-col h-full"
+                    className="group bg-card overflow-hidden transition-all duration-300 border-2 border-black flex flex-col h-full"
                   >
                     <div className="flex-1 flex flex-col">
                       <div className="flex items-center gap-2">
                         {categoryName && (
                           <span
                             className={cn(
-                              "w-full inline-flex items-center px-4 py-2 text-sm font-medium border-2",
+                              "w-full inline-flex items-center px-4 py-2 font-medium border-2",
                               !categoryColor && (variantColors[variant]?.badge || variantColors["chart-1"].badge),
                               !categoryColor && (variantBorderColors[variant] || "border-border")
                             )}
-                            style={categoryColor ? { background: categoryColor, color: "#fff", borderColor: categoryColor } : undefined}
+                            style={categoryColor ? { background: categoryColor, color: "#000", borderColor: categoryColor } : undefined}
                           >
                             {categoryName}
                           </span>
                         )}
                       </div>
+                      
+                      {eventTags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {eventTags.map((tag: string, index: number) => (
+                            <span
+                              key={index}
+                              className="px-3 py-1 text-xs font-medium bg-black backdrop-blur-sm text-white"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                       <div className="p-4 flex-1">
                         <h3
                           className={cn(
@@ -329,20 +350,8 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
                           </svg>
                         </div>
                       )}
-                      {eventTags.length > 0 && (
-                        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                          {eventTags.map((tag: string, index: number) => (
-                            <span
-                              key={index}
-                              className="px-3 py-1 rounded-full text-xs font-medium bg-purple-700 backdrop-blur-sm text-white border border-purple-300 shadow-sm"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
                     </div>
-                  </Link>
+                  </section>
                 );
               })}
             </div>

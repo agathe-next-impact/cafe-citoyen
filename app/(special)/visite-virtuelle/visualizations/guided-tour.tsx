@@ -203,7 +203,7 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
         {/* Main Panoramax viewer */}
         <div
           ref={mapContainerRef}
-          className="relative overflow-hidden rounded-xl bg-black shadow-2xl"
+          className="relative overflow-hidden bg-black border-2 border-black"
         >
           <div className="relative h-[70vh] min-h-[600px] w-full" style={{ isolation: 'isolate' }}>
             <iframe
@@ -221,7 +221,7 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
 
             {/* Top info bar */}
             <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-10">
-              <div className="rounded-lg bg-black/80 px-4 py-2 text-white border border-white/20">
+              <div className="bg-black/80 px-4 py-2 text-white border border-white/20">
                 <div className="flex items-center gap-2">
                   <Camera className="h-4 w-4" />
                   <span className="text-sm font-medium">
@@ -229,7 +229,7 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
                   </span>
                 </div>
               </div>
-              <div className="rounded-lg bg-black/80 px-3 py-1.5 text-white border border-white/20">
+              <div className="bg-black/80 px-3 py-1.5 text-white border border-white/20">
                 <span className="text-xs font-medium">IGN Satellite</span>
               </div>
             </div>
@@ -239,15 +239,15 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
                 showInfoPanel ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
               }`}
             >
-              <div className="relative bg-white rounded-2xl shadow-2xl border-2 border-muted mx-4 mb-4 flex overflow-hidden">
+              <div className="relative bg-white border-2 border-black mx-4 mb-4 flex overflow-hidden">
                 {currentStopData.image && (
-                  <div className="relative w-48 h-48 flex-shrink-0 overflow-hidden rounded-l-2xl bg-white p-2">
-                    <div className="relative h-full w-full rounded-lg overflow-hidden">
+                  <div className="relative w-48 h-48 flex-shrink-0 overflow-hidden bg-white p-2">
+                    <div className="relative h-full w-full overflow-hidden">
                       <Image
                         src={typeof currentStopData.image === "string" ? currentStopData.image : (currentStopData.image?.url ?? "/logo-cafe-citoyen.png")}
                         alt={currentStopData.name}
                         fill
-                        className="object-cover rounded-lg"
+                        className="object-cover"
                         sizes="128px"
                         loading="lazy"
                       />
@@ -286,44 +286,28 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
           </div>
         </div>
 
-        {/* Info banner */}
-        <div className="rounded-lg border border-muted bg-muted/20 p-4">
-          <div className="flex items-start gap-3">
-            <Camera className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-            <div className="text-sm">
-              <p className="font-medium mb-1">Vue satellite haute résolution IGN</p>
-              <p className="text-muted-foreground text-xs">
-                Explorez chaque point d'intérêt en vue satellite grâce aux orthophotos de l'Institut National de
-                l'Information Géographique et Forestière (IGN).
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div className="lg:w-1/4 lg:max-w-sm">
         <div className="sticky top-4 space-y-3 overflow-hidden">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide px-1">
-            Points d'intérêt ({tourStops.length})
-          </h3>
           <div className="grid grid-cols-2 gap-3 pr-2">
             {tourStops.map((stop, index) => (
               <button
                 key={index}
                 onClick={() => handleStopClick(index)}
-                className={`group relative aspect-square overflow-hidden rounded-3xl transition-all `}
+                className={`group relative aspect-square overflow-hidden border-2 border-black`}
               >
                 {stop.image ? (
                   <Image
                     src={typeof stop.image === "string" ? stop.image : (stop.image?.url ?? "/placeholder.svg")}
                     alt={stop.name}
                     fill
-                    className="object-cover rounded-3xl transition-transform duration-300"
+                    className="object-cover  transition-transform duration-300"
                     sizes="(max-width: 768px) 50vw, (max-width: 1280px) 25vw, 12.5vw"
                     loading="lazy"
                   />
                 ) : (
-                  <div className="absolute inset-0  flex items-center justify-center rounded-3xl">
+                  <div className="absolute inset-0  flex items-center justify-center ">
                     <Camera className="h-8 w-8 text-amber-600" />
                   </div>
                 )}
@@ -334,7 +318,7 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
                   </p>
                 </div>
                 {index === currentStop && (
-                  <div className="absolute top-2 right-2 h-4 w-4 rounded-full bg-red-600 animate-pulse" />
+                  <div className="absolute top-2 right-2 h-4 w-4 bg-red-600 animate-pulse" />
                 )}
               </button>
             ))}

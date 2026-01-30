@@ -118,7 +118,7 @@ export function PageContent({ content, slug, images, encadres, teamVideoUrl }: P
                 {visibleImages.map((image, index) => (
                   <div
                     key={`image-${image.ID || index}`}
-                    className="overflow-hidden rounded-2xl"
+                    className="overflow-hidden border-2 border-black"
                   >
                     <img
                       src={image.url}
@@ -172,7 +172,7 @@ export function PageContent({ content, slug, images, encadres, teamVideoUrl }: P
                   {encadres.slice(0, 2).map((card, idx) => (
                     <div
                       key={`encadre-${idx}`}
-                      className="bg-white rounded-xl shadow flex flex-row items-stretch min-h-[160px] overflow-hidden relative group"
+                      className="bg-white flex flex-row items-stretch min-h-[160px] overflow-hidden relative group border-2 border-black"
                     >
                       <div className="flex flex-col gap-2 justify-center w-3/4 p-6 z-10 relative">
                         {card.titre && (

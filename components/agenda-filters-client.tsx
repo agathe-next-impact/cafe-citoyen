@@ -165,18 +165,18 @@ export default function AgendaFiltersClient({ categories, tags, events }: Agenda
               return (
                 <div
                   key={event.id}
-                  className="group bg-card overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-yellow-50 flex flex-col h-full"
+                  className="group bg-card overflow-hidden transition-all duration-300 border-2 border-black flex flex-col h-full"
                 >
                   <div className="flex-1 flex flex-col">
                     <div className="flex items-center gap-2">
                       {categoryName && (
                         <span
                           className={cn(
-                            "w-full inline-flex items-center px-4 py-2 text-sm font-medium border-2",
+                            "w-full inline-flex items-center px-4 py-2 font-medium border-2",
                             !categoryColor && (variantColors[variant]?.badge || variantColors["chart-1"].badge),
                             !categoryColor && (variantBorderColors[variant] || "border-border")
                           )}
-                          style={categoryColor ? { background: categoryColor, color: "#fff", borderColor: categoryColor } : undefined}
+                          style={categoryColor ? { background: categoryColor, color: "#000", borderColor: categoryColor } : undefined}
                         >
                           {categoryName}
                         </span>

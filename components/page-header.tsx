@@ -13,6 +13,7 @@ type PageHeaderProps = {
   slug?: string;
   childPages?: Array<{ id: number; title: { rendered: string }; slug: string }>;
   allPages?: any[];
+  parentPage?: { id: number; title: { rendered: string }; slug: string; path?: string };
 };
 
 
@@ -77,7 +78,7 @@ const BALL_IMAGES = [
   "/images/fichier-203-404x-2.png",
 ];
 
-export default function PageHeader({ title, subtitle, backgroundImage, backgroundAlt, slug, childPages, allPages }: PageHeaderProps) {
+export default function PageHeader({ title, subtitle, backgroundImage, backgroundAlt, slug, childPages, allPages, parentPage }: PageHeaderProps) {
   // Animation state
   const [anim, setAnim] = useState(0);
   const requestRef = useRef<number | null>(null);
@@ -125,6 +126,17 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
             </h1>
                 <span className="ml-4">{subtitle && <WPDecode>{decodeHtmlEntities(subtitle)}</WPDecode>}</span>
                 
+            {parentPage && (
+              <div className="flex flex-wrap gap-1 mt-6 pt-1 bg-black">
+                <a
+                  href={getPagePath(parentPage, allPages || [])}
+                  className="inline-flex items-center px-4 py-1 mb-1 text-base bg-white text-black"
+                >
+                  <WPDecode>{decodeHtmlEntities(parentPage.title.rendered)}</WPDecode>
+                </a>
+              </div>
+            )}
+
             {childPages && childPages.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-6 pt-1 bg-black">
                 {childPages.map((childPage) => {
