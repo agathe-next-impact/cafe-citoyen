@@ -5,10 +5,8 @@ import Image from "next/image"
 import { AnimatedNav } from "./animated-nav"
 import type { NavItem } from "./animated-nav"
 import {
-  organizePagesByParent,
   type SiteOptions,
   type WordPressEvent,
-  type WordPressPage,
 } from "@/lib/wordpress-api"
 
 export function AnimatedNavWrapper({ siteOptions }: { siteOptions: SiteOptions | null }) {
@@ -23,14 +21,13 @@ export function AnimatedNavWrapper({ siteOptions }: { siteOptions: SiteOptions |
           fetch("/api/wordpress/events"),
         ])
 
-        const pages: WordPressPage[] = await pagesRes.json()
+        const organized = await pagesRes.json()
         const events: WordPressEvent[] = await eventsRes.json()
 
         const sortedEvents = events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         setLatestEvents(sortedEvents.slice(0, 3)) // Keep top 3 events
 
-        if (pages.length > 0) {
-          const organized = organizePagesByParent(pages)
+        if (organized.length > 0) {
 
           // Couleurs -100 pour chaque carte (ordre : jaune, rouge, jaune, bleu, émeraude, violet)
           const cardColors = [
