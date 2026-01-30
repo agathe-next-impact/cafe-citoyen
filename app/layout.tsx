@@ -80,10 +80,7 @@ export default async function RootLayout({
       <head>
         <meta charSet="utf-8" />
         <link rel="icon" href="/logo-cafe-citoyen.png" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://www.youtube-nocookie.com" />
-        <link rel="preconnect" href="https://www.youtube.com" />
         <link rel="dns-prefetch" href="https://s.ytimg.com" />
       </head>
       <body suppressHydrationWarning className={`${redHatDisplay.variable} ${crimsonText.variable} bg-amber-50/10`}>
