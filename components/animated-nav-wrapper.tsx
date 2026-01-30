@@ -95,7 +95,7 @@ export function AnimatedNavWrapper() {
   console.log('Rendu AnimatedNav avec les items:', siteOptions)
 
   return (
-    <div className="relative z-100">      
+    <div className="absolute z-100">      
       <Suspense fallback={<div className="h-20 bg-black" />}>
         <AnimatedNav
           logo={siteOptions?.logo_du_site?.url || ""}

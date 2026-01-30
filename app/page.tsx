@@ -38,7 +38,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen -mt-20 pt-20">
+    <div className="min-h-screen -mt-20">
       {hasVideoHero ? (
         <VideoHero embedHtml={acf?.video || ""} />
       ) : hasHeroGallery ? (
