@@ -542,7 +542,7 @@ export class WordPressAPI {
             id: point.id || Math.random(),
             type: point.type || "point",
             title: point.title || point.nom || "Sans titre",
-            slug: point.slug || (point.title || point.nom || "").toLowerCase().replace(/\s+/g, "-"),
+            slug: point.slug || "",
             link: point.link || point.url || "",
             mapPinPoint: {
               visibilite: true,

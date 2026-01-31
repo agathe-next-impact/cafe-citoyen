@@ -63,15 +63,15 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
       latitude: point.mapPinPoint?.position?.latitude || 49.217,
       zoom: 19,
       image: point.mapPinPoint?.image?.url,
-      link: `/${point.slug}`,
+      link: point.slug ? `/${point.slug}` : "",
       externalLink: typeof point.mapPinPoint?.lien === "string" ? point.mapPinPoint?.lien : point.mapPinPoint?.lien?.url,
       type: point.type,
-      slug: point.slug,
       pointId: point.id,
     }))
 
     return [overviewStop, ...dataStops]
   }, [mapPinPoints])
+
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -270,14 +270,17 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
                     </p>
                   )}
 
-                  {(currentStopData.externalLink || currentStopData.link) && (
+                  {((currentStopData.externalLink && currentStopData.externalLink !== "") || (currentStopData.link && currentStopData.link !== "")) && (
                     <div className="pt-0.5">
-                      <button className="text-sm text-amber-600 font-medium hover:underline flex items-center gap-1">
-                        <a href={currentStopData.externalLink ? currentStopData.externalLink : currentStopData.link} target={currentStopData.externalLink ? "_blank" : undefined} rel={currentStopData.externalLink ? "noopener noreferrer" : undefined} className="flex items-center gap-2">
-                          Voir le lieu
-                          <ExternalLink className="h-3.5 w-3.5" />
-                        </a>
-                      </button>
+                      <a 
+                        href={currentStopData.externalLink || currentStopData.link} 
+                        target={currentStopData.externalLink ? "_blank" : undefined} 
+                        rel={currentStopData.externalLink ? "noopener noreferrer" : undefined} 
+                        className="text-sm text-amber-600 font-medium hover:underline flex items-center gap-2"
+                      >
+                         Voir le lieu
+                         <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
                     </div>
                   )}
                 </div>
