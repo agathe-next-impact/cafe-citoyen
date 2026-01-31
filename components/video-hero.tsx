@@ -97,6 +97,7 @@ export function VideoHero({ embedHtml, menuLinks }: VideoHeroProps) {
             title="Vidéo de présentation"
             loading="lazy"
             referrerPolicy="strict-origin-when-cross-origin"
+            rel="noreferrer"
           />
         </div>
       )}

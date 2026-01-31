@@ -60,6 +60,21 @@ export interface WordPressPage {
       title: string
       ID: number
     }> | string
+    section_video?: {
+      video?: string | null;
+      lien?: string;
+      texte_du_lien?: string;
+    };
+    liens_du_menu_du_hero?: Array<{
+      lien: {
+        texte_du_lien: string;
+        page: Array<{
+          ID: number;
+          post_title: string;
+          post_name: string;
+        }>;
+      };
+    }>;
   }
 }
 

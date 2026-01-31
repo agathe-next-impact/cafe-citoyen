@@ -35,10 +35,7 @@ type AcfType = {
   liens_du_menu_du_hero?: HeroMenuLink[];
   section_video?: {
     video?: string | null;
-    lien?: {
-      texte_du_lien?: string;
-      lien?: string;
-    };
+    lien?: string; // page_link ACF retourne une URL
   };
 };
 
@@ -198,26 +195,32 @@ export default async function Home() {
 
       {/* Section vidéo ACF */}    
 
-      {acf?.section_video?.video && (
-        <div className="min-h-full">
-          <VideoHero
-            embedHtml={acf.section_video.video}
-            menuLinks={acf.section_video.lien ? [
-              {
+      {acf?.section_video?.video && acf?.section_video?.lien && await (async () => {
+        const fullUrl = acf.section_video.lien || "";
+        const slug = fullUrl.split('/').filter(Boolean).pop() || '';
+        
+        // Récupérer le titre de la page liée
+        const linkedPage = await getWordPressPageBySlug(slug);
+        const linkText = linkedPage?.title?.rendered || slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ');
+        
+        return (
+          <div className="min-h-screen">
+            <VideoHero
+              embedHtml={acf.section_video.video}
+              menuLinks={[{
                 lien: {
-                  texte_du_lien: acf.section_video.lien.texte_du_lien || "Agenda",
+                  texte_du_lien: linkText,
                   page: [{
-                    url: acf.section_video.lien.lien || "",
-                    post_title: acf.section_video.lien.texte_du_lien || "Agenda",
-                    post_name: "",
-                    ID: 0,
+                    ID: linkedPage?.id || 0,
+                    post_title: linkText,
+                    post_name: slug,
                   }],
                 },
-              }
-            ] : []}
-          />
-        </div>
-      )}
+              }]}
+            />
+          </div>
+        );
+      })()}
 
     </div>
   )
