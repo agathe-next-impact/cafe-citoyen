@@ -67,7 +67,6 @@ export function AnimatedNavWrapper({ siteOptions }: { siteOptions: SiteOptions |
           setNavItems(items)
         }
       } catch (error) {
-        console.error("Error fetching menu data:", error)
       }
     }
 

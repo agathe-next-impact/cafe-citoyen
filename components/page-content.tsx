@@ -119,6 +119,7 @@ export function PageContent({ content, slug, images, encadres, teamVideoUrl }: P
                       className="w-full h-auto object-cover"
                       priority={index === 0}
                       loading={index === 0 ? "eager" : "lazy"}
+                      style={{ height: '100%', width: '100%' }}
                     />
                   </div>
                 ))}
@@ -128,7 +129,7 @@ export function PageContent({ content, slug, images, encadres, teamVideoUrl }: P
 
           {/* Colonne du contenu à droite */}
           <div
-            className={`marker:x-h-max mx-auto ${
+            className={`marker:x-h-max  w-full mx-auto ${
               images && images.length > 0
                 ? "md:col-span-4"
                 : "col-span-1 md:col-span-5"

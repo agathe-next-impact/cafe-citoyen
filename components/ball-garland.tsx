@@ -176,6 +176,7 @@ export function BallGarland() {
             width={ball.size}
             height={ball.size}
             className="opacity-90 drop-shadow-lg rounded-full"
+            style={{ height: 'auto', width: 'auto' }}
           />
         </div>
       ))}

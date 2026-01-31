@@ -4,7 +4,9 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
 import PageHeader from "@/components/page-header"
-import { SiteCard } from "@/components/ui/site-card"
+import { SiteCard, variantColors } from "@/components/ui/site-card"
+import EventCard from "@/components/event-card"
+import { getCategoryVariant } from "@/lib/category-colors"
 import { decodeHtmlEntities } from "@/components/wp-decode"
 import { formatDate } from "@/lib/utils"
 
@@ -210,12 +212,53 @@ export default async function SingleEventPage({ params }: { params: { slug: stri
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {event.acf.images.map((image, idx) => (
                 <div key={idx} className="rounded-xl overflow-hidden aspect-square">
-                  <img
-                    src={image.url || "/placeholder.svg"}
-                    alt={image.alt || `Image ${idx + 1}`}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  <EventCard
+                    event={event}
+                    decodeHtmlEntities={decodeHtmlEntities}
+                    getCategoryVariant={getCategoryVariant}
+                    variantColors={variantColors}
+                    variantBorderColors={{
+                      primary: "border-primary",
+                      secondary: "border-secondary",
+                      "chart-1": "border-chart-1",
+                      "chart-2": "border-chart-2",
+                      "chart-3": "border-chart-3",
+                      "chart-4": "border-chart-4",
+                      "chart-5": "border-chart-5",
+                      info: "border-blue-500",
+                      partner: "border-green-500",
+                    }}
                   />
                 </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Fils d'événements (upcoming events) */}
+        {upcomingEvents && upcomingEvents.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-light mb-6">À venir</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {upcomingEvents.map((ev) => (
+                <EventCard
+                  key={ev.id}
+                  event={ev}
+                  decodeHtmlEntities={decodeHtmlEntities}
+                  getCategoryVariant={getCategoryVariant}
+                  variantColors={variantColors}
+                  variantBorderColors={{
+                    primary: "border-primary",
+                    secondary: "border-secondary",
+                    "chart-1": "border-chart-1",
+                    "chart-2": "border-chart-2",
+                    "chart-3": "border-chart-3",
+                    "chart-4": "border-chart-4",
+                    "chart-5": "border-chart-5",
+                    info: "border-blue-500",
+                    partner: "border-green-500",
+                  }}
+                />
               ))}
             </div>
           </div>

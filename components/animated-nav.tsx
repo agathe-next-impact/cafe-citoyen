@@ -177,6 +177,7 @@ export function AnimatedNav({
                   height={80}
                   priority
                   className="h-20 w-20 object-contain"
+                  style={{ height: 'auto', width: 'auto' }}
                 />
               ) : (
                 <Image
@@ -186,6 +187,7 @@ export function AnimatedNav({
                   height={80}
                   priority
                   className="h-20 w-20 object-contain"
+                  style={{ height: 'auto', width: 'auto' }}
                 />
               )}
             </Link>

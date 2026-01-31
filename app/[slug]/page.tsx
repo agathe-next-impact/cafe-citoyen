@@ -207,7 +207,17 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
           <section className="mt-16 max-w-7xl mx-auto">
             <h2 className="text-3xl font-bold text-foreground mb-8">Événements à venir</h2>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {events.slice(0, 3).map((event) => {
+              {events
+                .sort((a, b) => {
+                  if (!a.acf?.date_de_debut || !b.acf?.date_de_debut) return 0;
+                  const [dayA, monthA, yearA] = a.acf.date_de_debut.split("/").map(Number);
+                  const [dayB, monthB, yearB] = b.acf.date_de_debut.split("/").map(Number);
+                  const dateA = new Date(yearA, monthA - 1, dayA).getTime();
+                  const dateB = new Date(yearB, monthB - 1, dayB).getTime();
+                  return dateA - dateB;
+                })
+                .slice(0, 3)
+                .map((event) => {
                 type CategoryTerm = {
                   id: number;
                   name: string;

@@ -1,4 +1,8 @@
-import { getWordPressPageBySlug, getSiteOptions } from "@/lib/wordpress-api"
+import { getWordPressPageBySlug, getSiteOptions, getWordPressEvents, getWordPressPosts } from "@/lib/wordpress-api"
+import EventCard from "@/components/event-card"
+import ArticleCard from "@/components/article-card"
+import { decodeHtmlEntities } from "@/components/wp-decode"
+import { getCategoryVariant } from "@/lib/category-colors"
 import PageHeader from "@/components/page-header"
 import { PageContent } from "@/components/page-content"
 import { notFound } from "next/navigation"
@@ -29,7 +33,15 @@ type AcfType = {
   contenu?: any;
   images?: any;
   liens_du_menu_du_hero?: HeroMenuLink[];
+  section_video?: {
+    video?: string | null;
+    lien?: {
+      texte_du_lien?: string;
+      lien?: string;
+    };
+  };
 };
+
 
 export default async function Home() {
   const page = await getWordPressPageBySlug("accueil")
@@ -39,6 +51,13 @@ export default async function Home() {
   }
 
   const acf = page.acf as AcfType | undefined;
+  console.log("[Accueil] Données ACF:", acf);
+  if (acf?.section_video) {
+    console.log("[Accueil] section_video:", acf.section_video);
+    if (acf.section_video.lien) {
+      console.log("[Accueil] section_video.lien:", acf.section_video.lien);
+    }
+  }
 
   const hasVideoHero = acf?.video && typeof acf.video === 'string' && acf.video.trim().length > 0
   const hasHeroGallery = acf?.galerie && acf.galerie.length > 0
@@ -54,20 +73,6 @@ export default async function Home() {
     <div className="min-h-screen -mt-20">
       {hasVideoHero ? (
         <VideoHero embedHtml={acf?.video || ""} menuLinks={acf?.liens_du_menu_du_hero} />
-      ) : hasHeroGallery ? (
-        <section className="relative h-screen flex items-center justify-center overflow-hidden">
-          <div className="container mx-auto h-full flex items-center justify-center max-w-full">
-            <BounceCards
-              className="hero-bounce-cards"
-              images={acf?.galerie?.map((img) => img.url) || []}
-              containerWidth={typeof window !== "undefined" ? window.innerWidth * 0.95 : 1400}
-              containerHeight={typeof window !== "undefined" ? window.innerHeight * 0.95 : 900}
-              animationDelay={0.5}
-              animationStagger={0.08}
-              enableHover={true}
-            />
-          </div>
-        </section>
       ) : acf?.background?.url ? (
         <section className="relative h-screen w-full flex items-center justify-center overflow-hidden -mt-20">
           <Image
@@ -100,8 +105,58 @@ export default async function Home() {
         </div>
       )}
 
+
       <div className="relative">
         <PageContent slug="home" content={acf?.contenu} images={acf?.images} />
+
+        {/* Prochains événements à venir */}
+        {async function UpcomingEvents() {
+          const allEvents = await getWordPressEvents();
+          const now = new Date();
+          now.setHours(0, 0, 0, 0);
+          const parseDate = (dateStr: string | undefined) => {
+            if (!dateStr) return null;
+            const [day, month, year] = dateStr.split("/").map(Number);
+            return new Date(year, month - 1, day);
+          };
+          const upcoming = allEvents
+            .filter((event: any) => {
+              const startDate = parseDate(event.acf?.date_de_debut);
+              return startDate && startDate >= now;
+            })
+            .sort((a: any, b: any) => {
+              const dateA = parseDate(a.acf?.date_de_debut)?.getTime() || 0;
+              const dateB = parseDate(b.acf?.date_de_debut)?.getTime() || 0;
+              return dateA - dateB;
+            })
+            .slice(0, 6);
+          if (!upcoming.length) return null;
+          return (
+            <section className="mt-16 max-w-7xl mx-auto">
+              <h2 className="text-4xl font-bold text-foreground mb-8">Prochains événements</h2>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {upcoming.map((event: any) => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    decodeHtmlEntities={decodeHtmlEntities}
+                    getCategoryVariant={getCategoryVariant}
+                    variantColors={{}}
+                    variantBorderColors={{}}
+                  />
+                ))}
+              </div>
+              <div className="mt-8 text-center">
+                <a
+                  href="/agenda"
+                  className="inline-block px-6 py-3 bg-black text-white font-medium border-2 border-black hover:bg-white hover:text-black transition-colors"
+                >
+                  Voir tous les événements
+                </a>
+              </div>
+            </section>
+          );
+        }()}
 
         <div className="container mx-auto px-4 py-12">
           {page.content?.rendered && (
@@ -112,8 +167,58 @@ export default async function Home() {
               />
             </article>
           )}
+
+          {/* Derniers articles d'actualité */}
+          {await (async function LatestArticles() {
+            const posts = await getWordPressPosts();
+            const latest = posts.slice(0, 3);
+            if (!latest.length) return null;
+            return (
+              <section className="mt-16 max-w-7xl mx-auto">
+                <h2 className="text-4xl font-bold text-foreground mb-8">Derniers articles d'actualité</h2>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {latest.map((post: any) => (
+                    <ArticleCard key={post.id} post={post} />
+                  ))}
+                </div>
+                <div className="mt-8 text-center">
+                  <a
+                    href="/actualites"
+                    className="inline-block px-6 py-3 bg-black text-white font-medium border-2 border-black hover:bg-white hover:text-black transition-colors"
+                  >
+                    Voir toutes les actualités
+                  </a>
+                </div>
+              </section>
+            );
+          })()}
         </div>
       </div>
+
+
+      {/* Section vidéo ACF */}    
+
+      {acf?.section_video?.video && (
+        <div className="min-h-full">
+          <VideoHero
+            embedHtml={acf.section_video.video}
+            menuLinks={acf.section_video.lien ? [
+              {
+                lien: {
+                  texte_du_lien: acf.section_video.lien.texte_du_lien || "Agenda",
+                  page: [{
+                    url: acf.section_video.lien.lien || "",
+                    post_title: acf.section_video.lien.texte_du_lien || "Agenda",
+                    post_name: "",
+                    ID: 0,
+                  }],
+                },
+              }
+            ] : []}
+          />
+        </div>
+      )}
+
     </div>
   )
 }
