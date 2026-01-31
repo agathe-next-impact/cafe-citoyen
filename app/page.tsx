@@ -204,7 +204,7 @@ export default async function Home() {
         const linkText = linkedPage?.title?.rendered || slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ');
         
         return (
-          <div className="min-h-screen">
+          <div>
             <VideoHero
               embedHtml={acf.section_video.video}
               menuLinks={[{
