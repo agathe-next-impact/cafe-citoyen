@@ -124,7 +124,7 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-balance mb-4 ml-4 text-white">
               <WPDecode>{decodeHtmlEntities(title)}</WPDecode>
             </h1>
-                <span className="ml-4">{subtitle && <WPDecode>{decodeHtmlEntities(subtitle)}</WPDecode>}</span>
+                <div className="ml-4">{subtitle && <WPDecode>{decodeHtmlEntities(subtitle)}</WPDecode>}</div>
                 
             {parentPage && (
               <div className="flex flex-wrap gap-1 mt-6 pt-1 bg-black">

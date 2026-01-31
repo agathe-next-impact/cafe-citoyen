@@ -205,7 +205,7 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
           ref={mapContainerRef}
           className="relative overflow-hidden bg-black border-2 border-black"
         >
-          <div className="relative h-[70vh] min-h-[600px] w-full" style={{ isolation: 'isolate' }}>
+          <div className="relative h-[55vh] md:h-[70vh] md:min-h-[600px] w-full" style={{ isolation: 'isolate' }}>
             <iframe
               ref={iframeRef}
               src="/satellite-viewer.html"
@@ -241,7 +241,7 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
             >
               <div className="relative bg-white border-2 border-black mx-4 mb-4 flex overflow-hidden">
                 {currentStopData.image && (
-                  <div className="relative w-48 h-48 flex-shrink-0 overflow-hidden bg-white p-2">
+                  <div className="relative w-48 md:h-48 flex-shrink-0 overflow-hidden bg-white p-2">
                     <div className="relative h-full w-full overflow-hidden">
                       <Image
                         src={typeof currentStopData.image === "string" ? currentStopData.image : (currentStopData.image?.url ?? "/logo-cafe-citoyen.png")}
@@ -272,7 +272,7 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
 
                   {(currentStopData.externalLink || currentStopData.link) && (
                     <div className="pt-0.5">
-                      <button className="text-xs text-amber-600 font-medium hover:underline flex items-center gap-1">
+                      <button className="text-sm text-amber-600 font-medium hover:underline flex items-center gap-1">
                         <a href={currentStopData.externalLink ? currentStopData.externalLink : currentStopData.link} target={currentStopData.externalLink ? "_blank" : undefined} rel={currentStopData.externalLink ? "noopener noreferrer" : undefined} className="flex items-center gap-2">
                           Voir le lieu
                           <ExternalLink className="h-3.5 w-3.5" />

@@ -27,7 +27,7 @@ export default function ArticleCard({ post }: ArticleCardProps) {
           <img
             src={featuredImage.source_url}
             alt={featuredImage.alt_text || post.title.rendered}
-            className="w-full h-full object-cover group-hover:blur-sm transition-all duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
           />
         </div>
       )}

@@ -97,7 +97,7 @@ export default async function Home() {
       )}
 
 
-      <div className="relative">
+      <div className="container mx-auto px-4 py-12">
         <PageContent slug="home" content={acf?.contenu} images={acf?.images} />
 
         {/* Prochains événements à venir */}
@@ -123,9 +123,9 @@ export default async function Home() {
             .slice(0, 6);
           if (!upcoming.length) return null;
           return (
-            <section className="mt-16 max-w-7xl mx-auto">
+            <section className="max-w-7xl mx-auto">
               <h2 className="text-4xl font-bold text-foreground mb-8">Prochains événements</h2>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                 {upcoming.map((event: any) => (
                   <EventCard
                     key={event.id}
@@ -149,9 +149,8 @@ export default async function Home() {
           );
         }()}
 
-        <div className="container mx-auto px-4 py-12">
           {page.content?.rendered && (
-            <article className="prose prose-lg max-w-4xl mx-auto">
+            <article className="prose prose-lg mx-auto">
               <div
                 className="text-foreground/80 leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: page.content.rendered }}
@@ -165,9 +164,9 @@ export default async function Home() {
             const latest = posts.slice(0, 3);
             if (!latest.length) return null;
             return (
-              <section className="mt-16 max-w-7xl mx-auto">
+              <section className="mt-16 mx-auto">
                 <h2 className="text-4xl font-bold text-foreground mb-8">Derniers articles d'actualité</h2>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                   {latest.map((post: any) => (
                     <ArticleCard key={post.id} post={post} />
                   ))}
@@ -183,7 +182,6 @@ export default async function Home() {
               </section>
             );
           })()}
-        </div>
       </div>
 
 

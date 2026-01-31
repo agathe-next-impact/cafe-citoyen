@@ -97,7 +97,7 @@ export function PageContent({ content, slug, images, encadres, teamVideoUrl }: P
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-5 gap-8 lg:gap-12">
           {/* Colonne des images à gauche */}
           {Array.isArray(visibleImages) && visibleImages.length > 0 && (
-            <div className="md:col-span-1">
+            <div className="hidden md:block md:col-span-1">
               <div
                 ref={imageColumnRef}
                 className="sticky top-24 space-y-4 overflow-hidden"
@@ -138,13 +138,13 @@ export function PageContent({ content, slug, images, encadres, teamVideoUrl }: P
             <div ref={contentRef}>
               {/* Vidéo de l'équipe */}
               {teamVideoUrl && (
-                <div className="mb-8 py-8 mx-auto bg-black flex justify-center rounded-2xl overflow-hidden shadow-lg">
+                <div className="mb-8 py-8 mx-auto bg-black flex justify-center overflow-hidden shadow-lg">
                   <video
                     controls={false}
                     autoPlay
                     muted
                     loop
-                    className="w-2/3 rounded-xl shadow-lg"
+                    className="md:w-2/3 shadow-lg"
                     src={teamVideoUrl}
                   >
                     Votre navigateur ne supporte pas la lecture de vidéos.
@@ -168,9 +168,9 @@ export function PageContent({ content, slug, images, encadres, teamVideoUrl }: P
                   {encadres.slice(0, 2).map((card, idx) => (
                     <div
                       key={`encadre-${idx}`}
-                      className="bg-white flex flex-row items-stretch min-h-[160px] overflow-hidden relative group border-2 border-black"
+                      className="bg-white flex flex-col md:flex-row items-stretch min-h-[160px] overflow-hidden relative group border-2 border-black"
                     >
-                      <div className="flex flex-col gap-2 justify-center w-3/4 p-6 z-10 relative">
+                      <div className="flex flex-col gap-2 justify-center w-full md:w-3/4 p-6 z-10 relative">
                         {card.titre && (
                           <h3 className="text-2xl font-bold">
                             <WPDecode>{card.titre}</WPDecode>
@@ -185,7 +185,7 @@ export function PageContent({ content, slug, images, encadres, teamVideoUrl }: P
                       </div>
                       {card.illustration?.url && (
                         <div
-                          className="absolute right-0 top-0 bottom-0 h-full z-20 bg-white transition-all duration-1200 w-1/4 group-hover:w-1/3 group-hover:shadow-2xl after:content-[''] after:absolute after:inset-0 after:transition-all after:duration-600 pointer-events-none"
+                          className="relative md:absolute right-0 top-0 bottom-0 h-64 md:h-full w-full md:w-1/4 z-20 bg-white transition-all duration-1200 md:group-hover:w-1/3 group-hover:shadow-2xl after:content-[''] after:absolute after:inset-0 after:transition-all after:duration-600 pointer-events-none"
                           style={{
                             backgroundImage: `url(${card.illustration.url})`,
                             backgroundSize: 'cover',

@@ -209,8 +209,13 @@
     font-style: italic;
     line-height: 1.7;
   }
-  a {
-    font-weight: 600;
+  .prose {
+    color: black !important;
+  }
+  .prose a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
   }
   p {
     font-size: 1.125rem;

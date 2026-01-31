@@ -83,7 +83,7 @@ export default async function SinglePostPage({ params }: { params: Promise<{ slu
 
         {/* Contenu */}
         <div
-          className="prose prose-lg max-w-none"
+          className="prose prose-lg max-w-none pt-10"
           dangerouslySetInnerHTML={{ __html: decodeHtmlEntities(post.content?.rendered || "") }}
         />
       </article>

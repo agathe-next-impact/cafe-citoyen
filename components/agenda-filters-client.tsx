@@ -85,7 +85,7 @@ export default function AgendaFiltersClient({ categories, tags, events }: Agenda
 
   return (
     <>
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-4">
         {categories.map(cat => {
           const variant = getCategoryVariant(cat)
           const variantBorder = variantBorderColors[variant] || "border-border"
@@ -118,7 +118,7 @@ export default function AgendaFiltersClient({ categories, tags, events }: Agenda
           )
         })}
       </div>
-      <div className="flex flex-wrap gap-2 mb-8">
+      <div className="flex flex-wrap gap-2 mb-10">
         {availableTags.map(tag => (
           <button
             key={tag}
@@ -138,7 +138,7 @@ export default function AgendaFiltersClient({ categories, tags, events }: Agenda
         ))}
       </div>
       {filteredEvents.length > 0 && (
-        <section className="mb-16">
+        <section>
           <h2 className="text-3xl font-bold text-foreground mb-8">Événements à venir</h2>
           <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-4">
             {filteredEvents.map((event) => (

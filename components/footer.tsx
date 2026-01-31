@@ -4,17 +4,17 @@ export function Footer() {
   return (
     <footer className="relative border-t border-black overflow-hidden bg-black">
       <div className="relative z-10 container mx-auto px-4 lg:px-8 py-16">
-        <div className="grid gap-12 md:grid-cols-3">
+        <div className="grid md:gap-12 md:grid-cols-3">
           <div>
-            <h4 className="mb-4 text-right text-sm font-normal uppercase tracking-widest">Réseau</h4>
-            <ul className="space-y-3 text-right text-sm text-white/90 hover:text-white hover:underline font-light">
+            <h4 className="md:mb-4 md:text-right text-sm font-normal uppercase tracking-widest">Réseau</h4>
+            <ul className="space-y-3 md:text-right text-sm text-white/90 font-light">
               <li>
-                <Link href="https://www.lesdoleances.fr" className="hover:text-foreground transition-colors">
+                <Link href="https://www.lesdoleances.fr" className="hover:text-white/90 hover:underline transition-colors">
                   Asso Les Doléances
                 </Link>
               </li>
               <li>
-                <Link href="https://lesetatsgenerauxcommunaux.org" className="hover:text-foreground transition-colors">
+                <Link href="https://lesetatsgenerauxcommunaux.org" className="hover:text-white/90 hover:underline transition-colors">
                   Les Etats Généraux Communaux
                 </Link>
               </li>
@@ -22,7 +22,7 @@ export function Footer() {
           </div>
 
 
-          <div>
+          <div className="order-first md:order-none">
             <video
               src="/videos/logo-cc.mp4"
               controls={false}
@@ -35,15 +35,15 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="mb-4 text-sm font-normal uppercase tracking-widest">Contact</h4>
-            <ul className="space-y-3 text-sm text-white/90 hover:text-white hover:underline font-light">
+            <h4 className="md:mb-4 text-sm font-normal uppercase tracking-widest">Contact</h4>
+            <ul className="space-y-3 text-sm text-white/90 font-light">
               <li>
-                <Link href="/contact" className="hover:text-foreground transition-colors">
+                <Link href="/contact" className="hover:text-white/90 hover:underline transition-colors">
                   Nous contacter
                 </Link>
               </li>
               <li>
-                <Link href="/infos-pratiques" className="hover:text-foreground transition-colors">
+                <Link href="/infos-pratiques" className="hover:text-white/90 hover:underline transition-colors">
                   Venir
                 </Link>
               </li>
