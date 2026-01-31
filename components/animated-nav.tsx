@@ -175,7 +175,7 @@ export function AnimatedNav({
                   alt="Logo"
                   width={80}
                   height={80}
-                  priority
+                  fetchPriority="high"
                   className="h-20 w-20 object-contain"
                   style={{ height: 'auto', width: 'auto' }}
                 />
@@ -185,7 +185,7 @@ export function AnimatedNav({
                   alt="Café Citoyen"
                   width={80}
                   height={80}
-                  priority
+                  fetchPriority="high"
                   className="h-20 w-20 object-contain"
                   style={{ height: 'auto', width: 'auto' }}
                 />

@@ -3,31 +3,50 @@
 import { useEffect, useRef, useMemo, useState } from "react"
 import Image from "next/image"
 
+const ballImages = [
+  "/images/fichier-203-404x-2.png",
+  "/images/fichier-205-404x-4.png",
+  "/images/fichier-201-404x-1.png",
+  "/images/fichier-202-404x-2.png",
+  "/images/fichier-204-404x-3.png",
+]
+
 export function BallGarland() {
   const pathRef = useRef<SVGPathElement>(null)
   const ballRefs = useRef<(HTMLDivElement | null)[]>([])
   const animationRef = useRef<number>(0)
   const isScrolledRef = useRef(false)
   const [mounted, setMounted] = useState(false)
+  const [ballCount, setBallCount] = useState(8)
 
-  const ballImages = [
-    "/images/fichier-203-404x-2.png",
-    "/images/fichier-205-404x-4.png",
-    "/images/fichier-201-404x-1.png",
-    "/images/fichier-202-404x-2.png",
-    "/images/fichier-204-404x-3.png",
-  ]
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setBallCount(4)
+      } else if (window.innerWidth < 1024) {
+        setBallCount(6)
+      } else {
+        setBallCount(8)
+      }
+    }
+
+    handleResize()
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
 
   const balls = useMemo(
-    () =>
-      Array.from({ length: 8 }, (_, i) => ({
+    () => {
+      const spacing = 100 / ballCount
+      return Array.from({ length: ballCount }, (_, i) => ({
         image: ballImages[i % ballImages.length],
         id: i,
-        xOffset: i * 12.5 + 6.25,
+        xOffset: i * spacing + (spacing / 2),
         size: 40 + (i % 3) * 8,
         baseTopOffset: 40 + (i % 3) * 15,
-      })),
-    []
+      }))
+    },
+    [ballCount]
   )
 
   useEffect(() => {

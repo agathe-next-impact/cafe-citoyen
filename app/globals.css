@@ -134,6 +134,7 @@
   * {
     @apply border-border;
     outline: none;
+    background-color: white;
   }
   *:focus,
   *:focus-visible {
