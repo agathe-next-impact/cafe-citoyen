@@ -7,7 +7,7 @@ export function Footer() {
         <div className="grid gap-12 md:grid-cols-3">
           <div>
             <h4 className="mb-4 text-right text-sm font-normal uppercase tracking-widest">Réseau</h4>
-            <ul className="space-y-3 text-right text-sm text-white/90 font-light">
+            <ul className="space-y-3 text-right text-sm text-white/90 hover:underline font-light">
               <li>
                 <Link href="https://www.lesdoleances.fr" className="hover:text-foreground transition-colors">
                   Asso Les Doléances
@@ -36,7 +36,7 @@ export function Footer() {
 
           <div>
             <h4 className="mb-4 text-sm font-normal uppercase tracking-widest">Contact</h4>
-            <ul className="space-y-3 text-sm text-white/90 font-light">
+            <ul className="space-y-3 text-sm text-white/90 hover:underline font-light">
               <li>
                 <Link href="/contact" className="hover:text-foreground transition-colors">
                   Nous contacter
@@ -53,14 +53,14 @@ export function Footer() {
 
         <div className="mt-16 pt-8 border-t border-yellow-50 text-center">
     
-          <Link href="/mentions-legales" className="mb-8 text-xs text-white/90 font-light uppercase tracking-widest">
+          <Link href="/mentions-legales" className="mb-8 text-xs text-white/90 hover:underline font-light uppercase tracking-widest">
             Mentions légales
           </Link>
         
           <p className="mb-4 text-xs text-white/90 font-light uppercase tracking-widest">
             &copy; {new Date().getFullYear()} Café citoyen - Tous droits réservés
           </p>
-          <p className="mb-8 text-xs text-white/90 font-light">
+          <p className="mb-8 text-xs text-white/90 font-light hover:underline">
             Développé par{' '}
             <a
               href="https://www.next-impact.digital/"

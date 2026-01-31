@@ -48,11 +48,11 @@ export default async function Home() {
   }
 
   const acf = page.acf as AcfType | undefined;
-  console.log("[Accueil] Données ACF:", acf);
+  console.warn("[Accueil] Données ACF:", acf);
   if (acf?.section_video) {
-    console.log("[Accueil] section_video:", acf.section_video);
+    console.warn("[Accueil] section_video:", acf.section_video);
     if (acf.section_video.lien) {
-      console.log("[Accueil] section_video.lien:", acf.section_video.lien);
+      console.warn("[Accueil] section_video.lien:", acf.section_video.lien);
     }
   }
 

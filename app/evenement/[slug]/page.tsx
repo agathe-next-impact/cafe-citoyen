@@ -25,7 +25,7 @@ function parseFrenchDate(dateString: string): Date | null {
 
 export async function generateStaticParams() {
   const slugs = await getAllEventSlugs()
-  console.log("[build] Slugs d'événements:", slugs)
+  console.warn("[build] Slugs d'événements:", slugs)
   return slugs.map((slug) => ({ slug }))
 }
 

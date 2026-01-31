@@ -705,16 +705,16 @@ export async function getSiteOptions(): Promise<SiteOptions | null> {
       fetchInit.next = { revalidate: 0 } // Désactiver la revalidation pour le debug
     }
 
-    console.log('[getSiteOptions] Appel API vers:', url)
+    console.warn('[getSiteOptions] Appel API vers:', url)
     const response = await fetch(url, fetchInit)
 
     if (response.ok) {
       const result = await response.json()
-      console.log('[getSiteOptions] Réponse brute:', result)
+      console.warn('[getSiteOptions] Réponse brute:', result)
 
       const data = result.data || result
-      console.log('[getSiteOptions] Data extraite:', data)
-      console.log('[getSiteOptions] Réseaux sociaux bruts:', data.reseaux_sociaux)
+      console.warn('[getSiteOptions] Data extraite:', data)
+      console.warn('[getSiteOptions] Réseaux sociaux bruts:', data.reseaux_sociaux)
 
       const siteOptions: SiteOptions = {
         titre_du_site: data.titre_du_site || "Café Citoyen",
@@ -723,7 +723,7 @@ export async function getSiteOptions(): Promise<SiteOptions | null> {
         reseaux_sociaux: data.reseaux_sociaux || [],
       }
 
-      console.log('[getSiteOptions] Options finales:', siteOptions)
+      console.warn('[getSiteOptions] Options finales:', siteOptions)
       endMeasure()
       return siteOptions
     } else {
