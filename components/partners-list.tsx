@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import Image from "next/image"
 import type { Partner } from "@/lib/wordpress-api"
 
 function decodeHtmlEntities(text: string): string {
@@ -22,8 +23,6 @@ interface PartnersListProps {
 }
 
 export function PartnersList({ partners }: PartnersListProps) {
-  const [searchQuery, setSearchQuery] = useState("")
-
   // Group partners by type
   const partnersByType = useMemo(() => {
     const grouped = new Map<string, Partner[]>()
@@ -52,81 +51,18 @@ export function PartnersList({ partners }: PartnersListProps) {
     return Array.from(grouped.entries()).sort(([a], [b]) => a.localeCompare(b))
   }, [partners])
 
-  // Filter partners based on search
-  const filteredPartnersByType = useMemo(() => {
-    if (!searchQuery.trim()) return partnersByType
-
-    const query = searchQuery.toLowerCase()
-    return partnersByType
-      .map(([type, typePartners]) => {
-        const filtered = typePartners.filter((partner) => {
-          const title = decodeHtmlEntities(partner.title.rendered).toLowerCase()
-          const description = partner.acf?.descriptif?.toLowerCase() || ""
-          return title.includes(query) || description.includes(query)
-        })
-        return [type, filtered] as [string, Partner[]]
-      })
-      .filter(([, typePartners]) => typePartners.length > 0)
-  }, [partnersByType, searchQuery])
-
   return (
-    <div className="space-y-12">
-      {/* Search Bar */}
-      <div className="max-w-2xl mx-auto">
-        <div className="relative">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Rechercher un partenaire..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 rounded-full border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-5 h-5"
-              >
-                <path d="M18 6 6 18" />
-                <path d="m6 6 12 12" />
-              </svg>
-            </button>
-          )}
-        </div>
-      </div>
-
+    <div className="space-y-12 max-w-6xl mx-auto px-4 py-12">
       {/* Partners grouped by type */}
-      {filteredPartnersByType.length === 0 ? (
+      {partnersByType.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground text-lg">Aucun partenaire trouvé.</p>
         </div>
       ) : (
-        filteredPartnersByType.map(([type, typePartners]) => (
+        partnersByType.map(([type, typePartners]) => (
           <section key={type} className="space-y-6">
-            <h2 className="text-3xl font-bold text-primary border-b-2 border-primary/20 pb-2">{type}</h2>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <h3 className="text-3xl font-bold text-black border-b-2 border-black/20 pb-2">{type}</h3>
+            <div className="grid gap-6 grid-cols-2 lg:grid-cols-5">
               {typePartners.map((partner) => {
                 const featuredImage =
                   partner._embedded?.["wp:featuredmedia"]?.[0]?.source_url || partner.acf?.images?.[0]?.url
@@ -135,15 +71,15 @@ export function PartnersList({ partners }: PartnersListProps) {
                 return (
                   <div
                     key={partner.id}
-                    className="group bg-card rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-border"
+                    className="group bg-card overflow-hidden transition-all duration-300 border border-border"
                   >
-                    <div className="relative h-48 overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10">
+                    <div className="relative h-48 overflow-hidden">
                       {featuredImage ? (
-                        <img
+                        <Image
                           src={featuredImage || "/placeholder.svg"}
                           alt={title}
-                          className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
-                          loading="lazy"
+                          fill
+                          className="h-10 object-contain p-4 group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
@@ -155,7 +91,7 @@ export function PartnersList({ partners }: PartnersListProps) {
                             strokeWidth="2"
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            className="w-16 h-16 text-muted-foreground/30"
+                            className="w-10 h-10 text-muted-foreground/30"
                           >
                             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                             <circle cx="9" cy="7" r="4" />
@@ -166,14 +102,14 @@ export function PartnersList({ partners }: PartnersListProps) {
                       )}
                     </div>
 
-                    <div className="p-6">
-                      <h3 className="text-xl font-semibold mb-3 text-foreground group-hover:text-primary transition-colors">
+                    <div className="p-4">
+                      <h4 className="text-xl font-semibold text-black group-hover:text-primary transition-colors">
                         {title}
-                      </h3>
+                      </h4>
 
                       {partner.acf?.descriptif && (
                         <div
-                          className="text-sm text-muted-foreground mb-4 line-clamp-3"
+                          className="text-sm text-muted-black mb-4 line-clamp-3"
                           dangerouslySetInnerHTML={{
                             __html: partner.acf.descriptif.substring(0, 150) + "...",
                           }}

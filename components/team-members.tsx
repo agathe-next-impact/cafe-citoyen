@@ -64,7 +64,7 @@ export function TeamMembers({ members }: TeamMembersProps) {
   }
 
   return (
-    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
+    <div className="container max-w-6xl mx-auto grid gap-8 grid-cols-1 lg:grid-cols-4 px-2 md:px-6">
       {members.map((member) => {
         const profileImage = member._embedded?.["wp:featuredmedia"]?.[0]?.source_url
         const profileAlt = member._embedded?.["wp:featuredmedia"]?.[0]?.alt_text || member.title.rendered
@@ -72,7 +72,7 @@ export function TeamMembers({ members }: TeamMembersProps) {
         return (
           <div
             key={member.id}
-            className="group bg-card rounded-2xl overflow-hidden transition-all duration-300 border border-purple-100"
+            className="group bg-card overflow-hidden transition-all duration-300 border-2 border-black"
           >
             {/* Photo de profil */}
             <div className="relative h-52 overflow-hidden">
@@ -80,26 +80,22 @@ export function TeamMembers({ members }: TeamMembersProps) {
                 <img
                   src={profileImage || "/placeholder.svg"}
                   alt={profileAlt}
-                  className="w-full h-full object-cover group-hover:blur-sm transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-purple-500/10">
-                  <UserIcon className="w-24 h-24 text-muted-foreground/30" />
+                <div className="w-full h-full flex items-center justify-center">
+                  <UserIcon className="w-24 h-24 text-black" />
                 </div>
               )}
 
               {/* Overlay qui glisse depuis le bas au survol */}
               <div className="absolute inset-0 flex items-end pointer-events-none group-hover:pointer-events-auto">
-                <div className="w-full p-4 sm:p-5 bg-white translate-y-full group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out">
-                  <div className="flex flex-col gap-3 text-sm text-foreground">
-                    {member.acf?.role && (
-                      <span className="font-medium text-purple-500 text-base">{decodeHtmlEntities(member.acf.role)}</span>
-                    )}
-
+                <div className="w-full p-4 sm:p-5 bg-black translate-y-full group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+                  <div className="flex flex-col gap-3 text-sm text-white">
                     {member.acf?.mini_bio && (
                       <div
-                        className="max-w-none text-muted-foreground"
+                        className="max-w-none text-muted-white"
                       >
                         {decodeHtmlEntities(member.acf.mini_bio)}
                       </div>
@@ -117,7 +113,7 @@ export function TeamMembers({ members }: TeamMembersProps) {
                               href={url}
                               target={target || "_blank"}
                               rel={target === "_blank" ? "noopener noreferrer" : undefined}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs hover:text-purple-500/80 text-purple-500 rounded-full transition-colors"
+                              className="inline-flex items-center gap-1.5 py-1.5 text-xs hover:text-white/80 text-white underline rounded-full transition-colors"
                             >
                               {decodeHtmlEntities(title || url)}
                               {target === "_blank" && <ExternalLinkIcon className="w-3 h-3" />}
@@ -132,9 +128,12 @@ export function TeamMembers({ members }: TeamMembersProps) {
             </div>
 
             {/* Contenu */}
-            <div className="p-6">
+            <div className="p-2 bg-black">
               {/* Nom toujours visible */}
-              <h3 className="text-2xl font-bold text-foreground mb-2">{decodeHtmlEntities(member.title.rendered)}</h3>
+              <h3 className="text-2xl font-bold text-white py-0">{decodeHtmlEntities(member.title.rendered)}</h3>
+                    {member.acf?.role && (
+                      <span className="font-medium text-white text-base">{decodeHtmlEntities(member.acf.role)}</span>
+                    )}
             </div>
           </div>
         )
