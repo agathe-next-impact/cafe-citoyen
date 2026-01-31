@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Red_Hat_Display, Crimson_Text } from "next/font/google"
 import { AnimatedNavWrapper } from "@/components/animated-nav-wrapper"
 import { ScrollToTop } from "@/components/scroll-to-top"
+import { ThemeProvider } from "@/components/theme-provider"
 import { getSiteOptions } from "@/lib/wordpress-api"
 import dynamic from "next/dynamic"
 import "./globals.css"
@@ -84,11 +85,19 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://s.ytimg.com" />
       </head>
       <body suppressHydrationWarning className={`${redHatDisplay.variable} ${crimsonText.variable} bg-amber-50/10`}>
-        <ScrollToTop />
-        <AnimatedNavWrapper siteOptions={siteOptions} />
-        <BallGarland />
-        <main>{children}</main>
-        <Footer />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          forcedTheme="light"
+          disableTransitionOnChange
+        >
+          <ScrollToTop />
+          <AnimatedNavWrapper siteOptions={siteOptions} />
+          <BallGarland />
+          <main>{children}</main>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   )
