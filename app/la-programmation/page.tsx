@@ -5,6 +5,7 @@ import { PageContent } from "@/components/page-content"
 import { getWordPressEvents, getWordPressPageBySlug } from "@/lib/wordpress-api"
 import { Metadata } from "next"
 import { generateMetadataFromYoast } from "@/lib/seo"
+import { MetadataPreview } from "@/components/preview"
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getWordPressPageBySlug("la-programmation")
@@ -114,6 +115,7 @@ export default async function AgendaPage() {
             />
           </article>
         )}
+        <MetadataPreview metadata={page.yoast_head_json} />
       </div>
     </div>
   )

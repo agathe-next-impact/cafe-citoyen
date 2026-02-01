@@ -9,3 +9,4 @@ export {
   PreviewFeaturedImage,
   PreviewMeta,
 } from './PreviewContent';
+export { MetadataPreview } from './metadata-preview';
