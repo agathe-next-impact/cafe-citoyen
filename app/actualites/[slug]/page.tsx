@@ -2,11 +2,25 @@ import { decodeHtmlEntities } from "@/components/wp-decode"
 import { formatDate } from "@/lib/utils"
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import { Metadata } from "next"
+import { generateMetadataFromYoast } from "@/lib/seo"
 
 import { getPost, getPosts } from "./data"
+import { WordPressPost } from "@/lib/wordpress-api"
 import PageHeader from "@/components/page-header"
 
 export const revalidate = 60
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const post = await getPost(slug) as WordPressPost
+  
+  if (!post) {
+     return {}
+  }
+
+  return generateMetadataFromYoast(post.yoast_head_json, post.title.rendered)
+}
 
 export async function generateStaticParams() {
   const posts = await getPosts()

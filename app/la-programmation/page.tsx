@@ -3,6 +3,16 @@ import AgendaFiltersClient from "@/components/agenda-filters-client"
 import PageHeader from "@/components/page-header"
 import { PageContent } from "@/components/page-content"
 import { getWordPressEvents, getWordPressPageBySlug } from "@/lib/wordpress-api"
+import { Metadata } from "next"
+import { generateMetadataFromYoast } from "@/lib/seo"
+
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getWordPressPageBySlug("la-programmation")
+  if (!page) {
+    return {}
+  }
+  return generateMetadataFromYoast(page.yoast_head_json, page.title.rendered)
+}
 
 function decodeHtmlEntities(text: string) {
   return text
@@ -21,7 +31,7 @@ function decodeHtmlEntities(text: string) {
 
 export default async function AgendaPage() {
   const [page, allEvents] = await Promise.all([
-    getWordPressPageBySlug("agenda"),
+    getWordPressPageBySlug("la-programmation"),
     getWordPressEvents(),
   ])
   if (!page) notFound()
@@ -91,9 +101,9 @@ export default async function AgendaPage() {
         subtitle={page.acf?.["sous-titre"]}
         backgroundImage={page.acf?.background?.url}
         backgroundAlt={page.acf?.background?.alt}
-        slug="agenda"
+        slug="la-programmation"
       />
-      <PageContent slug="agenda" content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
+      <PageContent slug="la-programmation" content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
       <div className="container mx-auto px-4 py-12">
         <AgendaFiltersClient categories={allCategories} tags={allTags} events={upcomingEvents} />
         {page.content?.rendered && (

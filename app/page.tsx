@@ -1,4 +1,15 @@
 import { getWordPressPageBySlug, getSiteOptions, getWordPressEvents, getWordPressPosts } from "@/lib/wordpress-api"
+import { generateMetadataFromYoast } from "@/lib/seo"
+import { Metadata } from "next"
+
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getWordPressPageBySlug("accueil")
+  if (!page) {
+    return {}
+  }
+  return generateMetadataFromYoast(page.yoast_head_json, page.title.rendered)
+}
+
 import EventCard from "@/components/event-card"
 import ArticleCard from "@/components/article-card"
 import { decodeHtmlEntities } from "@/components/wp-decode"

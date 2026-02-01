@@ -1,3 +1,38 @@
+export interface YoastHeadJson {
+  title: string;
+  description?: string;
+  robots?: {
+    index: string;
+    follow: string;
+    "max-snippet"?: string;
+    "max-image-preview"?: string;
+    "max-video-preview"?: string;
+  };
+  canonical?: string;
+  og_locale?: string;
+  og_type?: string;
+  og_title?: string;
+  og_description?: string;
+  og_url?: string;
+  og_site_name?: string;
+  article_publisher?: string;
+  article_published_time?: string;
+  article_modified_time?: string;
+  og_image?: Array<{
+    width: number;
+    height: number;
+    url: string;
+    type: string;
+  }>;
+  twitter_card?: string;
+  twitter_site?: string;
+  twitter_creator?: string;
+  schema?: {
+    "@context": string;
+    "@graph": any[];
+  };
+}
+
 export interface WordPressPage {
   id: number
   title: {
@@ -7,6 +42,7 @@ export interface WordPressPage {
   slug: string
   parent: number
   menu_order: number
+  yoast_head_json?: YoastHeadJson
   content?: {
     rendered: string
   }
@@ -86,6 +122,7 @@ export interface WordPressEvent {
   date: string
   link: string
   slug: string
+  yoast_head_json?: YoastHeadJson
   excerpt: {
     rendered: string
   }
@@ -147,6 +184,7 @@ export interface WordPressPost {
   date: string
   link: string
   slug: string
+  yoast_head_json?: YoastHeadJson
   excerpt: {
     rendered: string
   }
@@ -475,7 +513,7 @@ export async function getWordPressPageBySlug(slug: string, options: { status?: s
     const previewSecret = process.env.NEXT_PUBLIC_PREVIEW_SECRET;
     const secretParam = options.status === "any" && previewSecret ? `&secret=${encodeURIComponent(previewSecret)}` : "";
     const response = await fetch(
-      `${WORDPRESS_URL}/wp-json/wp/v2/pages?slug=${slug}${status}${secretParam}&_fields=id,title,content,link,slug,parent,acf&acf_format=standard`,
+      `${WORDPRESS_URL}/wp-json/wp/v2/pages?slug=${slug}${status}${secretParam}&_fields=id,title,content,link,slug,parent,acf,yoast_head_json&acf_format=standard`,
       {
         headers: {
           "Accept-Charset": "utf-8",

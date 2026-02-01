@@ -78,7 +78,7 @@ export function AnimatedNavWrapper({ siteOptions }: { siteOptions: SiteOptions |
       <AnimatedNav
         logo={siteOptions?.logo_du_site?.url || ""}
         items={navItems}
-        agendaLink="/agenda"
+        agendaLink="/la-programmation"
         reseaux_sociaux={siteOptions?.reseaux_sociaux ?? []}
       />
     </div>

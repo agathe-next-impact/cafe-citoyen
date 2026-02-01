@@ -9,6 +9,7 @@ import EventCard from "@/components/event-card"
 import { getCategoryVariant } from "@/lib/category-colors"
 import { decodeHtmlEntities } from "@/components/wp-decode"
 import { formatDate } from "@/lib/utils"
+import { generateMetadataFromYoast } from "@/lib/seo"
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -39,12 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   }
 
-  return {
-    title: decodeHtmlEntities(event.title.rendered),
-    description: event.excerpt?.rendered
-      ? decodeHtmlEntities(event.excerpt.rendered.replace(/<[^>]*>/g, "").substring(0, 160))
-      : "Découvrez cet événement",
-  }
+  return generateMetadataFromYoast(event.yoast_head_json, decodeHtmlEntities(event.title.rendered))
 }
 
 export default async function SingleEventPage({ params }: { params: { slug: string } }) {

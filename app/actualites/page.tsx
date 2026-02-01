@@ -10,8 +10,18 @@ import { formatDate } from "@/lib/utils";
 import PageHeader from "@/components/page-header";
 import { PageContent } from "@/components/page-content";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
+import { generateMetadataFromYoast } from "@/lib/seo";
 
 export const revalidate = 60;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getWordPressPageBySlug("actualites");
+  if (!page) {
+    return {};
+  }
+  return generateMetadataFromYoast(page.yoast_head_json, page.title.rendered);
+}
 
 async function getChildPages(pageId: number) {
   const allPages = await getWordPressPages();

@@ -17,6 +17,8 @@ import EventCard from "@/components/event-card"
 import { cn } from "@/lib/utils"
 import { getCategoryVariant } from "@/lib/category-colors"
 import { variantColors } from "@/components/ui/site-card"
+import { Metadata } from "next"
+import { generateMetadataFromYoast } from "@/lib/seo"
 
 const variantBorderColors: Record<string, string> = {
   primary: "border-primary",
@@ -29,6 +31,15 @@ const variantBorderColors: Record<string, string> = {
   info: "border-blue-500",
   partner: "border-green-500",
 };
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const page = await getWordPressPageBySlug(slug)
+  if (!page) {
+    return {}
+  }
+  return generateMetadataFromYoast(page.yoast_head_json, page.title.rendered)
+}
 
 
 export async function generateStaticParams() {
