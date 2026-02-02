@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 type HeroMenuLink = {
   lien: {
@@ -17,6 +18,7 @@ type HeroMenuLink = {
 interface VideoHeroProps {
   embedHtml: string;
   menuLinks?: HeroMenuLink[];
+  image?: string;
 }
 
 // Extrait l'ID YouTube depuis une URL ou un embed HTML
@@ -42,7 +44,7 @@ function extractVimeoId(input: string): string | null {
   return match ? match[1] : null;
 }
 
-export function VideoHero({ embedHtml, menuLinks }: VideoHeroProps) {
+export function VideoHero({ embedHtml, menuLinks, image }: VideoHeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [videoId, setVideoId] = useState<string | null>(null);
   const [videoType, setVideoType] = useState<'youtube' | 'vimeo' | null>(null);
@@ -133,9 +135,19 @@ export function VideoHero({ embedHtml, menuLinks }: VideoHeroProps) {
       {/* Menu vertical surimposé */}
       {safeMenuLinks.length > 0 && (
         <nav 
-          className="absolute right-8 bottom-20 -translate-y-1/2 z-10"
+          className="text-right absolute right-8 bottom-8 z-10"
           aria-label="Navigation rapide"
         >
+          {image && (
+            <Image
+              src={image}
+              alt="Logo Café Citoyen"
+              width={200}
+              height={200}
+            className="hidden md:block mb-6 max-w-[50vw]"
+            style={{ width: "100%", height: "auto" }}
+          />
+          )}
           <ul className="flex flex-col gap-3">
             {safeMenuLinks.map((item, index) => {
               const pageData = item.lien?.page?.[0];

@@ -42,7 +42,7 @@ type AcfType = {
   background?: { url?: string; alt?: string };
   ["sous-titre"]?: string;
   contenu?: any;
-  images?: any;
+  image_logo?: { src?: string; alt?: string };
   liens_du_menu_du_hero?: HeroMenuLink[];
   section_video?: {
     video?: string | null;
@@ -134,7 +134,7 @@ export default async function Home() {
             .slice(0, 6);
           if (!upcoming.length) return null;
           return (
-            <section className="max-w-7xl mx-auto">
+            <section className="max-w-7xl mx-auto mb-12">
               <h2 className="text-4xl font-bold text-foreground mb-8">Prochains événements</h2>
               <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                 {upcoming.map((event: any) => (
@@ -169,7 +169,7 @@ export default async function Home() {
             </article>
           )}
 
-          {/* Derniers articles d'actualité */}
+          {/* Derniers articles d'actualité
           {await (async function LatestArticles() {
             const posts = await getWordPressPosts();
             const latest = posts.slice(0, 3);
@@ -192,7 +192,7 @@ export default async function Home() {
                 </div>
               </section>
             );
-          })()}
+          })()}*/}
       </div>
 
 
@@ -210,6 +210,7 @@ export default async function Home() {
           <div>
             <VideoHero
               embedHtml={acf.section_video.video}
+              image={acf.logo_image.src || undefined}
               menuLinks={[{
                 lien: {
                   texte_du_lien: linkText,

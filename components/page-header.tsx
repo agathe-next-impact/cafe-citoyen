@@ -98,7 +98,7 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
 
 
   return (
-    <section className={`-mt-20 pt-16 relative min-h-100 flex items-end overflow-visible border-b-1 border-black`}>
+    <section className={`-mt-20 pt-16 relative min-h-100 flex items-end overflow-hidden border-b-1 border-black`}>
       {/* Image de fond */}
       {backgroundImage && (
         <div className="absolute inset-0 z-0">

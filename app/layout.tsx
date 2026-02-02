@@ -77,7 +77,7 @@ export default async function RootLayout({
 }>) {
   const siteOptions = await getSiteOptions()
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <link rel="icon" href="/logo-cafe-citoyen.png" />

@@ -7,6 +7,8 @@ import { AnimatePresence, m, LazyMotion, domAnimation } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { decodeHtmlEntities } from "@/components/wp-decode"
+
 
 // Animation variants for staggered children
 const containerVariants = {
@@ -115,6 +117,7 @@ export function AnimatedNav({
     setExpandedCardIndex(expandedCardIndex === index ? null : index);
   };
 
+  const validItems = (items || []).filter(item => (item.links && item.links.length > 1));
 
   return (
     <LazyMotion features={domAnimation}>
@@ -168,7 +171,7 @@ export function AnimatedNav({
             </button>
 
             {/* Logo */}        
-            <Link href="/" onClick={handleLinkClick} className="w-20 absolute top-9 left-0 bg-black border-t-2 border-r-2 border-b-2 border-black">
+            <Link href="/" onClick={handleLinkClick} className="w-20 absolute top-9 left-0">
               {logo ? (
                 <Image
                   src={logo}
@@ -265,13 +268,13 @@ export function AnimatedNav({
                   onClick={() => setIsExpanded(false)}
                 >
                   <m.div 
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4 pt-4"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4 pt-4"
                     variants={containerVariants}
                     initial="hidden"
                     animate={isExpanded ? "visible" : "hidden"}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {(items || []).map((item, idx) => {
+                    {validItems.map((item, idx) => {
                       const bgClass = colorImageMap[idx % colorImageMap.length]?.bgClass || 'bg-yellow-100';
                       const imgSrc = colorImageMap[idx % colorImageMap.length]?.img || '/placeholder.svg';
                       return (
@@ -282,9 +285,7 @@ export function AnimatedNav({
                             "flex flex-col transition-all duration-500 ease-out relative",
                             "lg:min-h-45 border border-white backdrop-blur-md",
                             expandedCardIndex === idx ? "min-h-45" : "min-h-15 lg:min-h-45",
-                            item.label === ""
-                              ? "items-center justify-center p-2"
-                              : expandedCardIndex === idx
+                            expandedCardIndex === idx
                                 ? "p-6"
                                 : "p-3 lg:p-6",
                             "max-w-full",
@@ -295,11 +296,6 @@ export function AnimatedNav({
                             overflow: "visible",
                           }}
                         >
-                          {item.label === "" && idx === items.length - 1 ? (
-                            <div className="relative w-full h-full flex items-center justify-center p-4">
-                              <div className="w-full h-full flex items-center justify-center">{logo}</div>
-                            </div>
-                          ) : <>
                               <div className="lg:hidden">
                                 <button
                                   onClick={(e) => toggleCard(idx, e)}
@@ -325,7 +321,7 @@ export function AnimatedNav({
                                   onClick={handleLinkClick}
                                   className="text-lg font-bold mb-4 hover:underline underline-offset-4 transition-all relative z-10"
                                 >
-                                  {item.label}
+                                  {decodeHtmlEntities(item.label)}
                                 </Link>
                               </div>
                               <div
@@ -351,7 +347,7 @@ export function AnimatedNav({
                                   >
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                   </svg>
-                                  {item.label}
+                                  {decodeHtmlEntities(item.label)}
                                 </Link>
                                 {item.links?.slice(1).map((lnk, i) => (
                                   <Link
@@ -369,7 +365,7 @@ export function AnimatedNav({
                                     >
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                     </svg>
-                                    {lnk.label}
+                                    {decodeHtmlEntities(lnk.label)}
                                   </Link>
                                 ))}
                               </div>
@@ -434,7 +430,6 @@ export function AnimatedNav({
                                   />
                                 </div>
                               )}
-                            </>}
                         </m.div>
                       );
                     })}

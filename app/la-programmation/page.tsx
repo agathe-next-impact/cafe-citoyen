@@ -6,6 +6,7 @@ import { getWordPressEvents, getWordPressPageBySlug } from "@/lib/wordpress-api"
 import { Metadata } from "next"
 import { generateMetadataFromYoast } from "@/lib/seo"
 import { MetadataPreview } from "@/components/preview"
+import { decodeHtmlEntities } from "@/components/wp-decode"
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getWordPressPageBySlug("la-programmation")
@@ -15,20 +16,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return generateMetadataFromYoast(page.yoast_head_json, page.title.rendered)
 }
 
-function decodeHtmlEntities(text: string) {
-  return text
-    .replace(/&#8217;/g, "'")
-    .replace(/&#8216;/g, "'")
-    .replace(/&#8220;/g, '"')
-    .replace(/&#8221;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&nbsp;/g, " ")
-    .trim()
-}
 
 export default async function AgendaPage() {
   const [page, allEvents] = await Promise.all([
@@ -115,7 +102,7 @@ export default async function AgendaPage() {
             />
           </article>
         )}
-        <MetadataPreview metadata={page.yoast_head_json} />
+       
       </div>
     </div>
   )
