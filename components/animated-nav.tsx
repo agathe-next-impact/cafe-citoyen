@@ -198,7 +198,7 @@ export function AnimatedNav({
 
             <div className="flex items-center">
             <Link
-              href="/visite-virtuelle"
+              href="/visiter"
               onClick={handleLinkClick}
               className="text-sm font-semibold uppercase tracking-wider transition-all hover:shadow-md bg-black hover:bg-black/90 text-white border-r-2 border-white px-9 py-2 relative z-110"
               aria-label="Accueil"

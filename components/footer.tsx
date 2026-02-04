@@ -39,12 +39,12 @@ export function Footer() {
             <h4 className="md:mb-4 text-sm font-normal uppercase tracking-widest">Contact</h4>
             <ul className="space-y-3 text-sm text-white/90 font-light">
               <li>
-                <Link href="/contact" className="hover:text-white/90 hover:underline transition-colors">
+                <Link href="/equipe-nous-contacter" className="hover:text-white/90 hover:underline transition-colors">
                   Nous contacter
                 </Link>
               </li>
               <li>
-                <Link href="/infos-pratiques" className="hover:text-white/90 hover:underline transition-colors">
+                <Link href="/visiter" className="hover:text-white/90 hover:underline transition-colors">
                   Venir
                 </Link>
               </li>

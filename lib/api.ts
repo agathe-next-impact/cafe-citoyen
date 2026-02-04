@@ -450,13 +450,26 @@ export class WordPressAPI {
     return this.getPosts("espace-de-travail")
   }
 
-  async getMapPinPoints() {
+  async getVisitePage() {
+    let page = await this.getPageBySlug("visite-virtuelle")
+    
+    // Fallback: try "visiter" slug if "visite-virtuelle" not found
+    if (!page) {
+      console.warn("[v0] Page 'visite-virtuelle' not found, trying 'visiter'...")
+      page = await this.getPageBySlug("visiter")
+    }
+
+    return page
+  }
+
+  async getMapPinPoints(pageData?: WPPage) {
 
     try {
       // Fetch the visite-virtuelle page to get map pin points from ACF
-      const page = await this.getPageBySlug("visite-virtuelle")
-      
+      const page = pageData || await this.getVisitePage()
+
       if (!page) {
+        console.warn("[v0] No page found for map pin points (checked 'visite-virtuelle' and 'visiter')")
         return []
       }
 
@@ -470,7 +483,7 @@ export class WordPressAPI {
         const first = page.acf.map_pin_points[0]
         console.warn("[v0] FIRST POINT KEYS:", Object.keys(first))
         console.warn("[v0] FIRST POINT MAP_PIN_POINT KEYS:", Object.keys(first?.map_pin_point || {}))
-        console.warn("[v0] FIRST POINT raw image (map_pin_point.image):", first?.map_pin_point?.image)
+        console.warn("[v0] FIRST POINT raw image (map_pin_point.images):", first?.map_pin_point?.images)
       }
 
       const pinPoints = page.acf.map_pin_points
@@ -508,6 +521,9 @@ export class WordPressAPI {
 
           const hasPosition = latitude !== undefined && latitude !== null && longitude !== undefined && longitude !== null
 
+          if (!hasPosition) {
+             console.warn("[v0] Skipping point without position:", point.title || point.nom || point.id)
+          }
 
           return hasPosition
         })
@@ -518,9 +534,9 @@ export class WordPressAPI {
           let altitude = point.altitude || point.position?.altitude || point.mapPinPoint?.altitude || point.mapPinPoint?.position?.altitude || point.map_pin_point?.altitude || point.map_pin_point?.position?.altitude || point.coordonnees?.altitude || point.localisation?.altitude || 0
 
 
-          const rawImage = point.map_pin_point?.image || null
+          const rawImage = point.map_pin_point?.images || point.map_pin_point?.image || null
 
-          const toImg = (img: any) => {
+          const toImg = (img: any): any => {
             if (!img) return null
             if (Array.isArray(img)) return toImg(img[0])
             if (typeof img === "string") return { url: img, alt: point.title || point.nom || "Image" }
@@ -529,11 +545,14 @@ export class WordPressAPI {
               alt: img.alt || point.title || point.nom || "Image",
             }
           }
-
+          
+          const processedImage = rawImage ? toImg(rawImage) : null
+          // Wrap in array as expected by interface
+          const imageArray = processedImage ? [processedImage] : null
           
 
           // Handle description
-          const descriptif = point.descriptif || point.description || point.descriptive || ""
+          const descriptif = point.descriptif || point.description || point.descriptive || point.map_pin_point?.descriptif || ""
           const shortDescription = descriptif
             ? descriptif.replace(/<[^>]*>/g, "").substring(0, 100)
             : undefined
@@ -547,7 +566,7 @@ export class WordPressAPI {
             mapPinPoint: {
               visibilite: true,
               nom: point.nom || point.title || "",
-              image: rawImage|| null,
+              image: imageArray,
               descriptif: shortDescription,
               lien: point.lien || point.link || point.url,
               position: {
