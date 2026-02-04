@@ -107,7 +107,7 @@ export function PageContent({ content, slug, images, encadres, teamVideoUrl }: P
               {/* Grille de cartes encadrés (2 colonnes) */}
               {Array.isArray(encadres) && encadres.length > 0 && (
                 <div className="mt-10 flex flex-col gap-12">
-                  {encadres.slice(0, 2).map((card, idx) => (
+                  {encadres.slice(0, 5).map((card, idx) => (
                     <div
                       key={`encadre-${idx}`}
                       className="bg-white flex flex-col md:flex-row items-stretch min-h-[160px] overflow-hidden relative group border-2 border-black"
