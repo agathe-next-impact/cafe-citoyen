@@ -9,6 +9,7 @@ import dynamic from "next/dynamic"
 import "./globals.css"
 import '@wordpress/block-library/build-style/style.css';
 import localFont from "next/font/local"
+import { ExitIntentPopup } from "@/components/exit-intent-popup"
 
 // Lazy-load du Footer (non critique pour le rendu initial)
 const Footer = dynamic(() => import("@/components/footer").then(mod => mod.Footer), {
@@ -89,7 +90,15 @@ export default async function RootLayout({
       </head>
       <body
         className={`antialiased ${recoleta.variable} ${bodedo.variable}`}
-      >
+      >      
+      {/* Exit Intent Popup */}
+        <ExitIntentPopup
+          title="Rejoignez notre newsletter !"
+          description="Ne manquez rien des actualités du Café Citoyen. Inscrivez-vous à notre newsletter pour recevoir les dernières actualités et la programmation directement dans votre boîte mail."
+          buttonText="S'inscrire"
+          sensitivity={20}
+          showOnce={true}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

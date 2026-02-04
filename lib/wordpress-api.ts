@@ -1,3 +1,5 @@
+import { env } from "process";
+
 export interface YoastHeadJson {
   title: string;
   description?: string;
@@ -109,6 +111,17 @@ export interface WordPressPage {
           post_title: string;
           post_name: string;
         }>;
+      };
+    }>;
+    docs_a_presenter?: Array<{
+      document: {
+        titre_du_document?: string;
+        fichier?: {
+          url: string;
+          title: string;
+          filename: string;
+          subtype?: string;
+        };
       };
     }>;
   }
@@ -284,6 +297,7 @@ export interface Partner {
 }
 
 export interface SiteOptions {
+  adresse_mail?: string
   titre_du_site?: string
   description_du_site?: string
   logo_du_site?: {
@@ -310,7 +324,7 @@ export interface SiteOptions {
   }>
 }
 
-const WORDPRESS_URL = "https://wordpress-starter.fr"
+const WORDPRESS_URL = env.WORDPRESS_URL || "https://wordpress-starter.fr"
 
 function decodeHtmlEntities(text: string): string {
   // Create a temporary element to decode HTML entities

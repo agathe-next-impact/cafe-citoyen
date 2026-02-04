@@ -40,6 +40,16 @@ const nextConfig = {
       },
     ],
   },
+  async rewrites() {
+    const wpApiUrl = process.env.WORDPRESS_API_URL || 'https://wordpress-starter.fr/wp-json';
+    const wpUrl = wpApiUrl.replace('/wp-json', '');
+    return [
+      {
+        source: '/wp-content/:path*',
+        destination: `${wpUrl}/wp-content/:path*`,
+      },
+    ]
+  },
  
 }
 

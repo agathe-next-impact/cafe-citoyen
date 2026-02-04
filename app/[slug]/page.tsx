@@ -19,6 +19,7 @@ import { getCategoryVariant } from "@/lib/category-colors"
 import { variantColors } from "@/components/ui/site-card"
 import { Metadata } from "next"
 import { generateMetadataFromYoast } from "@/lib/seo"
+import { FileText } from "lucide-react"
 
 const variantBorderColors: Record<string, string> = {
   primary: "border-primary",
@@ -222,6 +223,51 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
             dangerouslySetInnerHTML={{ __html: page.content?.rendered || "" }}
           />
         </article>
+
+        {slug === "administration" && page.acf?.docs_a_presenter && page.acf.docs_a_presenter.length > 0 && (
+          <section className="max-w-4xl mx-auto mt-12 mb-12">
+            <h2 className="text-2xl font-bold mb-6 text-foreground">Documents officiels</h2>
+            <div className="grid gap-4">
+              {page.acf.docs_a_presenter.map((item, idx) => {
+                const doc = item.document;
+                if (!doc?.fichier) return null;
+
+                let pdfUrl = doc.fichier.url;
+                try {
+                  const urlObj = new URL(pdfUrl);
+                  if (urlObj.pathname.startsWith('/wp-content')) {
+                    pdfUrl = urlObj.pathname + urlObj.search;
+                  }
+                } catch (e) {
+                  // Keep original URL
+                }
+
+                return (
+                  <a
+                    key={idx}
+                    href={pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 p-4 border border-black hover:bg-black/5 transition-colors"
+                  >
+                    <div className="p-3 bg-black rounded-full text-white group-hover:bg-primary group-hover:text-black/5 transition-colors">
+                      <FileText className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                        {doc.titre_du_document || doc.fichier.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Document PDF
+                      </p>
+                    </div>
+                  </a>
+                )
+              })}
+            </div>
+          </section>
+        )}
+
         {events.length > 0 && (
           <section className="md:mt-16 max-w-7xl mx-auto">
             <h2 className="text-3xl font-bold text-foreground mb-8">Événements à venir</h2>
