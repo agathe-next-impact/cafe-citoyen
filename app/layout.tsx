@@ -8,6 +8,7 @@ import { getSiteOptions } from "@/lib/wordpress-api"
 import dynamic from "next/dynamic"
 import "./globals.css"
 import '@wordpress/block-library/build-style/style.css';
+import localFont from "next/font/local"
 
 // Lazy-load du Footer (non critique pour le rendu initial)
 const Footer = dynamic(() => import("@/components/footer").then(mod => mod.Footer), {
@@ -17,19 +18,21 @@ const Footer = dynamic(() => import("@/components/footer").then(mod => mod.Foote
 // Lazy-load de BallGarland (décoratif, non critique)
 const BallGarland = dynamic(() => import("@/components/ball-garland").then(mod => mod.BallGarland))
 
-const redHatDisplay = Red_Hat_Display({
-  subsets: ["latin"],
-  variable: "--font-sans",
+
+
+// polices locales
+const bodedo = localFont({
+  src: "./fonts/Bodedo.ttf", // Chemin relatif depuis layout.tsx
+  variable: "--font-serif", // Nom de la variable CSS
   display: "swap",
 })
 
-const crimsonText = Crimson_Text({
-  weight: ["400", "600", "700"],
-  style: ["normal", "italic"],
-  subsets: ["latin"],
-  variable: "--font-serif",
+const recoleta = localFont({
+  src: "./fonts/Recoleta-Regular.ttf", // Chemin relatif depuis layout.tsx
+  variable: "--font-sans", // Nom de la variable CSS
   display: "swap",
 })
+
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteOptions = await getSiteOptions()
@@ -84,7 +87,9 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://www.youtube-nocookie.com" />
         <link rel="dns-prefetch" href="https://s.ytimg.com" />
       </head>
-      <body suppressHydrationWarning className={`${redHatDisplay.variable} ${crimsonText.variable} bg-white`}>
+      <body
+        className={`antialiased ${recoleta.variable} ${bodedo.variable}`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
