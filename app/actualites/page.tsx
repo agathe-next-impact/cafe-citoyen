@@ -28,7 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return generateMetadataFromYoast(page.yoast_head_json, {
     title: page.title.rendered,
     description: page.acf?.["sous-titre"],
-    image: page.acf?.background?.url || siteOptions?.logo_du_site?.url,
+    image: siteOptions?.logo_du_site?.url,
   });
 }
 

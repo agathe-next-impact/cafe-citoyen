@@ -9,7 +9,6 @@ import {
   getPartners,
   getSiteOptions,
 } from "@/lib/wordpress-api"
-import Link from "next/link"
 import PageHeader from "@/components/page-header"
 import { TeamMembers } from "@/components/team-members"
 import { PartnersList } from "@/components/partners-list"
@@ -45,7 +44,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return generateMetadataFromYoast(page.yoast_head_json, {
     title: page.title.rendered,
     description: page.acf?.["sous-titre"] || truncate(stripHtml(page.content?.rendered || ""), 160),
-    image: page.acf?.background?.url || siteOptions?.logo_du_site?.url,
+    image: siteOptions?.logo_du_site?.url,
   })
 }
 

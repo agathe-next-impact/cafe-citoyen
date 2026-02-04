@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return generateMetadataFromYoast(event.yoast_head_json, {
     title: decodeHtmlEntities(event.title.rendered),
     description: event.excerpt?.rendered?.replace(/<[^>]*>?/gm, "") || event.acf?.descriptif,
-    image: event._embedded?.["wp:featuredmedia"]?.[0]?.source_url || event.acf?.background?.url || siteOptions?.logo_du_site?.url,
+    image: event._embedded?.["wp:featuredmedia"]?.[0]?.source_url || siteOptions?.logo_du_site?.url,
   })
 }
 
