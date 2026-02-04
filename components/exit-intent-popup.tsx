@@ -179,7 +179,7 @@ export function ExitIntentPopup({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="min-w-max md:max-w-[50vw] max-h-[80vh] border-none overflow-hidden p-0">
+      <DialogContent className="md:max-w-[50vw] max-h-[80vh] border-none overflow-hidden p-0">
         <div className="bg-black px-6 text-primary-foreground">
           <div className="mx-auto flex items-center justify-center rounded-full">
             <Image alt="Logo Café citoyen" src="/logo-cafe-citoyen.png" width={100} height={104} fetchPriority="high"/>
