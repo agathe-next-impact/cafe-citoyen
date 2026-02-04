@@ -82,43 +82,31 @@ export function ExitIntentPopup({
   useEffect(() => {
     document.addEventListener("mousemove", handleMouseMove)
 
-    // Logique mobile : Detection du scroll rapide vers le haut
-    const handleTouchScroll = () => {
-      if (!scrollRef.current.ticking) {
-        window.requestAnimationFrame(() => {
-          const currentY = window.scrollY
-          const delta = currentY - scrollRef.current.lastY
-          const isMobile = "ontouchstart" in window || navigator.maxTouchPoints > 0
+    // Logique mobile : Active la popup quand l'application/onglet est masqué (Home, changement d'app, etc.)
+    const handleVisibilityChange = () => {
+      // Déclenchement lorsque la page devient cachée (quitter, home, dock, changer d'onglet)
+      if (document.visibilityState === "hidden") {
+        const isMobile = "ontouchstart" in window || navigator.maxTouchPoints > 0
 
-          // Detection d'un scroll rapide vers le haut (intention de quitter ou voir l'URL)
-          if (
-            isMobile &&
-            delta < -30 && // Scroll vers le haut significatif
-            currentY > 100 // Pas au tout début de la page
-          ) {
-            // Vérification si déjà montré
-            const alreadyShown = showOnce ? sessionStorage.getItem("exitPopupShown") : null
-            
-            if ((!showOnce || (!hasShown && !alreadyShown))) {
-              setIsOpen(true)
-              setHasShown(true)
-              if (showOnce) {
-                sessionStorage.setItem("exitPopupShown", "true")
-              }
+        if (isMobile) {
+          const alreadyShown = showOnce ? sessionStorage.getItem("exitPopupShown") : null
+
+          if (!showOnce || (!hasShown && !alreadyShown)) {
+            setIsOpen(true)
+            setHasShown(true)
+            if (showOnce) {
+              sessionStorage.setItem("exitPopupShown", "true")
             }
           }
-          scrollRef.current.lastY = currentY
-          scrollRef.current.ticking = false
-        })
-        scrollRef.current.ticking = true
+        }
       }
     }
 
-    window.addEventListener("scroll", handleTouchScroll, { passive: true })
+    document.addEventListener("visibilitychange", handleVisibilityChange)
 
     return () => {
       document.removeEventListener("mousemove", handleMouseMove)
-      window.removeEventListener("scroll", handleTouchScroll)
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
     }
   }, [handleMouseMove, hasShown, showOnce])
 
@@ -179,7 +167,7 @@ export function ExitIntentPopup({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="md:max-w-[50vw] max-h-[80vh] border-none overflow-hidden p-0">
+      <DialogContent className="md:max-w-[50vw] md:max-h-[80vh] border-none overflow-hidden p-0">
         <div className="bg-black px-6 text-primary-foreground">
           <div className="mx-auto flex items-center justify-center rounded-full">
             <Image alt="Logo Café citoyen" src="/logo-cafe-citoyen.png" width={100} height={104} fetchPriority="high"/>
