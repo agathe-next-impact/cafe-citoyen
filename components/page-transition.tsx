@@ -11,10 +11,10 @@ export function PageTransition({ children }: { children: ReactNode }) {
     <AnimatePresence mode="wait">
       <motion.div
         key={pathname}
-        initial={{ opacity: 0, filter: "blur(10px)" }}
+        initial={{ opacity: 1, filter: "blur(3px)" }}
         animate={{ opacity: 1, filter: "blur(0px)" }}
-        exit={{ opacity: 0, filter: "blur(10px)" }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        exit={{ opacity: 1, filter: "blur(3px)" }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
         className="w-full"
       >
         {children}

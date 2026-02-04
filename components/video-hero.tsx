@@ -44,6 +44,10 @@ function extractVimeoId(input: string): string | null {
   return match ? match[1] : null;
 }
 
+function isVideoFile(url: string) {
+  return /\.(mp4|webm|ogg|mov)(?:\?.*)?$/i.test(url);
+}
+
 export function VideoHero({ embedHtml, menuLinks, image }: VideoHeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [videoId, setVideoId] = useState<string | null>(null);
@@ -79,6 +83,8 @@ export function VideoHero({ embedHtml, menuLinks, image }: VideoHeroProps) {
   } else if (menuLinks && typeof menuLinks === 'object') {
     safeMenuLinks = [menuLinks as HeroMenuLink];
   }
+
+  console.log('VideoHero render', { image });
 
   return (
     <section
@@ -139,14 +145,26 @@ export function VideoHero({ embedHtml, menuLinks, image }: VideoHeroProps) {
           aria-label="Navigation rapide"
         >
           {image && (
-            <Image
-              src={image}
-              alt="Logo Café Citoyen"
-              width={200}
-              height={200}
-            className="hidden md:block mb-6 max-w-[50vw]"
-            style={{ width: "100%", height: "auto" }}
-          />
+            isVideoFile(image) ? (
+              <video
+                src={image}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="hidden md:flex justify-end mb-6 max-w-[50vw] border-2 border-white/60"
+                style={{ width: "320px", height: "auto" }}
+              />
+            ) : (
+              <Image
+                src={image}
+                alt="Logo Café Citoyen"
+                width={200}
+                height={200}
+                className="hidden md:flex justify-end mb-6 max-w-[50vw] border-2 border-white/60"
+                style={{ width: "320px", height: "auto" }}
+              />
+            )
           )}
           <ul className="flex flex-col gap-3">
             {safeMenuLinks.map((item, index) => {
@@ -186,4 +204,4 @@ export function VideoHero({ embedHtml, menuLinks, image }: VideoHeroProps) {
     </section>
   );
 }
-  
+

@@ -25,7 +25,7 @@ export function Footer() {
 
           <div className="order-first md:order-none">
             <video
-              src="/videos/logo-cc.mp4"
+              src="/video-logo.mp4"
               controls={false}
               autoPlay
               loop

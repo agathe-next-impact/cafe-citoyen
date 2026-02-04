@@ -49,7 +49,7 @@ type AcfType = {
   background?: { url?: string; alt?: string };
   ["sous-titre"]?: string;
   contenu?: any;
-  image_logo?: { src?: string; alt?: string };
+  logo_image?: { url?: string; alt?: string; mime_type?: string }; // Correction du nom et de la propriété
   liens_du_menu_du_hero?: HeroMenuLink[];
   section_video?: {
     video?: string | null;
@@ -78,10 +78,11 @@ export default async function Home() {
     siteHeaderImage = siteOptions?.logo_du_site?.url || null
   }
 
+
   return (
     <div className="min-h-screen -mt-20">
       {hasVideoHero ? (
-        <VideoHero embedHtml={acf?.video || ""} menuLinks={acf?.liens_du_menu_du_hero} />
+        <VideoHero embedHtml={acf?.video || ""} menuLinks={acf?.liens_du_menu_du_hero} image={acf?.logo_image?.url} />
       ) : acf?.background?.url ? (
         <section className="relative h-screen w-full flex items-center justify-center overflow-hidden -mt-20">
           <Image
@@ -217,7 +218,7 @@ export default async function Home() {
           <div>
             <VideoHero
               embedHtml={acf.section_video.video}
-              image={acf.logo_image.src || undefined}
+              image={acf.logo_image?.url || undefined}
               menuLinks={[{
                 lien: {
                   texte_du_lien: linkText,

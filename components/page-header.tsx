@@ -100,18 +100,16 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
   return (
     <section className={`-mt-14 relative min-h-100 flex flex-col items-start overflow-hidden`}>
       {/* Image de fond */}
-      <div className="w-full md:w-max flex justify-start bg-black pt-10 md:pt-12 md:pr-4 z-50">
-        <Link href="/">
+      <div className="w-120 bg-black pt-10 md:pt-12 z-50">
+        <Link href="/" className="inline-block">
             <video
-              src="/videos/video-logo.mp4"
-              poster="/logo-cafe-citoyen.png" // Image affichée pendant le chargement
-              preload="auto"
+              src="/video-logo.mp4" 
               controls={false}
               autoPlay
               loop
               muted
               playsInline
-              className="w-full h-[100px] md:h-[150px] object-contain"
+              className="h-[100px] md:h-[150px] object-contain"
               style={{ zIndex: 1000 }}
             />
         </Link>
@@ -161,7 +159,7 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
 }
 
 // Helper to get the page path from a child page and all pages
-function getPagePath(childPage: { slug: string }, allPages: any[]): string {
+function getPagePath(childPage: { slug: string; id?: number }, allPages: any[]): string {
   // Try to find the page in allPages by id or slug
   const found = allPages.find(
     (p) => p.id === childPage.id || p.slug === childPage.slug
