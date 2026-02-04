@@ -132,7 +132,7 @@ export function AnimatedNav({
       )}
       <nav
         className={cn(
-          "fixed top-0 left-0 right-0 z-200 transition-all duration-300 max-h-20 border-y-2 border-black",
+          "fixed top-0 left-0 right-0 z-200 transition-all duration-300 max-h-20",
           isScrolled ? "bg-[var(--background)/0.1]" : `bg-[${baseColor}/0.1]`,
         )}
       >
@@ -169,31 +169,6 @@ export function AnimatedNav({
               </span>
               </div>
             </button>
-
-            {/* Logo */}        
-            <Link href="/" onClick={handleLinkClick} className="w-20 absolute top-9 left-0">
-              {logo ? (
-                <Image
-                  src={logo}
-                  alt="Logo"
-                  width={80}
-                  height={80}
-                  fetchPriority="high"
-                  className="h-20 w-20 object-contain"
-                  style={{ height: 'auto', width: 'auto' }}
-                />
-              ) : (
-                <Image
-                  src="/logo-cafe-citoyen.png"
-                  alt="Café Citoyen"
-                  width={80}
-                  height={80}
-                  fetchPriority="high"
-                  className="h-20 w-20 object-contain"
-                  style={{ height: 'auto', width: 'auto' }}
-                />
-              )}
-            </Link>
 
 
             <div className="flex items-center">

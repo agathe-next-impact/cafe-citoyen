@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { WPDecode } from "@/components/wp-decode"; // Utilisation du composant externe
 import { decodeHtmlEntities } from "@/lib/decode";
-import Image from "next/image";
+import Link from "next/link";
 
 
 type PageHeaderProps = {
@@ -98,29 +98,28 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
 
 
   return (
-    <section className={`-mt-20 pt-16 relative min-h-100 flex items-end overflow-hidden border-b-1 border-black`}>
+    <section className={`-mt-14 relative min-h-100 flex flex-col items-start overflow-hidden`}>
       {/* Image de fond */}
-      {backgroundImage && (
-        <div className="absolute inset-0 z-0">
-          <Image
-            src={backgroundImage}
-            alt={backgroundAlt || title}
-            fill
-            className="object-cover"
-            sizes="100vw"
-            priority
-          />
-        </div>
-      )}
-      
-      {/* Halo radial en haut de page */}
-      <div
-        className="pointer-events-none absolute inset-0 z-0 opacity-50"
-      />
+      <div className="w-full md:w-max flex justify-start bg-black pt-10 md:pt-12 md:pr-4 z-50">
+        <Link href="/">
+            <video
+              src="/videos/video-logo.mp4"
+              poster="/logo-cafe-citoyen.png" // Image affichée pendant le chargement
+              preload="auto"
+              controls={false}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-[100px] md:h-[150px] object-contain"
+              style={{ zIndex: 1000 }}
+            />
+        </Link>
+      </div>
       
       <div className="w-full mx-auto relative z-10">
         <div className="flex gap-8">
-          <div className="flex-1 gap-4 bg-black text-white py-4">
+          <div className="flex-1 gap-4 bg-black text-white pb-4 md:py-4">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-balance mb-4 ml-4 text-white">
               <WPDecode>{decodeHtmlEntities(title)}</WPDecode>
             </h1>

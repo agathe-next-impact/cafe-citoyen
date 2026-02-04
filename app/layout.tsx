@@ -6,6 +6,7 @@ import { ScrollToTop } from "@/components/scroll-to-top"
 import { ThemeProvider } from "@/components/theme-provider"
 import { getSiteOptions } from "@/lib/wordpress-api"
 import dynamic from "next/dynamic"
+import { PageTransition } from "@/components/page-transition" // Import the new component
 import "./globals.css"
 import '@wordpress/block-library/build-style/style.css';
 import localFont from "next/font/local"
@@ -109,7 +110,9 @@ export default async function RootLayout({
           <ScrollToTop />
           <AnimatedNavWrapper siteOptions={siteOptions} />
           <BallGarland />
-          <main>{children}</main>
+          <main>
+            <PageTransition>{children}</PageTransition>
+          </main>
           <Footer />
         </ThemeProvider>
       </body>
