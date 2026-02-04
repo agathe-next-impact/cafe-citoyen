@@ -19,7 +19,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
      return {}
   }
 
-  return generateMetadataFromYoast(post.yoast_head_json, post.title.rendered)
+  return generateMetadataFromYoast(post.yoast_head_json, {
+     title: post.title.rendered,
+     description: post.excerpt?.rendered?.replace(/<[^>]*>?/gm, ''),
+     image: post._embedded?.['wp:featuredmedia']?.[0]?.source_url
+  })
 }
 
 export async function generateStaticParams() {

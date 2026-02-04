@@ -13,7 +13,11 @@ export async function generateMetadata(): Promise<Metadata> {
   if (!page) {
     return {}
   }
-  return generateMetadataFromYoast(page.yoast_head_json, page.title.rendered)
+  return generateMetadataFromYoast(page.yoast_head_json, {
+    title: page.title.rendered,
+    description: page.acf?.["sous-titre"],
+    image: page.acf?.background?.url,
+  })
 }
 
 

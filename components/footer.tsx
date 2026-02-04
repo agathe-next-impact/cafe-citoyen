@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 
 export function Footer() {
   return (
@@ -60,15 +61,22 @@ export function Footer() {
           <p className="mb-4 text-xs text-white/90 font-light uppercase tracking-widest">
             &copy; {new Date().getFullYear()} Café citoyen - Tous droits réservés
           </p>
-          <p className="mb-8 text-xs text-white/90 font-light hover:text-white hover:underline">
+          <p className="mb-8 text-xs text-white/90 font-light hover:text-white">
             Développé par{' '}
+              &nbsp;
             <a
               href="https://www.next-impact.digital/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-base hover:text-foreground transition-colors"
-            >
-              Next Impact
+              className="text-base hover:underline transition-colors"
+            >Next Impact
+              <Image
+                src="/logo-nid.webp"
+                alt="Next Impact"
+                width={20}
+                height={20}
+                className="ml-2 inline-block"
+                />
             </a>
           </p>
         </div>
