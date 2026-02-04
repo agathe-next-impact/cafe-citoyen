@@ -3,14 +3,17 @@ import { generateMetadataFromYoast } from "@/lib/seo"
 import { Metadata } from "next"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const page = await getWordPressPageBySlug("accueil")
+  const [page, siteOptions] = await Promise.all([
+    getWordPressPageBySlug("accueil"),
+    getSiteOptions()
+  ])
   if (!page) {
     return {}
   }
   return generateMetadataFromYoast(page.yoast_head_json, {
     title: page.title.rendered,
     description: page.acf?.["sous-titre"],
-    image: page.acf?.background?.url,
+    image: page.acf?.background?.url || siteOptions?.logo_du_site?.url,
   })
 }
 

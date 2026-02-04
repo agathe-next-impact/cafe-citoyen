@@ -2,21 +2,24 @@ import { notFound } from "next/navigation"
 import AgendaFiltersClient from "@/components/agenda-filters-client"
 import PageHeader from "@/components/page-header"
 import { PageContent } from "@/components/page-content"
-import { getWordPressEvents, getWordPressPageBySlug } from "@/lib/wordpress-api"
+import { getWordPressEvents, getWordPressPageBySlug, getSiteOptions } from "@/lib/wordpress-api"
 import { Metadata } from "next"
 import { generateMetadataFromYoast } from "@/lib/seo"
 import { MetadataPreview } from "@/components/preview"
 import { decodeHtmlEntities } from "@/components/wp-decode"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const page = await getWordPressPageBySlug("la-programmation")
+  const [page, siteOptions] = await Promise.all([
+    getWordPressPageBySlug("la-programmation"),
+    getSiteOptions(),
+  ])
   if (!page) {
     return {}
   }
   return generateMetadataFromYoast(page.yoast_head_json, {
     title: page.title.rendered,
     description: page.acf?.["sous-titre"],
-    image: page.acf?.background?.url,
+    image: page.acf?.background?.url || siteOptions?.logo_du_site?.url,
   })
 }
 

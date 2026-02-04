@@ -7,6 +7,7 @@ import {
   getWordPressPages,
   getTeamMembers,
   getPartners,
+  getSiteOptions,
 } from "@/lib/wordpress-api"
 import Link from "next/link"
 import PageHeader from "@/components/page-header"
@@ -34,14 +35,17 @@ const variantBorderColors: Record<string, string> = {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  const page = await getWordPressPageBySlug(slug)
+  const [page, siteOptions] = await Promise.all([
+    getWordPressPageBySlug(slug),
+    getSiteOptions(),
+  ])
   if (!page) {
     return {}
   }
   return generateMetadataFromYoast(page.yoast_head_json, {
     title: page.title.rendered,
     description: page.acf?.["sous-titre"] || truncate(stripHtml(page.content?.rendered || ""), 160),
-    image: page.acf?.background?.url,
+    image: page.acf?.background?.url || siteOptions?.logo_du_site?.url,
   })
 }
 
