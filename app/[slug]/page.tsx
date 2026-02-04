@@ -14,7 +14,7 @@ import { TeamMembers } from "@/components/team-members"
 import { PartnersList } from "@/components/partners-list"
 import { PageContent } from "@/components/page-content"
 import EventCard from "@/components/event-card"
-import { cn } from "@/lib/utils"
+import { cn, stripHtml, truncate } from "@/lib/utils"
 import { getCategoryVariant } from "@/lib/category-colors"
 import { variantColors } from "@/components/ui/site-card"
 import { Metadata } from "next"
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
   return generateMetadataFromYoast(page.yoast_head_json, {
     title: page.title.rendered,
-    description: page.acf?.["sous-titre"],
+    description: page.acf?.["sous-titre"] || truncate(stripHtml(page.content?.rendered || ""), 160),
     image: page.acf?.background?.url,
   })
 }
