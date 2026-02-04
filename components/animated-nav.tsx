@@ -125,7 +125,7 @@ export function AnimatedNav({
       {/* Overlay to prevent page interaction and stacking issues when menu is open */}
       {isExpanded && (
         <div 
-          className="fixed inset-0 bg-white/80 backdrop-blur-xl transition-all duration-300 z-50 cursor-pointer" 
+          className="fixed inset-0 bg-white/5 backdrop-blur-xl transition-all duration-300 z-50 cursor-pointer" 
           aria-hidden="true"
           onClick={() => setIsExpanded(false)}
         />
@@ -260,12 +260,12 @@ export function AnimatedNav({
               exit={{ opacity: 0, y: -30 }}
               transition={{ duration: 0.35, ease: "easeOut" }}
               className={cn(
-                "overflow-hidden -mt-4",
+                "overflow-hidden",
               )}
             >
               <div className="relative">
                 <div 
-                  className="bg-black container mx-auto pt-4 px-4 lg:px-8 py-4 max-w-full overflow-x-hidden h-screen lg:overflow-visible cursor-pointer"
+                  className="bg-white/5 backdrop-blur-md container mx-auto px-4 lg:px-8 max-w-full overflow-x-hidden h-screen lg:overflow-visible cursor-pointer"
                   onClick={() => setIsExpanded(false)}
                 >
                   <m.div 
