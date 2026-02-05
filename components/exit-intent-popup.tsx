@@ -42,7 +42,7 @@ export function ExitIntentPopup({
   buttonText = "S'inscrire à la newsletter",
   sensitivity = 20,
   showOnce = true,
-  mobileTrigger = "visibilitychange",
+  mobileTrigger = "scroll-depth",
   mobileTimerDelay = 30000,
   mobileScrollDepth = 50,
   mobileInactivityDelay = 15000,
