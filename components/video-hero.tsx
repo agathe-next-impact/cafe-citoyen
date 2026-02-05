@@ -49,7 +49,7 @@ function isVideoFile(url: string) {
   return /\.(mp4|webm|ogg|mov)(?:\?.*)?$/i.test(url);
 }
 
-export function VideoHero({ embedHtml, menuLinks, image }: VideoHeroProps) {
+export function VideoHero({ embedHtml, menuLinks, image, control = false }: VideoHeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [videoId, setVideoId] = useState<string | null>(null);
   const [videoType, setVideoType] = useState<'youtube' | 'vimeo' | null>(null);
@@ -72,9 +72,9 @@ export function VideoHero({ embedHtml, menuLinks, image }: VideoHeroProps) {
 
   // URL de l'iframe optimisée
   const iframeSrc = videoType === 'youtube' && videoId
-    ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&disablekb=1&fs=0&iv_load_policy=3&loop=1&playlist=${videoId}`
+    ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=${control ? 1 : 0}&showinfo=0&rel=0&modestbranding=1&playsinline=1&disablekb=1&fs=0&iv_load_policy=3&loop=1&playlist=${videoId}`
     : videoType === 'vimeo' && videoId
-    ? `https://player.vimeo.com/video/${videoId}?autoplay=1&muted=1&controls=0&title=0&byline=0&portrait=0&loop=1&background=1`
+    ? `https://player.vimeo.com/video/${videoId}?autoplay=1&muted=1&controls=${control ? 1 : 0}&title=0&byline=0&portrait=0&loop=1&background=1`
     : null;
 
   // Convertit menuLinks en tableau
@@ -124,15 +124,22 @@ export function VideoHero({ embedHtml, menuLinks, image }: VideoHeroProps) {
       <style jsx>{`
         .video-iframe {
           position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
+          top: 0;
+          left: 0;
           width: 100vw;
-          height: 100vh;
-          min-width: 177.77vh;
-          min-height: 56.25vw;
+          height: 56.25vw;
+          max-height: 100vh;
           border: none;
-          pointer-events: none;
+          pointer-events: ${control ? 'auto' : 'none'};
+        }
+
+        @media (min-aspect-ratio: 16/9) {
+          .video-iframe {
+            width: 177.78vh;
+            height: 100vh;
+            left: 50%;
+            transform: translateX(-50%);
+          }
         }
       `}</style>
       
@@ -153,7 +160,7 @@ export function VideoHero({ embedHtml, menuLinks, image }: VideoHeroProps) {
                 muted
                 playsInline
                 className="hidden md:flex justify-end mb-6 max-w-[50vw] border-2 border-white/60"
-                style={{ width: "320px", height: "auto" }}
+                style={{ width: "320px", height: "100%" }}
               />
             ) : (
               <Image
@@ -176,10 +183,10 @@ export function VideoHero({ embedHtml, menuLinks, image }: VideoHeroProps) {
                 <li key={index}>
                   <Link
                     href={linkUrl}
-                    className="group flex items-center justify-end gap-3 px-5 py-3 
+                    className="group flex items-center justify-center gap-3 px-5 py-3 
                                bg-white/20 backdrop-blur-md
                                border border-white 
-                               text-white text-base font-light
+                               text-white text-lg md:text-xl font-light
                                transition-all duration-300 ease-out
                                hover:bg-white/40 hover:border-white/40 hover:scale-105"
                   >

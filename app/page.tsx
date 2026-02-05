@@ -82,7 +82,7 @@ export default async function Home() {
   return (
     <div className="min-h-screen -mt-20">
       {hasVideoHero ? (
-        <VideoHero embedHtml={acf?.video || ""} menuLinks={acf?.liens_du_menu_du_hero} image={acf?.logo_image?.url} />
+        <VideoHero embedHtml={acf?.video || ""} menuLinks={acf?.liens_du_menu_du_hero} image={acf?.logo_image?.url} control={false} />
       ) : acf?.background?.url ? (
         <section className="relative h-screen w-full flex items-center justify-center overflow-hidden -mt-20">
           <Image
@@ -229,6 +229,7 @@ export default async function Home() {
                   }],
                 },
               }]}
+              control={true}
             />
           </div>
         );
