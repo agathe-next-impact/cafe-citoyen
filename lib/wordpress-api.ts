@@ -773,7 +773,7 @@ export async function getSiteOptions(): Promise<SiteOptions | null> {
         titre_du_site: data.titre_du_site || "Café Citoyen",
         description_du_site: data.description_du_site || "Centre de rencontres citoyennes",
         logo_du_site: data.logo_du_site,
-        reseaux_sociaux: data.reseaux_sociaux || [],
+        reseaux_sociaux: data.reseaux_sociaux || [], 
       }
 
       console.warn('[getSiteOptions] Options finales:', siteOptions)
@@ -788,6 +788,7 @@ export async function getSiteOptions(): Promise<SiteOptions | null> {
   }
 
   const defaultOptions: SiteOptions = {
+    adresse_mail: "cafecitoyenauger@gmail.com",
     titre_du_site: "Café citoyen",
     description_du_site: "Centre culturel de rencontre",
     logo_du_site: undefined,

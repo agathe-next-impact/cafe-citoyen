@@ -108,10 +108,6 @@ export async function POST(request: Request) {
       console.log("[Newsletter] To Admin:", recipientEmail)
       console.log("[Newsletter] To Subscriber:", email)
 
-      // Verify SMTP connection first
-      await transporter.verify()
-      console.log("[Newsletter] SMTP connection verified successfully")
-
       // Send email to admin
       const adminResult = await transporter.sendMail({
         from: smtpFrom,
