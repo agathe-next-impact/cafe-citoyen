@@ -19,6 +19,7 @@ interface VideoHeroProps {
   embedHtml: string;
   menuLinks?: HeroMenuLink[];
   image?: string;
+  control?: boolean;
 }
 
 // Extrait l'ID YouTube depuis une URL ou un embed HTML
@@ -84,7 +85,6 @@ export function VideoHero({ embedHtml, menuLinks, image }: VideoHeroProps) {
     safeMenuLinks = [menuLinks as HeroMenuLink];
   }
 
-  console.log('VideoHero render', { image });
 
   return (
     <section

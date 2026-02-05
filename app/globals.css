@@ -172,6 +172,10 @@
     overflow-x: hidden;
     background-color: white;
   }
+  main {
+    position: relative;
+    z-index: 1;
+  }
   h1 {
     font-family: var(--font-serif);
     font-weight: 700;

@@ -390,7 +390,7 @@ export function ExitIntentPopup({
                 </div>
               )}
 
-              <div className="space-y-2 pt-2 text-center">
+              <div className="md:space-y-2 pt-2 text-center">
                 <Button
                   type="submit"
                   className="gap-2 bg-white text-black underline"
@@ -412,7 +412,7 @@ export function ExitIntentPopup({
                   type="button"
                   variant="ghost"
                   onClick={() => setIsOpen(false)}
-                  className="w-full text-muted-foreground text-sm"
+                  className="w-full text-black text-sm"
                   disabled={isSubmitting}
                 >
                   Non merci, je continue ma visite
