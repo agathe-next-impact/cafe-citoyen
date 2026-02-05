@@ -1,6 +1,5 @@
-import { getSiteOptions } from "@/lib/wordpress-api"
 import { NextResponse } from "next/server"
-import { getSiteOptions as getArchivePageTitles } from "@/lib/wordpress-api"
+import { getSiteOptions as getArchivePageTitles, getSiteOptions } from "@/lib/wordpress-api"
 import nodemailer from "nodemailer"
 
 export async function POST(request: Request) {
@@ -23,10 +22,10 @@ export async function POST(request: Request) {
     let recipientEmail = "agathe@next-impact.digital"
 
     try {
-      const archiveTitles = await getArchivePageTitles()
+      const siteOptions = await getSiteOptions()
 
-      if (archiveTitles?.adresse_mail) {
-        recipientEmail = archiveTitles.adresse_mail
+      if (siteOptions?.adresse_mail) {
+        recipientEmail = siteOptions.adresse_mail
       }
     } catch (wpError) {
       console.error("Failed to fetch WordPress data:", wpError)
@@ -101,17 +100,17 @@ export async function POST(request: Request) {
     `
 
     try {
-      console.warn("[Newsletter] Attempting to send email...")
-      console.warn("[Newsletter] SMTP Host:", smtpHost)
-      console.warn("[Newsletter] SMTP Port:", smtpPort)
-      console.warn("[Newsletter] SMTP User:", smtpUser)
-      console.warn("[Newsletter] From:", smtpFrom)
-      console.warn("[Newsletter] To Admin:", recipientEmail)
-      console.warn("[Newsletter] To Subscriber:", email)
+      console.log("[Newsletter] Attempting to send email...")
+      console.log("[Newsletter] SMTP Host:", smtpHost)
+      console.log("[Newsletter] SMTP Port:", smtpPort)
+      console.log("[Newsletter] SMTP User:", smtpUser)
+      console.log("[Newsletter] From:", smtpFrom)
+      console.log("[Newsletter] To Admin:", recipientEmail)
+      console.log("[Newsletter] To Subscriber:", email)
 
       // Verify SMTP connection first
       await transporter.verify()
-      console.warn("[Newsletter] SMTP connection verified successfully")
+      console.log("[Newsletter] SMTP connection verified successfully")
 
       // Send email to admin
       const adminResult = await transporter.sendMail({
@@ -120,7 +119,7 @@ export async function POST(request: Request) {
         subject: "Nouvelle inscription à la newsletter",
         html: adminEmailHtml,
       })
-      console.warn("[Newsletter] Admin email sent:", adminResult.messageId)
+      console.log("[Newsletter] Admin email sent:", adminResult.messageId)
 
       // Send confirmation email to subscriber
       const subscriberResult = await transporter.sendMail({
@@ -129,7 +128,7 @@ export async function POST(request: Request) {
         subject: "Confirmation d'inscription à la newsletter",
         html: subscriberEmailHtml,
       })
-      console.warn("[Newsletter] Subscriber email sent:", subscriberResult.messageId)
+      console.log("[Newsletter] Subscriber email sent:", subscriberResult.messageId)
 
       return NextResponse.json({
         message: "Inscription réussie ! Vous recevrez bientôt un email de confirmation.",

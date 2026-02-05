@@ -769,6 +769,7 @@ export async function getSiteOptions(): Promise<SiteOptions | null> {
       console.warn('[getSiteOptions] Réseaux sociaux bruts:', data.reseaux_sociaux)
 
       const siteOptions: SiteOptions = {
+        adresse_mail: data.adresse_mail,
         titre_du_site: data.titre_du_site || "Café Citoyen",
         description_du_site: data.description_du_site || "Centre de rencontres citoyennes",
         logo_du_site: data.logo_du_site,
