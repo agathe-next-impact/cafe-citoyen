@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     const smtpUser = process.env.SMTP_USER
     const smtpPass = process.env.SMTP_PASS
     // Gmail requires the "from" address to match the authenticated user
-    const smtpFrom = process.env.SMTP_FROM || `Les EGC <${smtpUser}>`
+    const smtpFrom = process.env.SMTP_FROM || `Café Citoyen <${smtpUser}>`
 
     // Check if SMTP is configured
     if (!smtpHost || !smtpUser || !smtpPass) {
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
     `
 
     // Email to subscriber
-    const siteDomain = process.env.SITE_DOMAIN || "lesetatsgenerauxcommunaux.org"
+    const siteDomain = process.env.SITE_DOMAIN || "cafecitoyen.art"
     const logoUrl = `https://${siteDomain}/logo-cafe-citoyen.png`
 
     const subscriberEmailHtml = `

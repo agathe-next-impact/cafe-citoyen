@@ -72,7 +72,7 @@ export function VideoHero({ embedHtml, menuLinks, image, control = false }: Vide
 
   // URL de l'iframe optimisée
   const iframeSrc = videoType === 'youtube' && videoId
-    ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=${control ? 1 : 0}&showinfo=0&rel=0&modestbranding=1&playsinline=1&disablekb=1&fs=0&iv_load_policy=3&loop=1&playlist=${videoId}`
+    ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=${control ? 1 : 0}&showinfo=0&rel=0&modestbranding=1&playsinline=1&disablekb=${control ? 0 : 1}&fs=${control ? 1 : 0}&iv_load_policy=3&cc_load_policy=0&autohide=1&loop=1&playlist=${videoId}`
     : videoType === 'vimeo' && videoId
     ? `https://player.vimeo.com/video/${videoId}?autoplay=1&muted=1&controls=${control ? 1 : 0}&title=0&byline=0&portrait=0&loop=1&background=1`
     : null;
@@ -93,7 +93,7 @@ export function VideoHero({ embedHtml, menuLinks, image, control = false }: Vide
     >
       {/* Iframe YouTube/Vimeo */}
       {iframeSrc && (
-        <div 
+        <div
           ref={containerRef}
           className="absolute inset-0"
         >
@@ -107,6 +107,10 @@ export function VideoHero({ embedHtml, menuLinks, image, control = false }: Vide
             referrerPolicy="strict-origin-when-cross-origin"
             rel="noreferrer"
           />
+          {/* Overlay pour masquer les éléments de surimpression YouTube quand control est false */}
+          {!control && (
+            <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }} />
+          )}
         </div>
       )}
 
@@ -124,22 +128,15 @@ export function VideoHero({ embedHtml, menuLinks, image, control = false }: Vide
       <style jsx>{`
         .video-iframe {
           position: absolute;
-          top: 0;
-          left: 0;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
           width: 100vw;
-          height: 56.25vw;
-          max-height: 100vh;
+          height: 100%;
+          min-width: 177.77vh;
+          min-height: max-content;
           border: none;
           pointer-events: ${control ? 'auto' : 'none'};
-        }
-
-        @media (min-aspect-ratio: 16/9) {
-          .video-iframe {
-            width: 177.78vh;
-            height: 100vh;
-            left: 50%;
-            transform: translateX(-50%);
-          }
         }
       `}</style>
       
