@@ -131,6 +131,13 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
                 >
                   <WPDecode>{parentPage.title.rendered}</WPDecode>
                 </a>
+                <a
+                  key="adhere"
+                  href="/adherer"
+                  className={`inline-flex items-center px-4 py-1 mb-1 text-base text-white border border-white`}
+                >
+                  Adhérer
+                </a>
               </div>
             )}
 
@@ -149,6 +156,25 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
                     </a>
                   );
                 })}
+                  <a
+                  key="adhere"
+                  href="/adherer"
+                  className={`inline-flex items-center px-4 py-1 mb-1 text-base text-white border border-white`}
+                >
+                  Adhérer
+                </a>
+              </div>
+            )}
+
+            {!childPages && !parentPage && (
+              <div className="flex flex-wrap gap-1 mt-6 pt-1 bg-black">
+                <a
+                  key="adhere"
+                  href="/adherer"
+                  className={`inline-flex items-center px-4 py-1 mb-1 text-base text-white border border-white`}
+                >
+                  Adhérer
+                </a>
               </div>
             )}
           </div>

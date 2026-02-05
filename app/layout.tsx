@@ -99,6 +99,10 @@ export default async function RootLayout({
           buttonText="S'inscrire"
           sensitivity={20}
           showOnce={true}
+          mobileTrigger="scroll-depth"
+          mobileTimerDelay={30000}
+          mobileScrollDepth={50}
+          mobileInactivityDelay={15000}
         />
         <ThemeProvider
           attribute="class"
