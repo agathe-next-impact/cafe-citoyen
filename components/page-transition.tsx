@@ -11,7 +11,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
     <AnimatePresence mode="wait">
       <motion.div
         key={pathname}
-        initial={{ opacity: 1, filter: "blur(3px)" }}
+        initial={{ opacity: 1, filter: "blur(0px)" }}
         animate={{ opacity: 1, filter: "blur(0px)" }}
         exit={{ opacity: 1, filter: "blur(3px)" }}
         transition={{ duration: 0.4, ease: "easeOut" }}

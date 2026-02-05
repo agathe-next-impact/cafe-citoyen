@@ -20,6 +20,7 @@ import { variantColors } from "@/components/ui/site-card"
 import { Metadata } from "next"
 import { generateMetadataFromYoast } from "@/lib/seo"
 import { FileText } from "lucide-react"
+import { WordPressContent } from "@/components/wordpress-content"
 
 const variantBorderColors: Record<string, string> = {
   primary: "border-primary",
@@ -143,9 +144,9 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
         <div className="container mx-auto px-4 py-12">
           {page.content?.rendered && (
             <article className="prose prose-lg max-w-4xl mx-auto mb-12">
-              <div
+              <WordPressContent
+                content={page.content.rendered}
                 className="text-foreground/80 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: page.content.rendered }}
               />
             </article>
           )}
@@ -181,9 +182,9 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
         <div className="container mx-auto px-4 py-12">
           {page.content?.rendered && (
             <article className="prose prose-lg max-w-4xl mx-auto mb-12">
-              <div
+              <WordPressContent
+                content={page.content.rendered}
                 className="text-foreground/80 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: page.content.rendered }}
               />
             </article>
           )}
@@ -218,9 +219,9 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
       <PageContent slug={slug} content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
       <div className="container mx-auto px-4 py-12">
         <article className="prose prose-lg max-w-4xl mx-auto">
-          <div
+          <WordPressContent
+            content={page.content?.rendered || ""}
             className="text-foreground/80 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: page.content?.rendered || "" }}
           />
         </article>
 

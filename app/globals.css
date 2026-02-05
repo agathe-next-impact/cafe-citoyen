@@ -1,20 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Red Hat Display - Font metric overrides for FCP optimization */
-@font-face {
-  font-family: "Red Hat Display";
-  font-display: swap;
-  size-adjust: 96.7%;
-}
-
-/* Crimson Text - Font metric overrides for FCP optimization */
-@font-face {
-  font-family: "Crimson Text";
-  font-display: swap;
-  size-adjust: 98.5%;
-}
-
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -131,6 +117,33 @@
 }
 
 @layer base {
+  
+  /* Styles de scrollbar - fond blanc et barre noire */
+  * {
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: oklch(0.145 0 0) oklch(1 0 0);
+  }
+
+  /* Webkit browsers (Chrome, Safari, Edge) */
+  *::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: oklch(1 0 0); /* Fond blanc */
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: oklch(0.145 0 0); /* Barre noire */
+    border-radius: 6px;
+    border: 2px solid oklch(1 0 0); /* Bordure blanche pour un meilleur look */
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.25 0 0); /* Légèrement plus clair au survol */
+  }
   * {
     @apply border-border;
     outline: none;
