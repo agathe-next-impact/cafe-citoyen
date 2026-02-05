@@ -15,12 +15,25 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import Image from "next/image"
 
+type MobileTrigger =
+  | "visibilitychange" // Quand l'utilisateur quitte l'onglet/app
+  | "timer" // Après X secondes sur la page
+  | "scroll-depth" // Après avoir scrollé X% de la page
+  | "inactivity" // Après X secondes d'inactivité
+  | "scroll-bounce" // Tentative de scroll au-delà du haut de page
+  | "combined" // Combinaison de plusieurs critères
+
 interface ExitIntentPopupProps {
   title?: string
   description?: string
   buttonText?: string
   sensitivity?: number
   showOnce?: boolean
+  // Options pour écrans tactiles
+  mobileTrigger?: MobileTrigger
+  mobileTimerDelay?: number // En millisecondes (défaut: 30000 = 30s)
+  mobileScrollDepth?: number // En pourcentage (défaut: 50%)
+  mobileInactivityDelay?: number // En millisecondes (défaut: 15000 = 15s)
 }
 
 export function ExitIntentPopup({
@@ -29,6 +42,10 @@ export function ExitIntentPopup({
   buttonText = "S'inscrire à la newsletter",
   sensitivity = 20,
   showOnce = true,
+  mobileTrigger = "visibilitychange",
+  mobileTimerDelay = 30000,
+  mobileScrollDepth = 50,
+  mobileInactivityDelay = 15000,
 }: ExitIntentPopupProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [hasShown, setHasShown] = useState(false)
@@ -42,8 +59,10 @@ export function ExitIntentPopup({
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
   const [errorMessage, setErrorMessage] = useState("")
 
-  // Ref pour suivre le défilement sur mobile
+  // Refs pour suivre l'état mobile
   const scrollRef = useRef({ lastY: 0, ticking: false })
+  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const lastActivityRef = useRef<number>(Date.now())
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -79,36 +98,135 @@ export function ExitIntentPopup({
     [sensitivity, showOnce, hasShown]
   )
 
+  // Fonction helper pour vérifier si le popup peut être affiché
+  const canShowPopup = useCallback(() => {
+    if (showOnce && hasShown) return false
+    const alreadyShown = sessionStorage.getItem("exitPopupShown")
+    if (showOnce && alreadyShown) return false
+    return true
+  }, [showOnce, hasShown])
+
+  // Fonction helper pour afficher le popup
+  const showPopup = useCallback(() => {
+    if (!canShowPopup()) return
+    setIsOpen(true)
+    setHasShown(true)
+    if (showOnce) {
+      sessionStorage.setItem("exitPopupShown", "true")
+    }
+  }, [canShowPopup, showOnce])
+
   useEffect(() => {
+    const isMobile = "ontouchstart" in window || navigator.maxTouchPoints > 0
+    const cleanupFunctions: (() => void)[] = []
+
+    // Desktop: Exit intent via mouse movement
     document.addEventListener("mousemove", handleMouseMove)
+    cleanupFunctions.push(() => document.removeEventListener("mousemove", handleMouseMove))
 
-    // Logique mobile : Active la popup quand l'application/onglet est masqué (Home, changement d'app, etc.)
-    const handleVisibilityChange = () => {
-      // Déclenchement lorsque la page devient cachée (quitter, home, dock, changer d'onglet)
-      if (document.visibilityState === "hidden") {
-        const isMobile = "ontouchstart" in window || navigator.maxTouchPoints > 0
+    // Mobile: Different trigger strategies
+    if (isMobile) {
+      const isCombined = mobileTrigger === "combined"
 
-        if (isMobile) {
-          const alreadyShown = showOnce ? sessionStorage.getItem("exitPopupShown") : null
-
-          if (!showOnce || (!hasShown && !alreadyShown)) {
-            setIsOpen(true)
-            setHasShown(true)
-            if (showOnce) {
-              sessionStorage.setItem("exitPopupShown", "true")
-            }
+      // 1. VISIBILITYCHANGE - Quand l'utilisateur quitte l'onglet/app
+      if (mobileTrigger === "visibilitychange" || isCombined) {
+        const handleVisibilityChange = () => {
+          if (document.visibilityState === "hidden") {
+            showPopup()
           }
         }
+        document.addEventListener("visibilitychange", handleVisibilityChange)
+        cleanupFunctions.push(() =>
+          document.removeEventListener("visibilitychange", handleVisibilityChange)
+        )
+      }
+
+      // 2. TIMER - Après X secondes sur la page
+      if (mobileTrigger === "timer" || isCombined) {
+        const timer = setTimeout(() => {
+          showPopup()
+        }, mobileTimerDelay)
+        cleanupFunctions.push(() => clearTimeout(timer))
+      }
+
+      // 3. SCROLL DEPTH - Après avoir scrollé X% de la page
+      if (mobileTrigger === "scroll-depth" || isCombined) {
+        const handleScroll = () => {
+          const scrollTop = window.scrollY
+          const docHeight = document.documentElement.scrollHeight - window.innerHeight
+          const scrollPercent = (scrollTop / docHeight) * 100
+
+          if (scrollPercent >= mobileScrollDepth) {
+            showPopup()
+          }
+        }
+        window.addEventListener("scroll", handleScroll, { passive: true })
+        cleanupFunctions.push(() => window.removeEventListener("scroll", handleScroll))
+      }
+
+      // 4. INACTIVITY - Après X secondes d'inactivité
+      if (mobileTrigger === "inactivity" || isCombined) {
+        const resetInactivityTimer = () => {
+          lastActivityRef.current = Date.now()
+          if (inactivityTimerRef.current) {
+            clearTimeout(inactivityTimerRef.current)
+          }
+          inactivityTimerRef.current = setTimeout(() => {
+            showPopup()
+          }, mobileInactivityDelay)
+        }
+
+        const events = ["touchstart", "touchmove", "scroll"]
+        events.forEach((event) => {
+          window.addEventListener(event, resetInactivityTimer, { passive: true })
+        })
+        resetInactivityTimer()
+
+        cleanupFunctions.push(() => {
+          events.forEach((event) => {
+            window.removeEventListener(event, resetInactivityTimer)
+          })
+          if (inactivityTimerRef.current) {
+            clearTimeout(inactivityTimerRef.current)
+          }
+        })
+      }
+
+      // 5. SCROLL BOUNCE - Tentative de scroll au-delà du haut de page
+      if (mobileTrigger === "scroll-bounce" || isCombined) {
+        let scrollAttempts = 0
+        const handleScrollBounce = () => {
+          const scrollTop = window.scrollY || document.documentElement.scrollTop
+
+          // Si on est tout en haut (ou presque)
+          if (scrollTop <= 10) {
+            scrollAttempts++
+            // Si plusieurs tentatives de scroll alors qu'on est en haut
+            if (scrollAttempts >= 3) {
+              showPopup()
+              scrollAttempts = 0
+            }
+          } else {
+            scrollAttempts = 0
+          }
+        }
+
+        window.addEventListener("scroll", handleScrollBounce, { passive: true })
+        cleanupFunctions.push(() => window.removeEventListener("scroll", handleScrollBounce))
       }
     }
 
-    document.addEventListener("visibilitychange", handleVisibilityChange)
-
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove)
-      document.removeEventListener("visibilitychange", handleVisibilityChange)
+      cleanupFunctions.forEach((cleanup) => cleanup())
     }
-  }, [handleMouseMove, hasShown, showOnce])
+  }, [
+    handleMouseMove,
+    showPopup,
+    mobileTrigger,
+    mobileTimerDelay,
+    mobileScrollDepth,
+    mobileInactivityDelay,
+  ])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
