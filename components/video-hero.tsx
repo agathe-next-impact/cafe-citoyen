@@ -15,8 +15,19 @@ type HeroMenuLink = {
   };
 };
 
+// Type pour un fichier ACF
+type ACFFile = {
+  ID?: number;
+  id?: number;
+  url: string;
+  filename?: string;
+  filesize?: number;
+  type?: string;
+  mime_type?: string;
+};
+
 interface VideoHeroProps {
-  embedHtml: string;
+  embedHtml: string | ACFFile; // Peut être une URL/embed YouTube ou un objet ACF
   menuLinks?: HeroMenuLink[];
   image?: string;
   control?: boolean;
@@ -51,18 +62,34 @@ function isVideoFile(url: string) {
 
 export function VideoHero({ embedHtml, menuLinks, image, control = false }: VideoHeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [videoId, setVideoId] = useState<string | null>(null);
-  const [videoType, setVideoType] = useState<'youtube' | 'vimeo' | null>(null);
+  const [videoType, setVideoType] = useState<'youtube' | 'vimeo' | 'file' | null>(null);
+  const [videoFileUrl, setVideoFileUrl] = useState<string | null>(null);
+
+  // Détermine si embedHtml est un objet ACF (fichier)
+  const isACFFile = (value: string | ACFFile): value is ACFFile => {
+    return typeof value === 'object' && value !== null && 'url' in value;
+  };
 
   // Détermine le type et l'ID de la vidéo
   useEffect(() => {
+    // Cas 1: Fichier vidéo ACF
+    if (isACFFile(embedHtml)) {
+      setVideoFileUrl(embedHtml.url);
+      setVideoType('file');
+      return;
+    }
+
+    // Cas 2: URL YouTube
     const ytId = extractYouTubeId(embedHtml);
     if (ytId) {
       setVideoId(ytId);
       setVideoType('youtube');
       return;
     }
-    
+
+    // Cas 3: URL Vimeo
     const vimeoId = extractVimeoId(embedHtml);
     if (vimeoId) {
       setVideoId(vimeoId);
@@ -72,7 +99,7 @@ export function VideoHero({ embedHtml, menuLinks, image, control = false }: Vide
 
   // URL de l'iframe optimisée
   const iframeSrc = videoType === 'youtube' && videoId
-    ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=${control ? 1 : 0}&showinfo=0&rel=0&modestbranding=1&playsinline=1&disablekb=${control ? 0 : 1}&fs=${control ? 1 : 0}&iv_load_policy=3&cc_load_policy=0&autohide=1&loop=1&playlist=${videoId}`
+    ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=${control ? 1 : 0}&showinfo=0&rel=0&modestbranding=1&playsinline=1&disablekb=${control ? 0 : 1}&fs=${control ? 1 : 0}${!control ? '&iv_load_policy=3' : ''}&cc_load_policy=0&autohide=1&loop=1&playlist=${videoId}`
     : videoType === 'vimeo' && videoId
     ? `https://player.vimeo.com/video/${videoId}?autoplay=1&muted=1&controls=${control ? 1 : 0}&title=0&byline=0&portrait=0&loop=1&background=1`
     : null;
@@ -91,6 +118,26 @@ export function VideoHero({ embedHtml, menuLinks, image, control = false }: Vide
       className="relative w-full h-screen overflow-hidden bg-black"
       aria-label="Vidéo de présentation"
     >
+      {/* Vidéo fichier (ACF) */}
+      {videoType === 'file' && videoFileUrl && (
+        <div
+          ref={containerRef}
+          className="absolute inset-0"
+        >
+          <video
+            ref={videoRef}
+            src={videoFileUrl}
+            className="video-native"
+            autoPlay
+            muted
+            loop
+            playsInline
+            controls={control}
+            title="Vidéo de présentation"
+          />
+        </div>
+      )}
+
       {/* Iframe YouTube/Vimeo */}
       {iframeSrc && (
         <div
@@ -107,15 +154,42 @@ export function VideoHero({ embedHtml, menuLinks, image, control = false }: Vide
             referrerPolicy="strict-origin-when-cross-origin"
             rel="noreferrer"
           />
-          {/* Overlay pour masquer les éléments de surimpression YouTube quand control est false */}
+          {/* Overlay pour masquer les éléments YouTube (logo, liens) quand control est false */}
           {!control && (
-            <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }} />
+            <>
+              {/* Masque le logo YouTube en bas à droite */}
+              <div
+                className="absolute bottom-0 right-0 bg-black pointer-events-none"
+                style={{
+                  width: '120px',
+                  height: '60px',
+                  zIndex: 10
+                }}
+              />
+              {/* Masque les éléments en haut à droite (menu, paramètres) */}
+              <div
+                className="absolute top-0 right-0 bg-black pointer-events-none"
+                style={{
+                  width: '150px',
+                  height: '80px',
+                  zIndex: 10
+                }}
+              />
+              {/* Masque le titre de la vidéo en haut */}
+              <div
+                className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 to-transparent pointer-events-none"
+                style={{
+                  height: '100px',
+                  zIndex: 10
+                }}
+              />
+            </>
           )}
         </div>
       )}
 
       {/* Placeholder de chargement */}
-      {!iframeSrc && (
+      {!iframeSrc && !videoFileUrl && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div
             className="h-24 w-24 rounded-full bg-white/5 border border-white/10 animate-pulse"
@@ -135,6 +209,18 @@ export function VideoHero({ embedHtml, menuLinks, image, control = false }: Vide
           height: 100%;
           min-width: 177.77vh;
           min-height: max-content;
+          border: none;
+          pointer-events: ${control ? 'auto' : 'none'};
+        }
+
+        .video-native {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 100vw;
+          height: 100vh;
+          object-fit: cover;
           border: none;
           pointer-events: ${control ? 'auto' : 'none'};
         }

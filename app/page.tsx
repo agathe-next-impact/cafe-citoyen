@@ -32,6 +32,17 @@ const VideoHero = dynamic(() => import("@/components/video-hero").then((mod) => 
 
 type VideoType = string; // oEmbed HTML
 
+// Type pour un fichier ACF
+type ACFFile = {
+  ID?: number;
+  id?: number;
+  url: string;
+  filename?: string;
+  filesize?: number;
+  type?: string;
+  mime_type?: string;
+};
+
 type HeroMenuLink = {
   lien: {
     texte_du_lien: string;
@@ -44,7 +55,7 @@ type HeroMenuLink = {
 };
 
 type AcfType = {
-  video?: VideoType | null;
+  video?: VideoType | ACFFile | null; // Peut être une string (oembed) ou un objet (fichier)
   galerie?: { url: string }[];
   background?: { url?: string; alt?: string };
   ["sous-titre"]?: string;
@@ -67,8 +78,11 @@ export default async function Home() {
 
   const acf = page.acf as AcfType | undefined;
 
-
-  const hasVideoHero = acf?.video && typeof acf.video === 'string' && acf.video.trim().length > 0
+  // Vérifie si video est une string (oembed) ou un objet ACF file
+  const hasVideoHero = acf?.video && (
+    (typeof acf.video === 'string' && acf.video.trim().length > 0) ||
+    (typeof acf.video === 'object' && 'url' in acf.video && acf.video.url)
+  )
   const hasHeroGallery = acf?.galerie && acf.galerie.length > 0
 
   let siteOptions = null
@@ -81,8 +95,8 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen -mt-20">
-      {hasVideoHero ? (
-        <VideoHero embedHtml={acf?.video || ""} menuLinks={acf?.liens_du_menu_du_hero} image={acf?.logo_image?.url} control={false} />
+      {hasVideoHero && acf?.video ? (
+        <VideoHero embedHtml={acf.video} menuLinks={acf?.liens_du_menu_du_hero} image={acf?.logo_image?.url} control={false} />
       ) : acf?.background?.url ? (
         <section className="relative h-screen w-full flex items-center justify-center overflow-hidden -mt-20">
           <Image
