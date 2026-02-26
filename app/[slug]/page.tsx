@@ -282,7 +282,6 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
                   const dateB = new Date(yearB, monthB - 1, dayB).getTime();
                   return dateA - dateB;
                 })
-                .slice(0, 3)
                 .map((event) => (
                   <EventCard
                     key={event.id}
