@@ -108,7 +108,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
     ? allPages.find(p => p.id === page.parent)
     : undefined;
 
-  if (slug === "equipe") {
+  if (slug === "equipe-nous-contacter") {
     encadres = page.acf?.encadres;
     const teamMembers = await getTeamMembers()
     const fixedImages = Array.isArray(page.acf?.images)
