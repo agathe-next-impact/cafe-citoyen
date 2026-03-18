@@ -15,6 +15,7 @@ import { PartnersList } from "@/components/partners-list"
 import { PageContent } from "@/components/page-content"
 import EventCard from "@/components/event-card"
 import { cn } from "@/lib/utils"
+import { sanitizeHtml } from "@/lib/sanitize"
 import { getCategoryVariant } from "@/lib/category-colors"
 import { variantColors } from "@/components/ui/site-card"
 import { Metadata } from "next"
@@ -137,7 +138,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
             <article className="prose prose-lg max-w-4xl mx-auto mb-12">
               <div
                 className="text-foreground/80 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: page.content.rendered }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content.rendered) }}
               />
             </article>
           )}
@@ -175,7 +176,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
             <article className="prose prose-lg max-w-4xl mx-auto mb-12">
               <div
                 className="text-foreground/80 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: page.content.rendered }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content.rendered) }}
               />
             </article>
           )}
@@ -212,7 +213,7 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
         <article className="prose prose-lg max-w-4xl mx-auto">
           <div
             className="text-foreground/80 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: page.content?.rendered || "" }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content?.rendered || "") }}
           />
         </article>
         {events.length > 0 && (

@@ -1,4 +1,5 @@
 import { decodeHtmlEntities } from "@/components/wp-decode"
+import { sanitizeHtml } from "@/lib/sanitize"
 import { formatDate } from "@/lib/utils"
 import { notFound } from "next/navigation"
 import Link from "next/link"
@@ -98,7 +99,7 @@ export default async function SinglePostPage({ params }: { params: Promise<{ slu
         {/* Contenu */}
         <div
           className="prose prose-lg max-w-none pt-10"
-          dangerouslySetInnerHTML={{ __html: decodeHtmlEntities(post.content?.rendered || "") }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content?.rendered || "") }}
         />
       </article>
     </div>

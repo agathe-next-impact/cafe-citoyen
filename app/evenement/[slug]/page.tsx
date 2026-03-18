@@ -8,6 +8,7 @@ import { SiteCard, variantColors } from "@/components/ui/site-card"
 import EventCard from "@/components/event-card"
 import { getCategoryVariant } from "@/lib/category-colors"
 import { decodeHtmlEntities } from "@/components/wp-decode"
+import { sanitizeHtml } from "@/lib/sanitize"
 import { formatDate } from "@/lib/utils"
 import { generateMetadataFromYoast } from "@/lib/seo"
 
@@ -266,7 +267,7 @@ export default async function SingleEventPage({ params }: { params: { slug: stri
             <h2 className="text-2xl font-light mb-6">À propos</h2>
             <div
               className="prose prose-lg max-w-none text-muted-foreground leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: decodeHtmlEntities(event.acf.descriptif) }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.acf.descriptif) }}
             />
           </div>
         )}

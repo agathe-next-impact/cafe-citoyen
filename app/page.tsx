@@ -1,4 +1,5 @@
 import { getWordPressPageBySlug, getSiteOptions, getWordPressEvents, getWordPressPosts } from "@/lib/wordpress-api"
+import { sanitizeHtml } from "@/lib/sanitize"
 import { generateMetadataFromYoast } from "@/lib/seo"
 import { Metadata } from "next"
 
@@ -164,7 +165,7 @@ export default async function Home() {
             <article className="prose prose-lg mx-auto">
               <div
                 className="text-foreground/80 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: page.content.rendered }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content.rendered) }}
               />
             </article>
           )}

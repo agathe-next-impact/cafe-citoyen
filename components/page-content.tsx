@@ -3,6 +3,7 @@
 import { useState, useLayoutEffect, useRef, useEffect } from "react";
 import Image from "next/image";
 import { WPDecode } from "@/components/wp-decode"; // Ajout de l'import
+import { sanitizeHtml } from "@/lib/sanitize";
 
 interface Card {
   titre?: string;
@@ -157,7 +158,7 @@ export function PageContent({ content, slug, images, encadres, teamVideoUrl }: P
                 <article className="prose prose-lg max-w-none">
                   <div
                     className="text-foreground/90 leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: WPDecode({ children: content }).props.children }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(WPDecode({ children: content }).props.children) }}
                   />
                 </article>
               )}
@@ -179,7 +180,7 @@ export function PageContent({ content, slug, images, encadres, teamVideoUrl }: P
                         {card.texte && (
                           <div
                             className="prose prose-sm text-gray-700"
-                            dangerouslySetInnerHTML={{ __html: WPDecode({ children: card.texte }).props.children }}
+                            dangerouslySetInnerHTML={{ __html: sanitizeHtml(WPDecode({ children: card.texte }).props.children) }}
                           />
                         )}
                       </div>

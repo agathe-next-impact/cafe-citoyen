@@ -4,6 +4,7 @@ import { useState, useMemo } from "react"
 import Link from "next/link"
 import type { WordPressPost } from "@/lib/wordpress-api"
 import { decodeHtmlEntities } from "@/components/wp-decode"
+import { sanitizeHtml } from "@/lib/sanitize"
 import { formatDate } from "@/lib/utils"
 
 const SearchIcon = ({ className }: { className?: string }) => (
@@ -189,7 +190,7 @@ export function PostsList({ posts, categories }: PostsListProps) {
 
                 <div
                   className="text-sm text-muted-foreground line-clamp-3 mb-4"
-                  dangerouslySetInnerHTML={{ __html: decodeHtmlEntities(post.excerpt.rendered) }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.excerpt.rendered) }}
                 />
 
                 <div className="flex items-center gap-2 text-primary font-medium text-sm">

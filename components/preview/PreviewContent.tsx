@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { usePreview } from './PreviewProvider';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 interface PreviewContentProps {
   children?: React.ReactNode;
@@ -99,7 +100,7 @@ export function PreviewTitle({ className = '' }: { className?: string }) {
   return (
     <h1
       className={className}
-      dangerouslySetInnerHTML={{ __html: post.title.rendered }}
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.title.rendered) }}
     />
   );
 }
@@ -115,7 +116,7 @@ export function PreviewBody({ className = '' }: { className?: string }) {
   return (
     <div
       className={`prose max-w-none ${className}`}
-      dangerouslySetInnerHTML={{ __html: post.content.rendered }}
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content.rendered) }}
     />
   );
 }
@@ -131,7 +132,7 @@ export function PreviewExcerpt({ className = '' }: { className?: string }) {
   return (
     <div
       className={className}
-      dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.excerpt.rendered) }}
     />
   );
 }

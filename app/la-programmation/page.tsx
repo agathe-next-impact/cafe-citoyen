@@ -1,3 +1,4 @@
+import { sanitizeHtml } from "@/lib/sanitize"
 import { notFound } from "next/navigation"
 import AgendaFiltersClient from "@/components/agenda-filters-client"
 import PageHeader from "@/components/page-header"
@@ -111,7 +112,7 @@ export default async function AgendaPage() {
           <article className="prose prose-lg max-w-4xl mx-auto mb-12">
             <div
               className="text-foreground/80 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: page.content.rendered }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content.rendered) }}
             />
           </article>
         )}

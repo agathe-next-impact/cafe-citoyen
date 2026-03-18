@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react"
 import Image from "next/image"
 import type { Partner } from "@/lib/wordpress-api"
+import { sanitizeHtml } from "@/lib/sanitize"
 
 function decodeHtmlEntities(text: string): string {
   return text
@@ -111,7 +112,7 @@ export function PartnersList({ partners }: PartnersListProps) {
                         <div
                           className="text-sm text-muted-black mb-4 line-clamp-3"
                           dangerouslySetInnerHTML={{
-                            __html: partner.acf.descriptif.substring(0, 150) + "...",
+                            __html: sanitizeHtml(partner.acf.descriptif.substring(0, 150) + "..."),
                           }}
                         />
                       )}
