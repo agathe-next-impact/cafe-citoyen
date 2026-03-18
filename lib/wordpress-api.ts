@@ -1,4 +1,5 @@
 import { env } from "process";
+import { decodeHtmlEntities } from "./decode";
 
 export interface YoastHeadJson {
   title: string;
@@ -29,6 +30,9 @@ export interface YoastHeadJson {
   twitter_card?: string;
   twitter_site?: string;
   twitter_creator?: string;
+  twitter_title?: string;
+  twitter_description?: string;
+  twitter_image?: string[];
   schema?: {
     "@context": string;
     "@graph": any[];
@@ -329,28 +333,6 @@ export interface SiteOptions {
 }
 
 const WORDPRESS_URL = env.WORDPRESS_URL || "https://wordpress-starter.fr";
-
-function decodeHtmlEntities(text: string): string {
-  // Create a temporary element to decode HTML entities
-  if (typeof window !== "undefined") {
-    const textarea = document.createElement("textarea");
-    textarea.innerHTML = text;
-    return textarea.value;
-  }
-
-  // Server-side decoding for common entities
-  return text
-    .replace(/&#8217;/g, "'")
-    .replace(/&#8216;/g, "'")
-    .replace(/&#8220;/g, '"')
-    .replace(/&#8221;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&nbsp;/g, " ");
-}
 
 function measureTime(label: string) {
   const start = Date.now();

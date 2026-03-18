@@ -242,7 +242,7 @@ export function VideoHero({ embedHtml, menuLinks, image, control = false }: Vide
                 loop
                 muted
                 playsInline
-                className="hidden md:flex justify-end mb-6 max-w-[50vw] border-2 border-white/60"
+                className="hidden md:flex justify-end mb-6 max-w-[50vw] min-w-full border-2 border-white/60"
                 style={{ width: "320px", height: "100%" }}
               />
             ) : (

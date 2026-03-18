@@ -45,6 +45,10 @@ export async function generateMetadata(): Promise<Metadata> {
       siteOptions?.description_du_site ||
       "",
     generator: "",
+    openGraph: {
+      locale: "fr_FR",
+      siteName: siteOptions?.titre_du_site || "Café Citoyen",
+    },
     other: {
       charset: "utf-8",
     },
