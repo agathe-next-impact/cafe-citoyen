@@ -4,6 +4,7 @@ import {
   getWordPressPosts,
   getWordPressPageBySlug,
   getWordPressPages,
+  getSiteOptions,
 } from "@/lib/wordpress-api";
 import { decodeHtmlEntities } from "@/components/wp-decode";
 import { formatDate } from "@/lib/utils";
@@ -16,11 +17,19 @@ import { generateMetadataFromYoast } from "@/lib/seo";
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const page = await getWordPressPageBySlug("actualites");
+  const [page, siteOptions] = await Promise.all([
+    getWordPressPageBySlug("actualites"),
+    getSiteOptions(),
+  ]);
+
   if (!page) {
     return {};
   }
-  return generateMetadataFromYoast(page.yoast_head_json, page.title.rendered);
+  return generateMetadataFromYoast(page.yoast_head_json, {
+    title: page.title.rendered,
+    description: page.acf?.["sous-titre"],
+    image: siteOptions?.logo_du_site?.url,
+  });
 }
 
 async function getChildPages(pageId: number) {

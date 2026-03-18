@@ -4,20 +4,7 @@ import { useState, useMemo } from "react"
 import Image from "next/image"
 import type { Partner } from "@/lib/wordpress-api"
 import { sanitizeHtml } from "@/lib/sanitize"
-
-function decodeHtmlEntities(text: string): string {
-  return text
-    .replace(/&#8217;/g, "'")
-    .replace(/&#8216;/g, "'")
-    .replace(/&#8220;/g, '"')
-    .replace(/&#8221;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&nbsp;/g, " ")
-}
+import { decodeHtmlEntities } from "@/components/wp-decode"
 
 interface PartnersListProps {
   partners: Partner[]

@@ -1,4 +1,4 @@
-import { getWordPressEventBySlug, getAllEventSlugs, getWordPressEvents } from "@/lib/wordpress-api"
+import { getWordPressEventBySlug, getAllEventSlugs, getWordPressEvents, getSiteOptions } from "@/lib/wordpress-api"
 import { Calendar, Clock, ArrowLeft, CalendarDays, Users } from "lucide-react"
 import { notFound } from "next/navigation"
 import Link from "next/link"
@@ -33,7 +33,10 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const event = await getWordPressEventBySlug(slug)
+  const [event, siteOptions] = await Promise.all([
+     getWordPressEventBySlug(slug),
+     getSiteOptions()
+  ])
 
   if (!event) {
     return {
@@ -41,7 +44,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   }
 
-  return generateMetadataFromYoast(event.yoast_head_json, decodeHtmlEntities(event.title.rendered))
+  return generateMetadataFromYoast(event.yoast_head_json, {
+    title: decodeHtmlEntities(event.title.rendered),
+    description: event.excerpt?.rendered?.replace(/<[^>]*>?/gm, "") || event.acf?.descriptif,
+    image: event._embedded?.["wp:featuredmedia"]?.[0]?.source_url || siteOptions?.logo_du_site?.url,
+  })
 }
 
 export default async function SingleEventPage({ params }: { params: { slug: string } }) {

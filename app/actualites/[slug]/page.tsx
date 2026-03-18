@@ -7,20 +7,27 @@ import { Metadata } from "next"
 import { generateMetadataFromYoast } from "@/lib/seo"
 
 import { getPost, getPosts } from "./data"
-import { WordPressPost } from "@/lib/wordpress-api"
+import { WordPressPost, getSiteOptions } from "@/lib/wordpress-api"
 import PageHeader from "@/components/page-header"
 
 export const revalidate = 60
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  const post = await getPost(slug) as WordPressPost
+  const [post, siteOptions] = await Promise.all([
+    getPost(slug) as Promise<WordPressPost>,
+    getSiteOptions(),
+  ])
   
   if (!post) {
      return {}
   }
 
-  return generateMetadataFromYoast(post.yoast_head_json, post.title.rendered)
+  return generateMetadataFromYoast(post.yoast_head_json, {
+     title: post.title.rendered,
+     description: post.excerpt?.rendered?.replace(/<[^>]*>?/gm, ''),
+     image: post._embedded?.['wp:featuredmedia']?.[0]?.source_url || siteOptions?.logo_du_site?.url
+  })
 }
 
 export async function generateStaticParams() {

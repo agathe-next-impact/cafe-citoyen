@@ -3,33 +3,27 @@ import { notFound } from "next/navigation"
 import AgendaFiltersClient from "@/components/agenda-filters-client"
 import PageHeader from "@/components/page-header"
 import { PageContent } from "@/components/page-content"
-import { getWordPressEvents, getWordPressPageBySlug } from "@/lib/wordpress-api"
+import { getWordPressEvents, getWordPressPageBySlug, getSiteOptions } from "@/lib/wordpress-api"
 import { Metadata } from "next"
 import { generateMetadataFromYoast } from "@/lib/seo"
 import { MetadataPreview } from "@/components/preview"
+import { decodeHtmlEntities } from "@/components/wp-decode"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const page = await getWordPressPageBySlug("la-programmation")
+  const [page, siteOptions] = await Promise.all([
+    getWordPressPageBySlug("la-programmation"),
+    getSiteOptions(),
+  ])
   if (!page) {
     return {}
   }
-  return generateMetadataFromYoast(page.yoast_head_json, page.title.rendered)
+  return generateMetadataFromYoast(page.yoast_head_json, {
+    title: page.title.rendered,
+    description: page.acf?.["sous-titre"],
+    image: siteOptions?.logo_du_site?.url,
+  })
 }
 
-function decodeHtmlEntities(text: string) {
-  return text
-    .replace(/&#8217;/g, "'")
-    .replace(/&#8216;/g, "'")
-    .replace(/&#8220;/g, '"')
-    .replace(/&#8221;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&nbsp;/g, " ")
-    .trim()
-}
 
 export default async function AgendaPage() {
   const [page, allEvents] = await Promise.all([
@@ -116,7 +110,7 @@ export default async function AgendaPage() {
             />
           </article>
         )}
-        <MetadataPreview metadata={page.yoast_head_json} />
+       
       </div>
     </div>
   )

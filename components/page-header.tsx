@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { WPDecode } from "@/components/wp-decode"; // Utilisation du composant externe
 import { decodeHtmlEntities } from "@/lib/decode";
-import Image from "next/image";
+import Link from "next/link";
 
 
 type PageHeaderProps = {
@@ -98,29 +98,26 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
 
 
   return (
-    <section className={`-mt-20 pt-16 relative min-h-100 flex items-end overflow-visible border-b-1 border-black`}>
+    <section className={`-mt-14 relative min-h-100 flex flex-col items-start overflow-hidden`}>
       {/* Image de fond */}
-      {backgroundImage && (
-        <div className="absolute inset-0 z-0">
-          <Image
-            src={backgroundImage}
-            alt={backgroundAlt || title}
-            fill
-            className="object-cover"
-            sizes="100vw"
-            priority
-          />
-        </div>
-      )}
-      
-      {/* Halo radial en haut de page */}
-      <div
-        className="pointer-events-none absolute inset-0 z-0 opacity-50"
-      />
+      <div className="w-120 bg-black pt-10 md:pt-12 z-50">
+        <Link href="/" className="inline-block">
+            <video
+              src="/video-logo.mp4" 
+              controls={false}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="h-[100px] md:h-[150px] object-contain"
+              style={{ zIndex: 1000 }}
+            />
+        </Link>
+      </div>
       
       <div className="w-full mx-auto relative z-10">
         <div className="flex gap-8">
-          <div className="flex-1 gap-4 bg-black text-white py-4">
+          <div className="flex-1 gap-4 bg-black text-white pb-4 md:py-4">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-balance mb-4 ml-4 text-white">
               <WPDecode>{decodeHtmlEntities(title)}</WPDecode>
             </h1>
@@ -133,6 +130,13 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
                   className="inline-flex items-center px-4 py-1 mb-1 text-base bg-white text-black"
                 >
                   <WPDecode>{parentPage.title.rendered}</WPDecode>
+                </a>
+                <a
+                  key="adhere"
+                  href="/adherer"
+                  className={`inline-flex items-center px-4 py-1 mb-1 text-base text-white border border-white`}
+                >
+                  Adhérer
                 </a>
               </div>
             )}
@@ -152,6 +156,25 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
                     </a>
                   );
                 })}
+                  <a
+                  key="adhere"
+                  href="/adherer"
+                  className={`inline-flex items-center px-4 py-1 mb-1 text-base text-white border border-white`}
+                >
+                  Adhérer
+                </a>
+              </div>
+            )}
+
+            {!childPages && !parentPage && (
+              <div className="flex flex-wrap gap-1 mt-6 pt-1 bg-black">
+                <a
+                  key="adhere"
+                  href="/adherer"
+                  className={`inline-flex items-center px-4 py-1 mb-1 text-base text-white border border-white`}
+                >
+                  Adhérer
+                </a>
               </div>
             )}
           </div>
@@ -162,7 +185,7 @@ export default function PageHeader({ title, subtitle, backgroundImage, backgroun
 }
 
 // Helper to get the page path from a child page and all pages
-function getPagePath(childPage: { slug: string }, allPages: any[]): string {
+function getPagePath(childPage: { slug: string; id?: number }, allPages: any[]): string {
   // Try to find the page in allPages by id or slug
   const found = allPages.find(
     (p) => p.id === childPage.id || p.slug === childPage.slug

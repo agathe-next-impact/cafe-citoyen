@@ -56,18 +56,26 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
       pointId: 0,
     }
 
-    const dataStops = mapPinPoints.map((point) => ({
-      name: point.mapPinPoint?.nom || point.title || "Point d'intérêt",
-      description: point.mapPinPoint?.descriptif || "",
-      longitude: point.mapPinPoint?.position?.longitude || 2.808,
-      latitude: point.mapPinPoint?.position?.latitude || 49.217,
-      zoom: 19,
-      image: point.mapPinPoint?.image?.url,
-      link: point.slug ? `/${point.slug}` : "",
-      externalLink: typeof point.mapPinPoint?.lien === "string" ? point.mapPinPoint?.lien : point.mapPinPoint?.lien?.url,
-      type: point.type,
-      pointId: point.id,
-    }))
+    const dataStops = mapPinPoints.map((point) => {
+      // Handle image which can be an array (from API) or object or undefined
+      const imageSource = point.mapPinPoint?.image
+      const imageUrl = Array.isArray(imageSource) 
+        ? imageSource[0]?.url 
+        : (imageSource as any)?.url
+
+      return {
+        name: point.mapPinPoint?.nom || point.title || "Point d'intérêt",
+        description: point.mapPinPoint?.descriptif || "",
+        longitude: point.mapPinPoint?.position?.longitude || 2.808,
+        latitude: point.mapPinPoint?.position?.latitude || 49.217,
+        zoom: 19,
+        image: imageUrl,
+        link: point.slug ? `/${point.slug}` : "",
+        externalLink: typeof point.mapPinPoint?.lien === "string" ? point.mapPinPoint?.lien : point.mapPinPoint?.lien?.url,
+        type: point.type,
+        pointId: point.id,
+      }
+    })
 
     return [overviewStop, ...dataStops]
   }, [mapPinPoints])

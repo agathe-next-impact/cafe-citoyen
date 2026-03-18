@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useLayoutEffect, useRef, useEffect } from "react";
 import Image from "next/image";
 import { WPDecode } from "@/components/wp-decode"; // Ajout de l'import
 import { sanitizeHtml } from "@/lib/sanitize";
@@ -34,80 +33,23 @@ interface PageContentProps {
 }
 
 export function PageContent({ content, slug, images, encadres, teamVideoUrl }: PageContentProps) {
-  const [contentAndCardsHeight, setContentAndCardsHeight] = useState<number>(0);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const imageColumnRef = useRef<HTMLDivElement>(null);
-  const [visibleImages, setVisibleImages] = useState(Array.isArray(images) ? images : []);
+  // On ne garde que les 3 premières images
+  const displayImages = Array.isArray(images) ? images.slice(0, 3) : [];
 
-  if (!content && (!Array.isArray(images) || images.length === 0)) {
+  if (!content && displayImages.length === 0) {
     return null;
   }
 
-  useLayoutEffect(() => {
-    const measureHeight = () => {
-      if (contentRef.current && imageColumnRef.current) {
-        const totalHeight = contentRef.current.offsetHeight;
-        let imgs = Array.isArray(images) ? images : [];
-        
-        // Utilise les dimensions fournies au lieu de charger les images
-        let totalImgHeight = imgs.reduce((sum, img) => {
-          const aspectRatio = img.width / img.height;
-          const containerWidth = imageColumnRef.current?.offsetWidth || 300;
-          const calculatedHeight = containerWidth / aspectRatio;
-          return sum + calculatedHeight + 16; // 16px = gap-4
-        }, 0);
-
-        // Si la colonne est trop haute, retire les dernières images
-        while (totalImgHeight > totalHeight && imgs.length > 0) {
-          const lastImg = imgs[imgs.length - 1];
-          const aspectRatio = lastImg.width / lastImg.height;
-          const containerWidth = imageColumnRef.current?.offsetWidth || 300;
-          const calculatedHeight = containerWidth / aspectRatio;
-          totalImgHeight -= calculatedHeight + 16;
-          imgs = imgs.slice(0, -1);
-        }
-
-        // Masquer la dernière image, même si elle rentre
-        if (imgs.length > 1) {
-          imgs = imgs.slice(0, -1);
-        }
-
-        setVisibleImages(imgs);
-        setContentAndCardsHeight(totalHeight);
-      }
-    };
-
-    measureHeight();
-
-    const resizeObserver = new ResizeObserver(measureHeight);
-    if (contentRef.current) {
-      resizeObserver.observe(contentRef.current);
-    }
-    window.addEventListener("resize", measureHeight);
-
-    return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener("resize", measureHeight);
-    };
-  }, [content, images, encadres]);
-
   return (
     <>
-      <div className="pointer-events-none fixed inset-0 z-0 top-0 h-screen w-screen" />
+      <div className="pointer-events-none fixed inset-0 z-0 top-0" />
       <section className="relative md:w-max-[90%] lg:max-w-6xl mx-auto py-12 px-6 z-10">
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-5 gap-8 lg:gap-12">
           {/* Colonne des images à gauche */}
-          {Array.isArray(visibleImages) && visibleImages.length > 0 && (
+          {displayImages.length > 0 && (
             <div className="hidden md:block md:col-span-1">
-              <div
-                ref={imageColumnRef}
-                className="sticky top-24 space-y-4 overflow-hidden"
-                style={{
-                  height: contentAndCardsHeight > 0 ? `${contentAndCardsHeight}px` : "auto",
-                  maxHeight: contentAndCardsHeight > 0 ? `${contentAndCardsHeight}px` : "none",
-                }}
-              >
-                {visibleImages.map((image, index) => (
+              <div className="sticky top-24 space-y-4 overflow-hidden">
+                {displayImages.map((image, index) => (
                   <div
                     key={`image-${image.ID || index}`}
                     className="overflow-hidden border-2 border-black"
@@ -130,13 +72,13 @@ export function PageContent({ content, slug, images, encadres, teamVideoUrl }: P
 
           {/* Colonne du contenu à droite */}
           <div
-            className={`marker:x-h-max  w-full mx-auto ${
-              images && images.length > 0
+            className={`marker:x-h-max w-full mx-auto ${
+              displayImages.length > 0
                 ? "md:col-span-4"
                 : "col-span-1 md:col-span-5"
             }`}
           >
-            <div ref={contentRef}>
+            <div>
               {/* Vidéo de l'équipe */}
               {teamVideoUrl && (
                 <div className="mb-8 py-8 mx-auto bg-black flex justify-center overflow-hidden shadow-lg">
@@ -166,7 +108,7 @@ export function PageContent({ content, slug, images, encadres, teamVideoUrl }: P
               {/* Grille de cartes encadrés (2 colonnes) */}
               {Array.isArray(encadres) && encadres.length > 0 && (
                 <div className="mt-10 flex flex-col gap-12">
-                  {encadres.slice(0, 2).map((card, idx) => (
+                  {encadres.slice(0, 5).map((card, idx) => (
                     <div
                       key={`encadre-${idx}`}
                       className="bg-white flex flex-col md:flex-row items-stretch min-h-[160px] overflow-hidden relative group border-2 border-black"

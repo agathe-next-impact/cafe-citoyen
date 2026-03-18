@@ -157,7 +157,7 @@ export function BallGarland() {
   if (!mounted) return null
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[90] pointer-events-none h-40">
+    <div className="fixed top-0 left-0 right-0 pointer-events-none h-40">
       {/* Rope SVG */}
       <svg
         className="absolute top-0 left-0 w-full h-40"

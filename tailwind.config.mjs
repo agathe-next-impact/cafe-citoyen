@@ -15,6 +15,11 @@ export default {
         vert: '#02a452',
         bleu: '#5e7ebd',
       },
+      zIndex: {
+        '100': '100',
+        '110': '110',
+        '200': '200',
+      },
     },
   },
   plugins: [],

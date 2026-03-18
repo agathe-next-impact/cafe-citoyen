@@ -4,11 +4,18 @@ import { generateMetadataFromYoast } from "@/lib/seo"
 import { Metadata } from "next"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const page = await getWordPressPageBySlug("accueil")
+  const [page, siteOptions] = await Promise.all([
+    getWordPressPageBySlug("accueil"),
+    getSiteOptions()
+  ])
   if (!page) {
     return {}
   }
-  return generateMetadataFromYoast(page.yoast_head_json, page.title.rendered)
+  return generateMetadataFromYoast(page.yoast_head_json, {
+    title: page.title.rendered,
+    description: page.acf?.["sous-titre"],
+    image: siteOptions?.logo_du_site?.url,
+  })
 }
 
 import EventCard from "@/components/event-card"
@@ -26,6 +33,17 @@ const VideoHero = dynamic(() => import("@/components/video-hero").then((mod) => 
 
 type VideoType = string; // oEmbed HTML
 
+// Type pour un fichier ACF
+type ACFFile = {
+  ID?: number;
+  id?: number;
+  url: string;
+  filename?: string;
+  filesize?: number;
+  type?: string;
+  mime_type?: string;
+};
+
 type HeroMenuLink = {
   lien: {
     texte_du_lien: string;
@@ -38,12 +56,12 @@ type HeroMenuLink = {
 };
 
 type AcfType = {
-  video?: VideoType | null;
+  video?: VideoType | ACFFile | null; // Peut être une string (oembed) ou un objet (fichier)
   galerie?: { url: string }[];
   background?: { url?: string; alt?: string };
   ["sous-titre"]?: string;
   contenu?: any;
-  images?: any;
+  logo_image?: { url?: string; alt?: string; mime_type?: string }; // Correction du nom et de la propriété
   liens_du_menu_du_hero?: HeroMenuLink[];
   section_video?: {
     video?: string | null;
@@ -61,8 +79,11 @@ export default async function Home() {
 
   const acf = page.acf as AcfType | undefined;
 
-
-  const hasVideoHero = acf?.video && typeof acf.video === 'string' && acf.video.trim().length > 0
+  // Vérifie si video est une string (oembed) ou un objet ACF file
+  const hasVideoHero = acf?.video && (
+    (typeof acf.video === 'string' && acf.video.trim().length > 0) ||
+    (typeof acf.video === 'object' && 'url' in acf.video && acf.video.url)
+  )
   const hasHeroGallery = acf?.galerie && acf.galerie.length > 0
 
   let siteOptions = null
@@ -72,10 +93,11 @@ export default async function Home() {
     siteHeaderImage = siteOptions?.logo_du_site?.url || null
   }
 
+
   return (
     <div className="min-h-screen -mt-20">
-      {hasVideoHero ? (
-        <VideoHero embedHtml={acf?.video || ""} menuLinks={acf?.liens_du_menu_du_hero} />
+      {hasVideoHero && acf?.video ? (
+        <VideoHero embedHtml={acf.video} menuLinks={acf?.liens_du_menu_du_hero} image={acf?.logo_image?.url} control={false} />
       ) : acf?.background?.url ? (
         <section className="relative h-screen w-full flex items-center justify-center overflow-hidden -mt-20">
           <Image
@@ -135,7 +157,7 @@ export default async function Home() {
             .slice(0, 6);
           if (!upcoming.length) return null;
           return (
-            <section className="max-w-7xl mx-auto">
+            <section className="max-w-7xl mx-auto mb-12">
               <h2 className="text-4xl font-bold text-foreground mb-8">Prochains événements</h2>
               <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                 {upcoming.map((event: any) => (
@@ -170,7 +192,7 @@ export default async function Home() {
             </article>
           )}
 
-          {/* Derniers articles d'actualité */}
+          {/* Derniers articles d'actualité
           {await (async function LatestArticles() {
             const posts = await getWordPressPosts();
             const latest = posts.slice(0, 3);
@@ -193,7 +215,7 @@ export default async function Home() {
                 </div>
               </section>
             );
-          })()}
+          })()}*/}
       </div>
 
 
@@ -211,6 +233,7 @@ export default async function Home() {
           <div>
             <VideoHero
               embedHtml={acf.section_video.video}
+              image={acf.logo_image?.url || undefined}
               menuLinks={[{
                 lien: {
                   texte_du_lien: linkText,
@@ -221,6 +244,7 @@ export default async function Home() {
                   }],
                 },
               }]}
+              control={true}
             />
           </div>
         );

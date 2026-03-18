@@ -6,8 +6,11 @@ import { ScrollToTop } from "@/components/scroll-to-top"
 import { ThemeProvider } from "@/components/theme-provider"
 import { getSiteOptions } from "@/lib/wordpress-api"
 import dynamic from "next/dynamic"
+import { PageTransition } from "@/components/page-transition" // Import the new component
 import "./globals.css"
 import '@wordpress/block-library/build-style/style.css';
+import localFont from "next/font/local"
+import { ExitIntentPopup } from "@/components/exit-intent-popup"
 
 // Lazy-load du Footer (non critique pour le rendu initial)
 const Footer = dynamic(() => import("@/components/footer").then(mod => mod.Footer), {
@@ -17,19 +20,21 @@ const Footer = dynamic(() => import("@/components/footer").then(mod => mod.Foote
 // Lazy-load de BallGarland (décoratif, non critique)
 const BallGarland = dynamic(() => import("@/components/ball-garland").then(mod => mod.BallGarland))
 
-const redHatDisplay = Red_Hat_Display({
-  subsets: ["latin"],
-  variable: "--font-sans",
+
+
+// polices locales
+const bodedo = localFont({
+  src: "./fonts/Bodedo.ttf", // Chemin relatif depuis layout.tsx
+  variable: "--font-serif", // Nom de la variable CSS
   display: "swap",
 })
 
-const crimsonText = Crimson_Text({
-  weight: ["400", "600", "700"],
-  style: ["normal", "italic"],
-  subsets: ["latin"],
-  variable: "--font-serif",
+const recoleta = localFont({
+  src: "./fonts/Recoleta-Regular.ttf", // Chemin relatif depuis layout.tsx
+  variable: "--font-sans", // Nom de la variable CSS
   display: "swap",
 })
+
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteOptions = await getSiteOptions()
@@ -40,6 +45,10 @@ export async function generateMetadata(): Promise<Metadata> {
       siteOptions?.description_du_site ||
       "",
     generator: "",
+    openGraph: {
+      locale: "fr_FR",
+      siteName: siteOptions?.titre_du_site || "Café Citoyen",
+    },
     other: {
       charset: "utf-8",
     },
@@ -77,14 +86,28 @@ export default async function RootLayout({
 }>) {
   const siteOptions = await getSiteOptions()
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <link rel="icon" href="/logo-cafe-citoyen.png" />
         <link rel="preconnect" href="https://www.youtube-nocookie.com" />
         <link rel="dns-prefetch" href="https://s.ytimg.com" />
       </head>
-      <body suppressHydrationWarning className={`${redHatDisplay.variable} ${crimsonText.variable} bg-white`}>
+      <body
+        className={`antialiased ${recoleta.variable} ${bodedo.variable}`}
+      >      
+      {/* Exit Intent Popup */}
+        <ExitIntentPopup
+          title="Rejoignez notre newsletter !"
+          description="Ne manquez rien des actualités du Café Citoyen. Inscrivez-vous à notre newsletter pour recevoir les dernières actualités et la programmation directement dans votre boîte mail."
+          buttonText="S'inscrire"
+          sensitivity={20}
+          showOnce={true}
+          mobileTrigger="scroll-depth"
+          mobileTimerDelay={30000}
+          mobileScrollDepth={50}
+          mobileInactivityDelay={15000}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
@@ -95,7 +118,9 @@ export default async function RootLayout({
           <ScrollToTop />
           <AnimatedNavWrapper siteOptions={siteOptions} />
           <BallGarland />
-          <main>{children}</main>
+          <main>
+            <PageTransition>{children}</PageTransition>
+          </main>
           <Footer />
         </ThemeProvider>
       </body>

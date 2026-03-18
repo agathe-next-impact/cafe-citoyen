@@ -1,20 +1,7 @@
 "use client"
 import Link from "next/link"
 import type { TeamMember } from "@/lib/wordpress-api"
-
-function decodeHtmlEntities(text: string): string {
-  return text
-    .replace(/&#8217;/g, "'")
-    .replace(/&#8216;/g, "'")
-    .replace(/&#8220;/g, '"')
-    .replace(/&#8221;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&nbsp;/g, " ")
-}
+import { decodeHtmlEntities } from "@/components/wp-decode"
 
 const UserIcon = ({ className }: { className?: string }) => (
   <svg

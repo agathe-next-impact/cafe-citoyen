@@ -13,3 +13,14 @@ import { twMerge } from 'tailwind-merge'
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
+
+export function stripHtml(html: string): string {
+  if (!html) return "";
+  return html.replace(/<[^>]*>?/gm, "").replace(/\s+/g, " ").trim();
+}
+
+export function truncate(str: string, length: number): string {
+  if (!str) return "";
+  if (str.length <= length) return str;
+  return str.slice(0, length) + "...";
+}
