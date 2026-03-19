@@ -1,17 +1,14 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Red_Hat_Display, Crimson_Text } from "next/font/google"
 import { AnimatedNavWrapper } from "@/components/animated-nav-wrapper"
 import { ScrollToTop } from "@/components/scroll-to-top"
-import { ThemeProvider } from "@/components/theme-provider"
-import { getSiteOptions } from "@/lib/wordpress-api"
+
+import { getSiteOptions, getWordPressPages, organizePagesByParent } from "@/lib/wordpress-api"
 import dynamic from "next/dynamic"
 import { PageTransition } from "@/components/page-transition" // Import the new component
+import { Analytics } from "@vercel/analytics/react"
 import "./globals.css"
-import '@wordpress/block-library/build-style/style.css';
 import localFont from "next/font/local"
-import { ExitIntentPopup } from "@/components/exit-intent-popup"
-
 // Lazy-load du Footer (non critique pour le rendu initial)
 const Footer = dynamic(() => import("@/components/footer").then(mod => mod.Footer), {
   loading: () => <footer className="h-64 bg-black" />,
@@ -19,6 +16,9 @@ const Footer = dynamic(() => import("@/components/footer").then(mod => mod.Foote
 
 // Lazy-load de BallGarland (décoratif, non critique)
 const BallGarland = dynamic(() => import("@/components/ball-garland").then(mod => mod.BallGarland))
+
+// Lazy-load du popup newsletter (affiché rarement, pas besoin au chargement initial)
+const ExitIntentPopup = dynamic(() => import("@/components/exit-intent-popup").then(mod => mod.ExitIntentPopup))
 
 
 
@@ -84,12 +84,17 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const siteOptions = await getSiteOptions()
+  const [siteOptions, pages] = await Promise.all([
+    getSiteOptions(),
+    getWordPressPages(),
+  ])
+  const menuData = organizePagesByParent(pages)
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang="fr">
       <head>
         <meta charSet="utf-8" />
         <link rel="icon" href="/logo-cafe-citoyen.png" />
+        <link rel="preconnect" href="https://wp-back.cafecitoyen.art" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://www.youtube-nocookie.com" />
         <link rel="dns-prefetch" href="https://s.ytimg.com" />
       </head>
@@ -108,21 +113,14 @@ export default async function RootLayout({
           mobileScrollDepth={50}
           mobileInactivityDelay={15000}
         />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
-          forcedTheme="light"
-          disableTransitionOnChange
-        >
           <ScrollToTop />
-          <AnimatedNavWrapper siteOptions={siteOptions} />
+          <AnimatedNavWrapper siteOptions={siteOptions} menuData={menuData} />
           <BallGarland />
           <main>
             <PageTransition>{children}</PageTransition>
           </main>
           <Footer />
-        </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   )

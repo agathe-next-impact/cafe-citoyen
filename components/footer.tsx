@@ -31,6 +31,7 @@ export function Footer() {
               loop
               muted
               playsInline
+              preload="metadata"
               style={{ width: "100%", height: "auto" }}
             />
           </div>

@@ -175,12 +175,10 @@
         zoomControl: true,
         attributionControl: true,
         preferCanvas: true,
-        fadeAnimation: false, // Disabled for faster rendering
+        fadeAnimation: true,
         zoomAnimation: true,
         zoomSnap: 0.5,
-        markerZoomAnimation: false, // Disabled for faster rendering
-        updateWhenIdle: false, // Update while panning for smoother experience
-        updateWhenZooming: false
+        markerZoomAnimation: true
       });
 
       tileLayer = L.tileLayer('https://data.geopf.fr/wmts?' +
@@ -191,9 +189,9 @@
         attribution: '&copy; <a href="https://www.ign.fr/">IGN</a>',
         maxZoom: 19,
         minZoom: 0,
-        updateWhenIdle: false,
-        keepBuffer: 1, // Reduced from 2 to 1 for faster initial load
-        updateInterval: 100
+        updateWhenIdle: true,
+        keepBuffer: 3,
+        updateInterval: 200
       });
 
       tileLayer.on('tileloadstart', function() {
@@ -285,44 +283,63 @@
       return marker;
     }
 
-    function flyTo(lat, lng, zoom, duration = 3000) {
-      if (!map || !isMapReady) {
-        setTimeout(() => flyTo(lat, lng, zoom, duration), 200);
-        return;
-      }
-      
-      map.flyTo([lat, lng], zoom, {
-        duration: duration / 1000,
-        easeLinearity: 0.25,
-        animate: true
-      });
+    var defaultIcon = null;
+    var activeIcon = null;
 
-      markers.forEach(m => {
-        m.marker.setIcon(L.icon({
+    function getDefaultIcon() {
+      if (!defaultIcon) {
+        defaultIcon = L.icon({
           iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
           iconSize: [25, 41],
           iconAnchor: [12, 41],
           popupAnchor: [1, -34],
           shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
           shadowSize: [41, 41]
-        }));
-      });
+        });
+      }
+      return defaultIcon;
+    }
 
-      const markerData = markers.find(m => {
-        return Math.abs(m.lat - lat) < 0.001 && Math.abs(m.lng - lng) < 0.001;
-      });
-
-      if (markerData) {
-        markerData.marker.setIcon(L.icon({
+    function getActiveIcon() {
+      if (!activeIcon) {
+        activeIcon = L.icon({
           iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
           iconSize: [38, 62],
           iconAnchor: [19, 62],
           popupAnchor: [1, -52],
           shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
           shadowSize: [62, 62]
-        }));
+        });
+      }
+      return activeIcon;
+    }
+
+    function flyTo(lat, lng, zoom, duration = 3000) {
+      if (!map || !isMapReady) {
+        setTimeout(() => flyTo(lat, lng, zoom, duration), 200);
+        return;
+      }
+
+      // Update marker icons BEFORE starting the animation to avoid layout thrashing during flyTo
+      markers.forEach(m => {
+        m.marker.setIcon(getDefaultIcon());
+      });
+
+      var markerData = markers.find(m => {
+        return Math.abs(m.lat - lat) < 0.001 && Math.abs(m.lng - lng) < 0.001;
+      });
+
+      if (markerData) {
+        markerData.marker.setIcon(getActiveIcon());
         currentMarker = markerData.marker;
       }
+
+      // Start animation after icons are settled
+      map.flyTo([lat, lng], zoom, {
+        duration: duration / 1000,
+        easeLinearity: 0.25,
+        animate: true
+      });
       
       if (!firstFlyToComplete) {
         setTimeout(() => {
@@ -337,6 +354,14 @@
       }
     }
 
+    function waitForLeafletAndInit(lat, lng, zoom, retries) {
+      if (typeof L !== 'undefined') {
+        initMap(lat, lng, zoom);
+      } else if (retries > 0) {
+        setTimeout(() => waitForLeafletAndInit(lat, lng, zoom, retries - 1), 100);
+      }
+    }
+
     window.addEventListener('message', function(event) {
       const { type, data } = event.data;
 
@@ -344,11 +369,7 @@
         case 'init':
           if (!initializationComplete) {
             stopsData = data.stops || [];
-            if (typeof L === 'undefined') {
-              setTimeout(() => initMap(data.latitude, data.longitude, data.zoom || 15), 100);
-            } else {
-              initMap(data.latitude, data.longitude, data.zoom || 15);
-            }
+            waitForLeafletAndInit(data.latitude, data.longitude, data.zoom || 15, 50);
           }
           break;
 

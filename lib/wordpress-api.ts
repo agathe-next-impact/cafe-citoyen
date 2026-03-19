@@ -1,4 +1,5 @@
 import { env } from "process";
+import { cache } from "react";
 import { decodeHtmlEntities } from "./decode";
 
 export interface YoastHeadJson {
@@ -341,7 +342,7 @@ function measureTime(label: string) {
   };
 }
 
-export async function getWordPressPages(): Promise<WordPressPage[]> {
+export const getWordPressPages = cache(async function getWordPressPages(): Promise<WordPressPage[]> {
   const endMeasure = measureTime("getWordPressPages");
 
   try {
@@ -369,18 +370,35 @@ export async function getWordPressPages(): Promise<WordPressPage[]> {
     endMeasure();
     return [];
   }
+});
+
+function extractSlugFromUrl(url: string): string {
+  const urlParts = url.split("/");
+  return urlParts[urlParts.length - 2] || urlParts[urlParts.length - 1];
 }
 
-async function fetchPartnerByUrl(
-  url: string,
-): Promise<{ id: number; title: string; link: string } | null> {
-  try {
-    // Extract slug from URL
-    const urlParts = url.split("/");
-    const slug = urlParts[urlParts.length - 2] || urlParts[urlParts.length - 1];
+async function fetchPartnersByUrls(
+  urls: string[],
+): Promise<Map<string, { id: number; title: string; link: string }>> {
+  const partnerMap = new Map<string, { id: number; title: string; link: string }>();
+  if (urls.length === 0) return partnerMap;
 
+  // Deduplicate slugs
+  const slugToUrls = new Map<string, string[]>();
+  for (const url of urls) {
+    const slug = extractSlugFromUrl(url);
+    if (!slugToUrls.has(slug)) {
+      slugToUrls.set(slug, []);
+    }
+    slugToUrls.get(slug)!.push(url);
+  }
+
+  const uniqueSlugs = Array.from(slugToUrls.keys());
+
+  // Batch fetch all partners in one request (comma-separated slugs)
+  try {
     const response = await fetch(
-      `${WORDPRESS_URL}/wp-json/wp/v2/partenaire?slug=${slug}&_fields=id,title,link`,
+      `${WORDPRESS_URL}/wp-json/wp/v2/partenaire?slug=${uniqueSlugs.join(",")}&_fields=id,title,link,slug&per_page=100`,
       {
         headers: {
           "Accept-Charset": "utf-8",
@@ -389,26 +407,29 @@ async function fetchPartnerByUrl(
       },
     );
 
-    if (!response.ok) {
-      return null;
-    }
+    if (!response.ok) return partnerMap;
 
     const partners = await response.json();
-    if (partners.length > 0) {
-      return {
-        id: partners[0].id,
-        title: decodeHtmlEntities(partners[0].title.rendered),
-        link: partners[0].link,
+    for (const partner of partners) {
+      const partnerData = {
+        id: partner.id,
+        title: decodeHtmlEntities(partner.title.rendered),
+        link: partner.link,
       };
+      // Map back to original URLs
+      const matchingUrls = slugToUrls.get(partner.slug) || [];
+      for (const url of matchingUrls) {
+        partnerMap.set(url, partnerData);
+      }
     }
-    return null;
   } catch (error) {
-    console.error("[v0] Error fetching partner:", error);
-    return null;
+    console.error("[v0] Error batch fetching partners:", error);
   }
+
+  return partnerMap;
 }
 
-export async function getWordPressEvents(): Promise<WordPressEvent[]> {
+export const getWordPressEvents = cache(async function getWordPressEvents(): Promise<WordPressEvent[]> {
   const endMeasure = measureTime("getWordPressEvents");
 
   try {
@@ -438,40 +459,74 @@ export async function getWordPressEvents(): Promise<WordPressEvent[]> {
       return [];
     }
 
-    const partnerStart = Date.now();
-    const eventsWithPartners = await Promise.all(
-      events.map(async (event: WordPressEvent) => {
-        if (
-          event.acf?.partenaires_associes &&
-          event.acf.partenaires_associes.length > 0
-        ) {
-          const partnersDetails = await Promise.all(
-            event.acf.partenaires_associes.map((url: string) =>
-              fetchPartnerByUrl(url),
-            ),
-          );
-          event.acf.partenaires_details = partnersDetails.filter(
-            (p) => p !== null,
-          ) as Array<{
-            id: number;
-            title: string;
-            link: string;
-          }>;
-        }
-        return event;
-      }),
-    );
+    // Collect all unique partner URLs across all events
+    const allPartnerUrls: string[] = [];
+    for (const event of events) {
+      if (event.acf?.partenaires_associes?.length > 0) {
+        allPartnerUrls.push(...event.acf.partenaires_associes);
+      }
+    }
+
+    // Single batch fetch for all partners
+    const partnerMap = await fetchPartnersByUrls(allPartnerUrls);
+
+    // Distribute partner details to each event
+    for (const event of events) {
+      if (event.acf?.partenaires_associes?.length > 0) {
+        event.acf.partenaires_details = event.acf.partenaires_associes
+          .map((url: string) => partnerMap.get(url))
+          .filter((p: { id: number; title: string; link: string } | undefined): p is { id: number; title: string; link: string } => p != null);
+      }
+    }
 
     endMeasure();
-    return eventsWithPartners;
+    return events;
   } catch (error) {
     console.error("[v0] Error fetching WordPress events:", error);
     endMeasure();
     return [];
   }
-}
+});
 
-export async function getWordPressEventBySlug(
+export const getUpcomingEvents = cache(async function getUpcomingEvents(
+  limit: number = 6,
+): Promise<WordPressEvent[]> {
+  try {
+    const response = await fetch(
+      `${WORDPRESS_URL}/wp-json/wp/v2/evenement?per_page=100&_embed&_fields=id,title,slug,date,acf,_embedded,_links&acf_format=standard`,
+      {
+        headers: { "Accept-Charset": "utf-8" },
+        next: { revalidate: 60 },
+      },
+    );
+
+    if (!response.ok) return [];
+
+    const events: WordPressEvent[] = await response.json();
+    const now = new Date();
+
+    return events
+      .filter((e) => {
+        if (!e.acf?.date_de_debut) return false;
+        const parts = e.acf.date_de_debut.split("/");
+        if (parts.length !== 3) return false;
+        const [day, month, year] = parts.map(Number);
+        return new Date(year, month - 1, day) >= now;
+      })
+      .sort((a, b) => {
+        const aParts = a.acf?.date_de_debut?.split("/").map(Number) || [0, 0, 0];
+        const bParts = b.acf?.date_de_debut?.split("/").map(Number) || [0, 0, 0];
+        return new Date(aParts[2], aParts[1] - 1, aParts[0]).getTime() -
+               new Date(bParts[2], bParts[1] - 1, bParts[0]).getTime();
+      })
+      .slice(0, limit);
+  } catch (error) {
+    console.error("[v0] Error fetching upcoming events:", error);
+    return [];
+  }
+});
+
+export const getWordPressEventBySlug = cache(async function getWordPressEventBySlug(
   slug: string,
 ): Promise<WordPressEvent | null> {
   try {
@@ -498,18 +553,10 @@ export async function getWordPressEventBySlug(
         event.acf?.partenaires_associes &&
         event.acf.partenaires_associes.length > 0
       ) {
-        const partnersDetails = await Promise.all(
-          event.acf.partenaires_associes.map((url: string) =>
-            fetchPartnerByUrl(url),
-          ),
-        );
-        event.acf.partenaires_details = partnersDetails.filter(
-          (p) => p !== null,
-        ) as Array<{
-          id: number;
-          title: string;
-          link: string;
-        }>;
+        const partnerMap = await fetchPartnersByUrls(event.acf.partenaires_associes);
+        event.acf.partenaires_details = event.acf.partenaires_associes
+          .map((url: string) => partnerMap.get(url))
+          .filter((p: { id: number; title: string; link: string } | undefined): p is { id: number; title: string; link: string } => p != null);
       }
 
       return event;
@@ -519,19 +566,27 @@ export async function getWordPressEventBySlug(
     console.error("[v0] Error fetching WordPress event:", error);
     return null;
   }
-}
+});
 
 export async function getAllEventSlugs(): Promise<string[]> {
   try {
-    const events = await getWordPressEvents();
-    return events.map((event) => event.slug);
+    const response = await fetch(
+      `${WORDPRESS_URL}/wp-json/wp/v2/evenement?per_page=100&_fields=slug`,
+      {
+        headers: { "Accept-Charset": "utf-8" },
+        next: { revalidate: 60 },
+      },
+    );
+    if (!response.ok) return [];
+    const events = await response.json();
+    return events.map((event: { slug: string }) => event.slug);
   } catch (error) {
     console.error("[v0] Error fetching event slugs:", error);
     return [];
   }
 }
 
-export async function getWordPressPageBySlug(
+export const getWordPressPageBySlug = cache(async function getWordPressPageBySlug(
   slug: string,
   options: { status?: string } = {},
 ): Promise<WordPressPage | null> {
@@ -565,12 +620,32 @@ export async function getWordPressPageBySlug(
     console.error("[v0] Error fetching WordPress page:", error);
     return null;
   }
-}
+});
 
 export async function getAllPageSlugs(): Promise<string[]> {
   try {
-    const pages = await getWordPressPages();
-    return pages.map((page) => page.slug);
+    const allSlugs: string[] = [];
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore) {
+      const response = await fetch(
+        `${WORDPRESS_URL}/wp-json/wp/v2/pages?per_page=100&page=${page}&_fields=slug`,
+        {
+          headers: { "Accept-Charset": "utf-8" },
+          next: { revalidate: 60 },
+        },
+      );
+      if (!response.ok) break;
+      const pages = await response.json();
+      if (pages.length === 0) break;
+      allSlugs.push(...pages.map((p: { slug: string }) => p.slug));
+      const totalPages = parseInt(response.headers.get("X-WP-TotalPages") || "1", 10);
+      hasMore = page < totalPages;
+      page++;
+    }
+
+    return allSlugs;
   } catch (error) {
     console.error("[v0] Error fetching page slugs:", error);
     return [];
@@ -725,7 +800,7 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
   }
 }
 
-export async function getWordPressPosts(): Promise<WordPressPost[]> {
+export const getWordPressPosts = cache(async function getWordPressPosts(): Promise<WordPressPost[]> {
   try {
     const response = await fetch(
       `${WORDPRESS_URL}/wp-json/wp/v2/posts?per_page=100&_embed&acf_format=standard`,
@@ -747,7 +822,7 @@ export async function getWordPressPosts(): Promise<WordPressPost[]> {
     console.error("[v0] Error fetching WordPress posts:", error);
     return [];
   }
-}
+});
 
 export async function getPartners(): Promise<Partner[]> {
   try {
@@ -775,37 +850,22 @@ export async function getPartners(): Promise<Partner[]> {
   return defaultOptions;
 }
 
-export async function getSiteOptions(): Promise<SiteOptions | null> {
+export const getSiteOptions = cache(async function getSiteOptions(): Promise<SiteOptions | null> {
   const endMeasure = measureTime("getSiteOptions");
 
   try {
     const url = `${WORDPRESS_URL}/wp-json/site/v1/reglages`;
 
-    const fetchInit: RequestInit & { next?: { revalidate: number } } = {
+    const response = await fetch(url, {
       headers: {
         "Accept-Charset": "utf-8",
       },
-      cache: "no-store", // Désactiver le cache pour le debug
-    };
-
-    // Only use Next.js revalidate option on the server
-    if (typeof window === "undefined") {
-      fetchInit.next = { revalidate: 0 }; // Désactiver la revalidation pour le debug
-    }
-
-    console.warn("[getSiteOptions] Appel API vers:", url);
-    const response = await fetch(url, fetchInit);
+      next: { revalidate: 300 },
+    });
 
     if (response.ok) {
       const result = await response.json();
-      console.warn("[getSiteOptions] Réponse brute:", result);
-
       const data = result.data || result;
-      console.warn("[getSiteOptions] Data extraite:", data);
-      console.warn(
-        "[getSiteOptions] Réseaux sociaux bruts:",
-        data.reseaux_sociaux,
-      );
 
       const siteOptions: SiteOptions = {
         adresse_mail: data.adresse_mail,
@@ -816,7 +876,6 @@ export async function getSiteOptions(): Promise<SiteOptions | null> {
         reseaux_sociaux: data.reseaux_sociaux || [],
       };
 
-      console.warn("[getSiteOptions] Options finales:", siteOptions);
       endMeasure();
       return siteOptions;
     } else {
@@ -840,7 +899,7 @@ export async function getSiteOptions(): Promise<SiteOptions | null> {
   };
   endMeasure();
   return defaultOptions;
-}
+});
 
 /**
  * WordPress API utilities for headless preview

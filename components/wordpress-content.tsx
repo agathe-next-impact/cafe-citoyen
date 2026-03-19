@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { sanitizeHtml } from '@/lib/sanitize'
+import '@wordpress/block-library/build-style/style.css'
 
 interface WordPressContentProps {
   content: string
@@ -10,15 +11,6 @@ interface WordPressContentProps {
 
 export function WordPressContent({ content, className = '' }: WordPressContentProps) {
   const contentRef = useRef<HTMLDivElement>(null)
-
-  // Debug: Log le contenu brut pour voir s'il y a un problème d'encodage
-  useEffect(() => {
-    if (content.includes('helloasso.com')) {
-      console.log('[WordPressContent] Contenu brut reçu:', content.substring(0, 500))
-      console.log('[WordPressContent] Contient iframe HelloAsso:', content.includes('<iframe'))
-      console.log('[WordPressContent] Contient iframe encodé:', content.includes('&lt;iframe'))
-    }
-  }, [content])
 
   useEffect(() => {
     // Nettoyer les iframes HelloAsso de tout JavaScript inline problématique
@@ -36,14 +28,14 @@ export function WordPressContent({ content, className = '' }: WordPressContentPr
 
           // Supprimer l'attribut onload qui contient le listener problématique
           if (iframe.hasAttribute('onload')) {
-            console.warn('[WordPressContent] Suppression de l\'attribut onload sur iframe HelloAsso')
+            // onload supprimé
             iframe.removeAttribute('onload')
             needsCleaning = true
           }
 
           // Supprimer tout autre event listener inline potentiellement problématique
           if (iframe.hasAttribute('onerror')) {
-            console.warn('[WordPressContent] Suppression de l\'attribut onerror sur iframe HelloAsso')
+            // onerror supprimé
             iframe.removeAttribute('onerror')
             needsCleaning = true
           }
@@ -61,7 +53,7 @@ export function WordPressContent({ content, className = '' }: WordPressContentPr
           // Marquer comme nettoyé pour éviter les traitements répétés
           if (needsCleaning) {
             iframe.dataset.cleaned = 'true'
-            console.warn('[WordPressContent] Iframe HelloAsso nettoyé avec succès')
+            // iframe nettoyé
           }
         })
       }

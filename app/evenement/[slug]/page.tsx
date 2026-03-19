@@ -1,4 +1,4 @@
-import { getWordPressEventBySlug, getAllEventSlugs, getWordPressEvents, getSiteOptions } from "@/lib/wordpress-api"
+import { getWordPressEventBySlug, getAllEventSlugs, getUpcomingEvents, getSiteOptions } from "@/lib/wordpress-api"
 import { Calendar, Clock, ArrowLeft, CalendarDays, Users } from "lucide-react"
 import { notFound } from "next/navigation"
 import Link from "next/link"
@@ -11,6 +11,8 @@ import { decodeHtmlEntities } from "@/components/wp-decode"
 import { sanitizeHtml } from "@/lib/sanitize"
 import { formatDate } from "@/lib/utils"
 import { generateMetadataFromYoast } from "@/lib/seo"
+
+export const revalidate = 60
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -27,7 +29,6 @@ function parseFrenchDate(dateString: string): Date | null {
 
 export async function generateStaticParams() {
   const slugs = await getAllEventSlugs()
-  console.warn("[build] Slugs d'événements:", slugs)
   return slugs.map((slug) => ({ slug }))
 }
 
@@ -67,24 +68,8 @@ export default async function SingleEventPage({ params }: { params: { slug: stri
   const saisonCulturelle = event._embedded?.["wp:term"]?.flat().filter((term) => term.taxonomy === "saison-culturelle")
   const categories = event._embedded?.["wp:term"]?.flat().filter((term) => term.taxonomy === "category")
 
-  // Ajout : récupération des événements à venir
-  const allEvents = await getWordPressEvents();
-  const now = new Date();
-  const upcomingEvents = allEvents.filter(e => {
-    if (!e.acf?.date_de_debut) return false;
-    const parts = e.acf.date_de_debut.split("/");
-    if (parts.length !== 3) return false;
-    const [day, month, year] = parts.map(Number);
-    const eventDate = new Date(year, month - 1, day);
-    return eventDate >= now;
-  }).sort((a, b) => {
-    // Tri par date croissante
-    const aParts = a.acf?.date_de_debut ? a.acf.date_de_debut.split("/").map(Number) : [0, 0, 0];
-    const bParts = b.acf?.date_de_debut ? b.acf.date_de_debut.split("/").map(Number) : [0, 0, 0];
-    const aDate = new Date(aParts[2], aParts[1] - 1, aParts[0]);
-    const bDate = new Date(bParts[2], bParts[1] - 1, bParts[0]);
-    return aDate.getTime() - bDate.getTime();
-  });
+  // Récupération des événements à venir (léger, limité à 6)
+  const upcomingEvents = await getUpcomingEvents(6);
 
     // Removed timelineData logic and links to other events
 

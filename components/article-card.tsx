@@ -1,4 +1,6 @@
+import { memo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { decodeHtmlEntities } from "@/components/wp-decode";
 import { formatDate } from "@/lib/utils";
 
@@ -6,7 +8,7 @@ interface ArticleCardProps {
   post: any;
 }
 
-export default function ArticleCard({ post }: ArticleCardProps) {
+const ArticleCard = memo(function ArticleCard({ post }: ArticleCardProps) {
   const author = post._embedded?.author?.[0]?.name || "Auteur inconnu";
   const featuredImage = post._embedded?.["wp:featuredmedia"]?.[0];
   const categories =
@@ -24,10 +26,12 @@ export default function ArticleCard({ post }: ArticleCardProps) {
       {/* Image */}
       {featuredImage?.source_url && (
         <div className="relative h-48 overflow-hidden bg-gray-200">
-          <img
+          <Image
             src={featuredImage.source_url}
             alt={featuredImage.alt_text || post.title.rendered}
             className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>
       )}
@@ -69,4 +73,6 @@ export default function ArticleCard({ post }: ArticleCardProps) {
       </div>
     </Link>
   );
-}
+});
+
+export default ArticleCard;

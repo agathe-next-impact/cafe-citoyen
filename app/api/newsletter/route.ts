@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { getSiteOptions as getArchivePageTitles, getSiteOptions } from "@/lib/wordpress-api"
+import { getSiteOptions } from "@/lib/wordpress-api"
 import nodemailer from "nodemailer"
 
 export async function POST(request: Request) {
@@ -100,31 +100,28 @@ export async function POST(request: Request) {
     `
 
     try {
-      console.log("[Newsletter] Attempting to send email...")
-      console.log("[Newsletter] SMTP Host:", smtpHost)
-      console.log("[Newsletter] SMTP Port:", smtpPort)
-      console.log("[Newsletter] SMTP User:", smtpUser)
-      console.log("[Newsletter] From:", smtpFrom)
-      console.log("[Newsletter] To Admin:", recipientEmail)
-      console.log("[Newsletter] To Subscriber:", email)
+      // Send both emails in parallel
+      const [adminResult, subscriberResult] = await Promise.allSettled([
+        transporter.sendMail({
+          from: smtpFrom,
+          to: recipientEmail,
+          subject: "Nouvelle inscription à la newsletter",
+          html: adminEmailHtml,
+        }),
+        transporter.sendMail({
+          from: smtpFrom,
+          to: email,
+          subject: "Confirmation d'inscription à la newsletter",
+          html: subscriberEmailHtml,
+        }),
+      ])
 
-      // Send email to admin
-      const adminResult = await transporter.sendMail({
-        from: smtpFrom,
-        to: recipientEmail,
-        subject: "Nouvelle inscription à la newsletter",
-        html: adminEmailHtml,
-      })
-      console.log("[Newsletter] Admin email sent:", adminResult.messageId)
-
-      // Send confirmation email to subscriber
-      const subscriberResult = await transporter.sendMail({
-        from: smtpFrom,
-        to: email,
-        subject: "Confirmation d'inscription à la newsletter",
-        html: subscriberEmailHtml,
-      })
-      console.log("[Newsletter] Subscriber email sent:", subscriberResult.messageId)
+      if (adminResult.status === "rejected") {
+        console.error("[Newsletter] Admin email failed:", adminResult.reason)
+      }
+      if (subscriberResult.status === "rejected") {
+        console.error("[Newsletter] Subscriber email failed:", subscriberResult.reason)
+      }
 
       return NextResponse.json({
         message: "Inscription réussie ! Vous recevrez bientôt un email de confirmation.",

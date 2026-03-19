@@ -1,7 +1,9 @@
-import { getWordPressPageBySlug, getSiteOptions, getWordPressEvents, getWordPressPosts } from "@/lib/wordpress-api"
+import { getWordPressPageBySlug, getSiteOptions, getUpcomingEvents, getWordPressPosts } from "@/lib/wordpress-api"
 import { sanitizeHtml } from "@/lib/sanitize"
 import { generateMetadataFromYoast } from "@/lib/seo"
 import { Metadata } from "next"
+
+export const revalidate = 60
 
 export async function generateMetadata(): Promise<Metadata> {
   const [page, siteOptions] = await Promise.all([
@@ -136,25 +138,7 @@ export default async function Home() {
 
         {/* Prochains événements à venir */}
         {async function UpcomingEvents() {
-          const allEvents = await getWordPressEvents();
-          const now = new Date();
-          now.setHours(0, 0, 0, 0);
-          const parseDate = (dateStr: string | undefined) => {
-            if (!dateStr) return null;
-            const [day, month, year] = dateStr.split("/").map(Number);
-            return new Date(year, month - 1, day);
-          };
-          const upcoming = allEvents
-            .filter((event: any) => {
-              const startDate = parseDate(event.acf?.date_de_debut);
-              return startDate && startDate >= now;
-            })
-            .sort((a: any, b: any) => {
-              const dateA = parseDate(a.acf?.date_de_debut)?.getTime() || 0;
-              const dateB = parseDate(b.acf?.date_de_debut)?.getTime() || 0;
-              return dateA - dateB;
-            })
-            .slice(0, 6);
+          const upcoming = await getUpcomingEvents(6);
           if (!upcoming.length) return null;
           return (
             <section className="max-w-7xl mx-auto mb-12">
@@ -173,7 +157,7 @@ export default async function Home() {
               </div>
               <div className="mt-8 text-center">
                 <a
-                  href="/agenda"
+                  href="/la-programmation"
                   className="inline-block px-6 py-3 bg-black text-white font-medium border-2 border-black hover:bg-white hover:text-black transition-colors"
                 >
                   Voir tous les événements

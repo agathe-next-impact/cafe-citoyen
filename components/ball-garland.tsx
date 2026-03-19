@@ -12,27 +12,36 @@ const ballImages = [
 ]
 
 export function BallGarland() {
+  const containerRef = useRef<HTMLDivElement>(null)
   const pathRef = useRef<SVGPathElement>(null)
   const ballRefs = useRef<(HTMLDivElement | null)[]>([])
   const animationRef = useRef<number>(0)
   const isScrolledRef = useRef(false)
+  const isVisibleRef = useRef(true)
   const [mounted, setMounted] = useState(false)
   const [ballCount, setBallCount] = useState(8)
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>
     const handleResize = () => {
-      if (window.innerWidth < 640) {
-        setBallCount(4)
-      } else if (window.innerWidth < 1024) {
-        setBallCount(6)
-      } else {
-        setBallCount(8)
-      }
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(() => {
+        if (window.innerWidth < 640) {
+          setBallCount(4)
+        } else if (window.innerWidth < 1024) {
+          setBallCount(6)
+        } else {
+          setBallCount(8)
+        }
+      }, 150)
     }
 
     handleResize()
     window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
+    return () => {
+      clearTimeout(timeoutId)
+      window.removeEventListener("resize", handleResize)
+    }
   }, [])
 
   const balls = useMemo(
@@ -60,6 +69,32 @@ export function BallGarland() {
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  // Pause animation when not visible (off-screen or tab hidden)
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => { isVisibleRef.current = entry.isIntersecting },
+      { threshold: 0 },
+    )
+    observer.observe(el)
+
+    const handleVisibility = () => {
+      if (document.hidden) isVisibleRef.current = false
+      else if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect()
+        isVisibleRef.current = rect.bottom > 0 && rect.top < window.innerHeight
+      }
+    }
+    document.addEventListener("visibilitychange", handleVisibility)
+
+    return () => {
+      observer.disconnect()
+      document.removeEventListener("visibilitychange", handleVisibility)
+    }
+  }, [mounted])
 
   useEffect(() => {
     let startTime: number | null = null
@@ -108,6 +143,10 @@ export function BallGarland() {
     }
 
     const animate = (timestamp: number) => {
+      if (!isVisibleRef.current) {
+        animationRef.current = requestAnimationFrame(animate)
+        return
+      }
       if (!startTime) startTime = timestamp
       const elapsed = timestamp - startTime
 
@@ -157,7 +196,7 @@ export function BallGarland() {
   if (!mounted) return null
 
   return (
-    <div className="fixed top-0 left-0 right-0 pointer-events-none h-40">
+    <div ref={containerRef} className="fixed top-0 left-0 right-0 pointer-events-none h-40">
       {/* Rope SVG */}
       <svg
         className="absolute top-0 left-0 w-full h-40"

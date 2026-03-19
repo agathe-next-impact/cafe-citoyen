@@ -60,7 +60,7 @@ export async function generateStaticParams() {
 }
 
 export const dynamicParams = false
-export const revalidate = 3600 // Added ISR with 1 hour revalidation
+export const revalidate = 60
 
 
 
@@ -205,8 +205,8 @@ export default async function WordPressPage({ params }: { params: Promise<{ slug
         parentPage={parentPage}
       />
       <PageContent slug={slug} content={page.acf?.contenu} images={fixedImages} encadres={encadres} />
-      <div className="container mx-auto px-4 py-12">
-        <article className="prose prose-lg max-w-4xl mx-auto">
+      <div className={slug === "adherer" ? "px-4 py-12" : "container mx-auto px-4 py-12"}>
+        <article className={slug === "adherer" ? "prose prose-lg max-w-none" : "prose prose-lg max-w-4xl mx-auto"}>
           <WordPressContent
             content={page.content?.rendered || ""}
             className="text-foreground/80 leading-relaxed"

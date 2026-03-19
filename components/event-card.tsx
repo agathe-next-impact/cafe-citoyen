@@ -20,7 +20,7 @@ type EventCardProps = {
   variantBorderColors: Record<string, string>;
 };
 
-const EventCard: React.FC<EventCardProps> = ({
+const EventCard: React.FC<EventCardProps> = React.memo(({
   event,
   decodeHtmlEntities,
   getCategoryVariant,
@@ -149,6 +149,8 @@ const EventCard: React.FC<EventCardProps> = ({
       </div>
     </div>
   );
-};
+});
+
+EventCard.displayName = "EventCard";
 
 export default EventCard;

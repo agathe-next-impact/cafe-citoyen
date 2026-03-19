@@ -31,7 +31,7 @@ export function sanitizeHtml(html: string): string {
     allowedAttributes: {
       a: ["href", "target", "rel", "title", "class", "id"],
       img: ["src", "srcset", "alt", "title", "width", "height", "loading", "class", "id", "sizes"],
-      iframe: ["src", "width", "height", "frameborder", "allow", "allowfullscreen", "scrolling", "title", "class"],
+      iframe: ["src", "width", "height", "frameborder", "allow", "allowfullscreen", "scrolling", "title", "class", "id", "style"],
       video: ["src", "width", "height", "controls", "autoplay", "muted", "loop", "poster", "class"],
       audio: ["src", "controls", "class"],
       source: ["src", "srcset", "type", "media", "sizes"],
@@ -59,11 +59,14 @@ export function sanitizeHtml(html: string): string {
       table: ["class", "id"],
     },
     allowedSchemes: ["http", "https", "mailto", "tel"],
-    allowedIframeHostnames: ["www.youtube.com", "youtube.com", "player.vimeo.com", "www.dailymotion.com"],
+    allowedIframeHostnames: ["www.youtube.com", "youtube.com", "player.vimeo.com", "www.dailymotion.com", "www.helloasso.com", "helloasso.com"],
     allowedStyles: {
       "*": {
         "text-align": [/^left$/, /^right$/, /^center$/, /^justify$/],
         "color": [/^#[0-9a-fA-F]{3,6}$/],
+        "width": [/^\d+(%|px|em|rem|vw)$/],
+        "height": [/^\d+(%|px|em|rem|vh)$/],
+        "border": [/^none$/],
       },
     },
   })

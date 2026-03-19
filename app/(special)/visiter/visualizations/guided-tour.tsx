@@ -139,7 +139,7 @@ export function GuidedTour({ mapPinPoints }: GuidedTourProps) {
         "*",
       )
     }
-  }, [currentStop, mapReady, tourStops])
+  }, [currentStop, mapReady]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying)

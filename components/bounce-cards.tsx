@@ -31,15 +31,22 @@ export default function BounceCards({
   const [isTablet, setIsTablet] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // Detect screen size on client
+  // Detect screen size on client (debounced)
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>
     const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 768)
-      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024)
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(() => {
+        setIsMobile(window.innerWidth < 768)
+        setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024)
+      }, 150)
     }
     checkScreenSize()
     window.addEventListener('resize', checkScreenSize)
-    return () => window.removeEventListener('resize', checkScreenSize)
+    return () => {
+      clearTimeout(timeoutId)
+      window.removeEventListener('resize', checkScreenSize)
+    }
   }, [])
 
   const randomTransforms = useMemo(() => {

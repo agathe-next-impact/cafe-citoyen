@@ -132,6 +132,7 @@ export function VideoHero({ embedHtml, menuLinks, image, control = false }: Vide
             muted
             loop
             playsInline
+            preload="metadata"
             controls={control}
             title="Vidéo de présentation"
           />
@@ -242,6 +243,7 @@ export function VideoHero({ embedHtml, menuLinks, image, control = false }: Vide
                 loop
                 muted
                 playsInline
+                preload="metadata"
                 className="hidden md:flex justify-end mb-6 max-w-[50vw] min-w-full border-2 border-white/60"
                 style={{ width: "320px", height: "100%" }}
               />

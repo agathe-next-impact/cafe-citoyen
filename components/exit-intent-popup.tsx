@@ -120,12 +120,14 @@ export function ExitIntentPopup({
     const isMobile = "ontouchstart" in window || navigator.maxTouchPoints > 0
     const cleanupFunctions: (() => void)[] = []
 
-    // Desktop: Exit intent via mouse movement
-    document.addEventListener("mousemove", handleMouseMove)
-    cleanupFunctions.push(() => document.removeEventListener("mousemove", handleMouseMove))
+    // Desktop: Exit intent via mouse movement (only if not already shown)
+    if (!sessionStorage.getItem("exitPopupShown")) {
+      document.addEventListener("mousemove", handleMouseMove)
+      cleanupFunctions.push(() => document.removeEventListener("mousemove", handleMouseMove))
+    }
 
-    // Mobile: Different trigger strategies
-    if (isMobile) {
+    // Mobile: Different trigger strategies (skip if already shown)
+    if (isMobile && !sessionStorage.getItem("exitPopupShown")) {
       const isCombined = mobileTrigger === "combined"
 
       // 1. VISIBILITYCHANGE - Quand l'utilisateur quitte l'onglet/app

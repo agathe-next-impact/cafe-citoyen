@@ -1,6 +1,4 @@
-"use client";
-import { useEffect, useRef, useState } from "react";
-import { WPDecode } from "@/components/wp-decode"; // Utilisation du composant externe
+import { WPDecode } from "@/components/wp-decode";
 import { decodeHtmlEntities } from "@/lib/decode";
 import Link from "next/link";
 
@@ -70,45 +68,20 @@ function getBadgeStyle(slug?: string) {
 
 
 
-const BALL_IMAGES = [
-  "/images/fichier-201-404x-1.png",
-  "/images/fichier-202-404x-2.png",
-  "/images/fichier-204-404x-3.png",
-  "/images/fichier-205-404x-4.png",
-  "/images/fichier-203-404x-2.png",
-];
-
 export default function PageHeader({ title, subtitle, backgroundImage, backgroundAlt, slug, childPages, allPages, parentPage }: PageHeaderProps) {
-  // Animation state
-  const [anim, setAnim] = useState(0);
-  const requestRef = useRef<number | null>(null);
-  
-  useEffect(() => {
-    let running = true;
-    const animate = () => {
-      setAnim((a) => a + 0.003);
-      if (running) requestRef.current = requestAnimationFrame(animate);
-    };
-    requestRef.current = requestAnimationFrame(animate);
-    return () => {
-      running = false;
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
-    };
-  }, []);
-
-
   return (
     <section className={`-mt-14 relative min-h-100 flex flex-col items-start overflow-hidden`}>
       {/* Image de fond */}
       <div className="w-120 bg-black pt-10 md:pt-12 z-50">
         <Link href="/" className="inline-block">
             <video
-              src="/video-logo.mp4" 
+              src="/video-logo.mp4"
               controls={false}
               autoPlay
               loop
               muted
               playsInline
+              preload="metadata"
               className="h-[100px] md:h-[150px] object-contain"
               style={{ zIndex: 1000 }}
             />

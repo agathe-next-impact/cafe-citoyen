@@ -9,6 +9,8 @@ import { generateMetadataFromYoast } from "@/lib/seo"
 import { MetadataPreview } from "@/components/preview"
 import { decodeHtmlEntities } from "@/components/wp-decode"
 
+export const revalidate = 60
+
 export async function generateMetadata(): Promise<Metadata> {
   const [page, siteOptions] = await Promise.all([
     getWordPressPageBySlug("la-programmation"),
