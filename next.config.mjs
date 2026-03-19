@@ -32,6 +32,14 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'wp-back.cafecitoyen.art',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.cafecitoyen.art',
+      },
+      {
+        protocol: 'https',
         hostname: '**.wp.com',
       },
       {
@@ -41,7 +49,7 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    const wpApiUrl = process.env.WORDPRESS_API_URL || 'https://wordpress-starter.fr/wp-json';
+    const wpApiUrl = process.env.WORDPRESS_API_URL || 'https://wp-back.cafecitoyen.art/wp-json';
     const wpUrl = wpApiUrl.replace('/wp-json', '');
     return [
       {

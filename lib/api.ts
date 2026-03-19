@@ -1,7 +1,7 @@
 import type { WPPost, WPPage, GlobalOptionsACF, WPMenuItem, WPTerm, TeamMemberACF } from "./types"
 import { decodeObjectEntities } from "./decode"
 
-const WP_API_URL = process.env.WORDPRESS_API_URL || "https://wordpress-starter.fr/wp-json/wp/v2"
+const WP_API_URL = process.env.WORDPRESS_API_URL || "https://wp-back.cafecitoyen.art/wp-json/wp/v2"
 
 export class WordPressAPI {
   private baseUrl: string

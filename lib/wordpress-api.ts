@@ -332,7 +332,7 @@ export interface SiteOptions {
   }>;
 }
 
-const WORDPRESS_URL = env.WORDPRESS_URL || "https://wordpress-starter.fr";
+const WORDPRESS_URL = env.WORDPRESS_URL || "https://wp-back.cafecitoyen.art";
 
 function measureTime(label: string) {
   const start = Date.now();
