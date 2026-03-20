@@ -83,13 +83,12 @@ export async function POST(request: Request) {
 
     const subscriberEmailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; text-align: center;">
-        <img src="${logoUrl}" alt="Logo Café citoyen" style="max-width: 200px; margin-bottom: 20px;" />
         <div style="text-align: left;">
           <h2 style="color: #000000; border-bottom: 2px solid #00000; padding-bottom: 10px;">
             Bienvenue dans notre newsletter !
           </h2>
           <p>Bonjour ${prenom},</p>
-          <p>Merci de vous être inscrit(e) à notre newsletter. Vous recevrez bientôt nos actualités et informations.</p>
+          <p>Merci de vous être inscrit(e) à la newsletter du Café citoyen d'Auger-Saint-Vincent. Vous recevrez bientôt nos actualités et informations.</p>
           <p>Si vous n'êtes pas à l'origine de cette inscription, vous pouvez ignorer cet email.</p>
           <hr style="border: none; border-top: 1px solid #000000; margin: 20px 0;">
           <p style="color: #000000; font-size: 12px;">
